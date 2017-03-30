@@ -4,6 +4,10 @@ import java.io.File;
 
 public class KeySaveLoad {
 
+	
+	private int algorithm;
+	
+	
 	/**
 	 * This Method saves the Key in the given file.
 	 * This happens unencrypted, so it is not recommended for Private-Keys
@@ -11,7 +15,7 @@ public class KeySaveLoad {
 	 * @param f The File the Key should be stored in
 	 * @param publ Save only the Public part of the Key. Recommended: true
 	 */
-	public static final void saveKey(RSAsaveKEY key, File f, boolean publ){
+	public final void saveKey(RSAsaveKEY key, File f, boolean publ){
 		
 	}
 	
@@ -21,12 +25,9 @@ public class KeySaveLoad {
 	 * @param f The File the Key should be stored in
 	 * @param enc Encryption-String for the Private-Exponent
 	 */
-	public static final void saveKeyEncrypted(RSAsaveKEY key, File f, String enc){
+	public final void saveKeyEncrypted(RSAsaveKEY key, File f, String enc){
 		NumberEncrypter nec = new NumberEncrypter(enc);
 		String privExp = nec.encrypt(key.getPrivateExponent().toString());
 	}
 	
-	private static final void save(RSAsaveKEY key, String priv, File f){
-		
-	}
 }

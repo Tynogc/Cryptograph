@@ -22,6 +22,9 @@ public class NumberEncrypter {
 	
 	private boolean destroyd = false;
 	
+	/**
+	 * @param pw The password
+	 */
 	public NumberEncrypter(String pw){
 		MessageDigest messageDigest;
 		try {
@@ -79,8 +82,15 @@ public class NumberEncrypter {
 		
 		System.out.println("Used "+usedBytes+" of "+bHash.length);
 	}
-	
+	/**
+	 * This Methode calls destroy() at the end and renders the whole Object useless!
+	 * @param s String to Encrypt, this String should only consist of chars 0-9
+	 * @return encrypted number
+	 * @throws IllegalStateException if destroy() had been called
+	 */
 	public String encrypt(String s){
+		if(destroyd)
+			throw new IllegalStateException("This Object has been destroyed");
 		String r = "";
 		longTermCount = 0;
 		for (int i = 0; i < s.length(); i++) {
@@ -89,6 +99,7 @@ public class NumberEncrypter {
 			r+=u;
 			longTermCount++;
 		}
+		destroy();
 		return r;
 	}
 	
@@ -98,8 +109,15 @@ public class NumberEncrypter {
 		i = i%10;
 		return i;
 	}
-	
+	/**
+	 * This Methode calls destroy() at the end and renders the whole Object useless!
+	 * @param s String to decrypt
+	 * @return decrypted String
+	 * @throws IllegalStateException if destroy() had been called
+	 */
 	public String decrypt(String s){
+		if(destroyd)
+			throw new IllegalStateException("This Object has been destroyed");
 		String r = "";
 		longTermCount = 0;
 		for (int i = 0; i < s.length(); i++) {
@@ -108,6 +126,7 @@ public class NumberEncrypter {
 			r+=u;
 			longTermCount++;
 		}
+		destroy();
 		return r;
 	}
 	
@@ -134,7 +153,7 @@ public class NumberEncrypter {
 			}
 		}
 		//Takes also the higher planes into calculation
-		u+=u/10;
+		u+=u/50;
 		
 		return u%10;
 	}
@@ -164,6 +183,9 @@ public class NumberEncrypter {
 		return destroyd;
 	}
 	
+	/**
+	 * Destroys sensitiv Data and renders the Obnject useless
+	 */
 	public final void destroy(){
 		for (int i = 0; i < bHash.length; i++) {
 			bHash[i] = 0;
@@ -184,5 +206,6 @@ public class NumberEncrypter {
 			rPos[i] = 0;
 		}
 		destroyd = true;
+		Runtime.getRuntime().gc();
 	}
 }

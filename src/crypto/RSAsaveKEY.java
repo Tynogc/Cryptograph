@@ -41,19 +41,27 @@ public class RSAsaveKEY {
 	}
 	
 	private void generateKeys() throws NoSuchAlgorithmException, InvalidKeySpecException{
-		RSAPublicKeySpec publicSpec = new RSAPublicKeySpec(modulus, publicExponent);
-        RSAPrivateKeySpec privateSpec = new RSAPrivateKeySpec(modulus, privateExponent);
-
-        KeyFactory factory = KeyFactory.getInstance("RSA");
-
-        publicKey = factory.generatePublic(publicSpec);
-        privateKey = factory.generatePrivate(privateSpec);
+		KeyFactory factory = KeyFactory.getInstance("RSA");
+		
+		if(publicExponent!=null){
+			RSAPublicKeySpec publicSpec = new RSAPublicKeySpec(modulus, publicExponent);
+			publicKey = factory.generatePublic(publicSpec);
+		}
+		if(privateExponent!=null){
+			RSAPrivateKeySpec privateSpec = new RSAPrivateKeySpec(modulus, privateExponent);
+			privateKey = factory.generatePrivate(privateSpec);
+		}
 	}
 	
+	/**
+	 * Destroys the private Exponent
+	 * Also calls destruction of the privateKey
+	 */
 	public void destroy() throws DestroyFailedException{
 		destroyed = true;
 		privateExponent = new BigInteger("12345");
 		privateKey.destroy();
+		Runtime.getRuntime().gc();
 	}
 	
 	public PrivateKey getPrivateKey()throws IllegalStateException{
@@ -83,11 +91,27 @@ public class RSAsaveKEY {
 		return destroyed;
 	}
 	
+	/**
+	 * Key-Generation Methode for secure RSA-Keys
+	 * @param keySize Bit size of the RSA-Key (recommendet 4096 or higher)
+	 * @param defaultExponent true: uses 65537 (0x10001) as the publicExponent
+	 * @param showInfo Shows Debug-Info
+	 * @param runSelfTest number of Self-Test (recommendet 1) to ensure Proper Functionality, set to 0 if unused
+	 * @param random Givs a pre-Seeded SecureRandom Object to generate Prime-Seeds, null if unused
+	 * @return An RSAsaveKey with the public and private Key
+	 * @throws KeyException Computing of the Keys produced an Error (selftest or Exponent) you can call the Methode again  
+	 * @throws Exception shouldn't happen in normal Operation
+	 */
 	public static RSAsaveKEY generateKey(int keySize, boolean defaultExponent, boolean showInfo, int runSelfTest,
 			SecureRandom random)
 			throws KeyException, Exception{
 		if(random == null)
 			random = new SecureRandom();
+		/**
+		 * The following Lines of Code are from the stackoverflow.com Forum, published by the user 'albciff'
+		 * Thanks for the help! :D
+		 */
+		
         // Choose two distinct prime numbers p and q.
         BigInteger p = BigInteger.probablePrime(keySize/2,random);
         if(showInfo)
@@ -106,6 +130,9 @@ public class RSAsaveKEY {
         	System.out.println("PublicExp: "+publicExponent);
         // Determine d as d = e-1 (mod O(n)); i.e., d is the multiplicative inverse of e (modulo O(n)).
         BigInteger privateExponent = publicExponent.modInverse(m);
+        /**
+         * END of imported Code
+         */
         m = new BigInteger("1");
         
         if(showInfo){
