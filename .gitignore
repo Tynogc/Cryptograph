@@ -17,7 +17,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#Project spacific
 bin/*
+*.key
 
 # =========================
 # Operating System Files

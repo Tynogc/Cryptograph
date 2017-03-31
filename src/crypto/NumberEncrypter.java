@@ -4,8 +4,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class NumberEncrypter {
-
-	//private final int[] rawRotor = new int[]{3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59};
 	
 	private int[][] rotor;
 	private int[] rPos;
@@ -36,9 +34,15 @@ public class NumberEncrypter {
 		messageDigest.update(pw.getBytes());
 		bHash = messageDigest.digest();
 		
+		
+		//Find the starting position
 		counterI = bHash[0];
 		
-		if(counterI<0)counterI *=-1;
+		if(counterI<0)counterI *= -1;
+		counterI = counterI%(bHash.length);
+		
+		counterI = bHash[counterI];
+		if(counterI<0)counterI *= -1;
 		counterI = counterI%(bHash.length*2);
 		
 		//Choose size of Rotors
@@ -64,9 +68,7 @@ public class NumberEncrypter {
 		longTermDestructors = new int[(extractByte())%8+3];
 		for (int i = 0; i < longTermDestructors.length; i++) {
 			longTermDestructors[i] = (extractByte()+1)*(extractByte()+1);
-			System.out.print(longTermDestructors[i]+" ");
 		}
-		System.out.print("LTD ");
 		
 		longTermAdder = new int[longTermDestructors.length];
 		for (int i = 0; i < longTermAdder.length; i++) {
@@ -103,12 +105,6 @@ public class NumberEncrypter {
 		return r;
 	}
 	
-	private int singleDecrypt(int i){
-		i+=summRotors();
-		flipRotor(i);
-		i = i%10;
-		return i;
-	}
 	/**
 	 * This Methode calls destroy() at the end and renders the whole Object useless!
 	 * @param s String to decrypt
@@ -130,11 +126,19 @@ public class NumberEncrypter {
 		return r;
 	}
 	
+	//Single operation Methods, Note that Decryption is harder, because the Rotor-switch is
+	//dependent on the last Sum, so it is non-absolute.
 	private int singleEncrypt(int i){
 		int u = i;
 		i-=summRotors();
 		flipRotor(u);
 		while(i<0)i+=10;
+		i = i%10;
+		return i;
+	}
+	private int singleDecrypt(int i){
+		i+=summRotors();
+		flipRotor(i);
 		i = i%10;
 		return i;
 	}

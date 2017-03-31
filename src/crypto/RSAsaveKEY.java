@@ -11,11 +11,13 @@ import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.security.auth.DestroyFailedException;
+import javax.security.auth.Destroyable;
 
-public class RSAsaveKEY {
+public final class RSAsaveKEY implements Destroyable{
 	
 	private BigInteger publicExponent;
 	private BigInteger privateExponent;
@@ -26,18 +28,26 @@ public class RSAsaveKEY {
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
-	public RSAsaveKEY(String priv, String publ, String mod) throws NoSuchAlgorithmException, InvalidKeySpecException{
+	public RSAsaveKEY(String priv, String publ, String mod) throws InvalidKeySpecException{
 		if(priv != null)privateExponent = new BigInteger(priv);
 		if(publ != null)publicExponent = new BigInteger(publ);
 		modulus = new BigInteger(mod);
-		generateKeys();
+		try {
+			generateKeys();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	public RSAsaveKEY(BigInteger priv, BigInteger publ, BigInteger mod) throws NoSuchAlgorithmException, InvalidKeySpecException{
+	public RSAsaveKEY(BigInteger priv, BigInteger publ, BigInteger mod) throws InvalidKeySpecException{
 		publicExponent = publ;
 		privateExponent = priv;
 		modulus = mod;
-		generateKeys();
+		try {
+			generateKeys();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void generateKeys() throws NoSuchAlgorithmException, InvalidKeySpecException{
@@ -50,6 +60,7 @@ public class RSAsaveKEY {
 		if(privateExponent!=null){
 			RSAPrivateKeySpec privateSpec = new RSAPrivateKeySpec(modulus, privateExponent);
 			privateKey = factory.generatePrivate(privateSpec);
+			privateSpec = null;
 		}
 	}
 	
@@ -57,11 +68,18 @@ public class RSAsaveKEY {
 	 * Destroys the private Exponent
 	 * Also calls destruction of the privateKey
 	 */
-	public void destroy() throws DestroyFailedException{
-		destroyed = true;
-		privateExponent = new BigInteger("12345");
-		privateKey.destroy();
+	public final void destroy() throws DestroyFailedException{
+		if(privateExponent != null){
+			privateExponent.xor(new BigInteger(privateExponent.bitCount(), new Random()));
+			privateExponent = new BigInteger("12345");
+			privateExponent = null;
+		}
+		if(privateKey != null){
+			privateKey.destroy();
+			privateKey = null;
+		}
 		Runtime.getRuntime().gc();
+		destroyed = true;
 	}
 	
 	public PrivateKey getPrivateKey()throws IllegalStateException{
@@ -91,15 +109,19 @@ public class RSAsaveKEY {
 		return destroyed;
 	}
 	
+	public boolean hasPrivate(){
+		return privateKey != null;
+	}
+	
 	/**
-	 * Key-Generation Methode for secure RSA-Keys
-	 * @param keySize Bit size of the RSA-Key (recommendet 4096 or higher)
+	 * Key-Generation Method for secure RSA-Keys
+	 * @param keySize Bit size of the RSA-Key (recommended 4096 or higher)
 	 * @param defaultExponent true: uses 65537 (0x10001) as the publicExponent
 	 * @param showInfo Shows Debug-Info
-	 * @param runSelfTest number of Self-Test (recommendet 1) to ensure Proper Functionality, set to 0 if unused
-	 * @param random Givs a pre-Seeded SecureRandom Object to generate Prime-Seeds, null if unused
+	 * @param runSelfTest number of Self-Test (recommended 1) to ensure Proper Functionality, set to 0 if unused
+	 * @param random Gives a pre-Seeded SecureRandom Object to generate Prime-Seeds, null if unused
 	 * @return An RSAsaveKey with the public and private Key
-	 * @throws KeyException Computing of the Keys produced an Error (selftest or Exponent) you can call the Methode again  
+	 * @throws KeyException Computing of the Keys produced an Error (self-test or Exponent) you can call the Method again  
 	 * @throws Exception shouldn't happen in normal Operation
 	 */
 	public static RSAsaveKEY generateKey(int keySize, boolean defaultExponent, boolean showInfo, int runSelfTest,
@@ -155,8 +177,22 @@ public class RSAsaveKEY {
         return theKey;
 	}
 	
-	public static void testEncryption(PublicKey publicKey, PrivateKey privateKey) throws Exception{
-		String plaintext = utility.Random.generateRandomString(34+(int)(Math.random()*40));
+	/**
+	 * Runs an encryption Test
+	 * @return key can be used
+	 */
+	public boolean runTest(){
+		try {
+			testEncryption(publicKey, privateKey);
+			return true;
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+	}
+	
+	private static void testEncryption(PublicKey publicKey, PrivateKey privateKey) throws Exception{
+		String plaintext = cryptoUtility.Random.generateRandomString(34+(int)(Math.random()*40));
 
 		System.out.println("Decypher: "+plaintext);
 		// Compute signature
