@@ -15,10 +15,10 @@ public class Main {
 		//testNumberEnc();
 		//testKeyGen();
 		testKeyLoad();
+		new StartUp(new debug.DebugFrame()).doStartUp();
 	}
 	
-	@SuppressWarnings("unused")
-	private static void testNumberEnc(){
+	protected static void testNumberEnc(){
 		crypto.NumberEncrypter n1 = new NumberEncrypter("abcfhdskj");
 		crypto.NumberEncrypter n2 = new NumberEncrypter("abcfhdskj");
 		BigInteger b1 = new BigInteger(1000, new Random());
@@ -30,13 +30,13 @@ public class Main {
 		System.out.println(new BigInteger(s).compareTo(b1));
 	}
 	
-	private static void testKeyGen() throws Exception{
+	protected static void testKeyGen() throws Exception{
 		crypto.RSAsaveKEY k = crypto.RSAsaveKEY.generateKey(2048, true, true, 10, null);
 		new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("data/key/test.key"), "abcdeTest");
 		new crypto.KeySaveLoad().saveKey(k, new File("data/key/testPublic.key"), true);
 	}
 	
-	private static void testKeyLoad() throws Exception{
+	protected static void testKeyLoad() throws Exception{
 		crypto.RSAsaveKEY priv = new crypto.KeySaveLoad().loadEncrypted(new File("data/key/test.key"),"abcdeTest");
 		System.out.println(priv.runTest());
 	}

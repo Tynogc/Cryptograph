@@ -20,6 +20,7 @@ $RECYCLE.BIN/
 #Project spacific
 bin/*
 *.key
+log/*
 
 # =========================
 # Operating System Files
