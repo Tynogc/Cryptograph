@@ -29,9 +29,9 @@ public final class RSAsaveKEY implements Destroyable{
 	private PrivateKey privateKey;
 	
 	public RSAsaveKEY(String priv, String publ, String mod) throws InvalidKeySpecException{
-		if(priv != null)privateExponent = new BigInteger(priv);
-		if(publ != null)publicExponent = new BigInteger(publ);
-		modulus = new BigInteger(mod);
+		if(priv != null)privateExponent = new BigInteger(priv, 16);
+		if(publ != null)publicExponent = new BigInteger(publ, 16);
+		modulus = new BigInteger(mod, 16);
 		try {
 			generateKeys();
 		} catch (NoSuchAlgorithmException e) {

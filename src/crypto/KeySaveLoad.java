@@ -62,7 +62,7 @@ public class KeySaveLoad {
 	public final void saveKeyEncrypted(RSAsaveKEY key, final File f, String enc){
 		subSave1(f);
 		NumberEncrypter nec = new NumberEncrypter(enc);
-		String privExp = nec.encrypt(key.getPrivateExponent().toString());
+		String privExp = nec.encrypt(key.getPrivateExponent().toString(16));
 		//Destroy the password
 		enc = "";
 		enc = null;
@@ -108,12 +108,12 @@ public class KeySaveLoad {
 	
 	private final void subSave2(final PrintWriter writer, BigInteger priv, BigInteger pub, BigInteger mod){
 		if(priv != null){
-			writer.println(privateExp+DEVIDER+priv.toString());
+			writer.println(privateExp+DEVIDER+priv.toString(16));
 		}
 		if(pub != null){
-			writer.println(publicExp+DEVIDER+pub.toString());
+			writer.println(publicExp+DEVIDER+pub.toString(16));
 		}
-		writer.println(modulus+DEVIDER+mod.toString());
+		writer.println(modulus+DEVIDER+mod.toString(16));
 		writer.println(modLenght+DEVIDER+mod.bitLength()+" bit");
 	}
 	

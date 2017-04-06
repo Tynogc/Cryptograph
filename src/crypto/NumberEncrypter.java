@@ -20,10 +20,21 @@ public class NumberEncrypter {
 	
 	private boolean destroyd = false;
 	
+	private final int radix;
+	
 	/**
 	 * @param pw The password
 	 */
 	public NumberEncrypter(String pw){
+		this(pw,16);
+	}
+	
+	/**
+	 * @param pw The Password
+	 * @param radix Radix of the String to encrypt/decrypt 1-16
+	 */
+	public NumberEncrypter(String pw, int radix){
+		this.radix = radix;
 		MessageDigest messageDigest;
 		try {
 			messageDigest = MessageDigest.getInstance("SHA-512");
@@ -46,7 +57,7 @@ public class NumberEncrypter {
 		counterI = counterI%(bHash.length*2);
 		
 		//Choose size of Rotors
-		rotor = new int[10][1];
+		rotor = new int[radix][1];
 		for (int i = 0; i < rotor.length; i++) {
 			rotor[i] = new int[(extractByte()+1)*2];
 		}
@@ -59,7 +70,7 @@ public class NumberEncrypter {
 		}
 		
 		//Select starting pos for Rotors
-		rPos = new int[10];
+		rPos = new int[radix];
 		for (int i = 0; i < rPos.length; i++) {
 			rPos[i] = extractByte()%rotor[i].length;
 		}
@@ -90,15 +101,15 @@ public class NumberEncrypter {
 	 * @return encrypted number
 	 * @throws IllegalStateException if destroy() had been called
 	 */
-	public String encrypt(String s){
+	public final String encrypt(String s){
 		if(destroyd)
 			throw new IllegalStateException("This Object has been destroyed");
 		String r = "";
 		longTermCount = 0;
 		for (int i = 0; i < s.length(); i++) {
-			int u = (int)(s.charAt(i)-'0');
+			int u = intFromChar(s.charAt(i));
 			u = singleEncrypt(u);
-			r+=u;
+			r+=charFromInt(u);
 			longTermCount++;
 		}
 		destroy();
@@ -111,15 +122,15 @@ public class NumberEncrypter {
 	 * @return decrypted String
 	 * @throws IllegalStateException if destroy() had been called
 	 */
-	public String decrypt(String s){
+	public final String decrypt(String s){
 		if(destroyd)
 			throw new IllegalStateException("This Object has been destroyed");
 		String r = "";
 		longTermCount = 0;
 		for (int i = 0; i < s.length(); i++) {
-			int u = (int)(s.charAt(i)-'0');
+			int u = intFromChar(s.charAt(i));
 			u = singleDecrypt(u);
-			r+=u;
+			r+=charFromInt(u);
 			longTermCount++;
 		}
 		destroy();
@@ -128,18 +139,18 @@ public class NumberEncrypter {
 	
 	//Single operation Methods, Note that Decryption is harder, because the Rotor-switch is
 	//dependent on the last Sum, so it is non-absolute.
-	private int singleEncrypt(int i){
+	private final int singleEncrypt(int i){
 		int u = i;
 		i-=summRotors();
 		flipRotor(u);
-		while(i<0)i+=10;
-		i = i%10;
+		while(i<0)i+=radix;
+		i = i%radix;
 		return i;
 	}
 	private int singleDecrypt(int i){
 		i+=summRotors();
 		flipRotor(i);
-		i = i%10;
+		i = i%radix;
 		return i;
 	}
 	
@@ -159,7 +170,7 @@ public class NumberEncrypter {
 		//Takes also the higher planes into calculation
 		u+=u/50;
 		
-		return u%10;
+		return u%radix;
 	}
 	
 	//Extracts single bits 0-15 from PW-Hash
@@ -176,7 +187,7 @@ public class NumberEncrypter {
 	}
 	
 	private void flipRotor(int i){
-		i = i%10;
+		i = i%radix;
 		rPos[i]++;
 		
 		if(rPos[i]>=rotor[i].length)
@@ -188,7 +199,7 @@ public class NumberEncrypter {
 	}
 	
 	/**
-	 * Destroys sensitiv Data and renders the Obnject useless
+	 * Destroys sensitive Data and renders the Object useless
 	 */
 	public final void destroy(){
 		for (int i = 0; i < bHash.length; i++) {
@@ -211,5 +222,17 @@ public class NumberEncrypter {
 		}
 		destroyd = true;
 		Runtime.getRuntime().gc();
+	}
+	
+	private int intFromChar(char c){
+		int u = (int)(c-'0');
+		if(u>=10||u<0)
+			u = (int)(c-'a')+10;
+		return u;
+	}
+	private char charFromInt(int i){
+		if(i<10)
+			return (char)('0'+i);
+		return (char)('a'+(i-10));
 	}
 }
