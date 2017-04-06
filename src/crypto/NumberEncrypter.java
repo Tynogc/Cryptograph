@@ -16,7 +16,11 @@ public class NumberEncrypter {
 	
 	private int[] longTermDestructors;
 	private int[] longTermAdder;
-	private int longTermCount;
+	private int[] longTermDestructorsWheel;
+	private int[] longTermAdderWheel;
+	protected int longTermCount;
+	//Counts the LTD for the Wheels
+	private int wheelDestructorCount;
 	
 	private boolean destroyd = false;
 	
@@ -92,6 +96,19 @@ public class NumberEncrypter {
 			System.out.print(w + " ");
 			longTermAdder[i] = w;
 		}
+		System.out.print("| ");
+		longTermDestructorsWheel = new int[(extractByte())%5+3];
+		for (int i = 0; i < longTermDestructorsWheel.length; i++) {
+			longTermDestructorsWheel[i] = (extractByte()+1)*(extractByte()+1);
+		}
+		
+		longTermAdderWheel = new int[longTermDestructorsWheel.length];
+		for (int i = 0; i < longTermAdderWheel.length; i++) {
+			longTermAdderWheel[i] = (extractByte()+1)*(extractByte()+1)*3;
+			System.out.print(longTermAdderWheel[i] + " ");
+		}
+		
+		wheelDestructorCount = 0;
 		
 		System.out.println("Used "+usedBytes+" of "+bHash.length);
 	}
@@ -139,7 +156,7 @@ public class NumberEncrypter {
 	
 	//Single operation Methods, Note that Decryption is harder, because the Rotor-switch is
 	//dependent on the last Sum, so it is non-absolute.
-	private final int singleEncrypt(int i){
+	protected final int singleEncrypt(int i){
 		int u = i;
 		i-=summRotors();
 		flipRotor(u);
@@ -147,7 +164,7 @@ public class NumberEncrypter {
 		i = i%radix;
 		return i;
 	}
-	private int singleDecrypt(int i){
+	protected int singleDecrypt(int i){
 		i+=summRotors();
 		flipRotor(i);
 		i = i%radix;
@@ -187,7 +204,15 @@ public class NumberEncrypter {
 	}
 	
 	private void flipRotor(int i){
-		i = i%radix;
+		//Swaps Rotors by time
+		for (int j = 0; j < longTermDestructorsWheel.length; j++) {
+			if(longTermCount == longTermDestructorsWheel[j]){
+				wheelDestructorCount++;
+				longTermDestructorsWheel[j]+=longTermAdderWheel[j];
+			}
+		}
+		
+		i = (i+wheelDestructorCount)%radix;
 		rPos[i]++;
 		
 		if(rPos[i]>=rotor[i].length)
@@ -220,6 +245,8 @@ public class NumberEncrypter {
 		for (int i = 0; i < rPos.length; i++) {
 			rPos[i] = 0;
 		}
+		longTermCount = 0;
+		wheelDestructorCount = 0;
 		destroyd = true;
 		Runtime.getRuntime().gc();
 	}

@@ -11,6 +11,8 @@ public class Random {
 	private static int pos;
 	private static int entropyFuelGauge = -10;
 	
+	private static int subCount;
+	
 	//A Secure-Random, to use, if there is are not enough Seed-Values,
 	//it is also used for entropy XOr ect.
 	private static SecureRandom additionalRnd;
@@ -25,6 +27,12 @@ public class Random {
 			pos = 0;
 			entropyFuelGauge = -1;
 		}
+		
+		if(subCount<5){
+			subCount++;
+			return;
+		}
+		subCount = 0;
 		
 		//XOr of existing entropy with new value
 		entropy[pos] = entropy[pos] ^ i;
@@ -62,28 +70,29 @@ public class Random {
 	 */
 	public static SecureRandom generateSR(){
 		if(additionalRnd == null)additionalRnd = new SecureRandom();
-		
 		//Not enough entropy!
 		if(entropyFuelGauge < 0)
 			return additionalRnd;
 		
-		System.out.println(">>>>>>>>>>>>>>>List");
-		byte[] ba = new byte[100];//TODO bigger?
+		return new SecureRandom(generateSeed());
+	}
+	
+	/**
+	 * Generates a Random Seed, by using an existing SecureRandom and the entropy stored in the database.
+	 * If the entropyFuelGauge is lower than 0 this should not be called!
+	 * @return seed of 125-170 byte lenght
+	 */
+	public static byte[] generateSeed(){
+		if(additionalRnd == null)additionalRnd = new SecureRandom();
+		byte[] ba = additionalRnd.generateSeed(additionalRnd.nextInt(45)+125);
 		for (int i = 0; i < ba.length; i++) {
 			int p = additionalRnd.nextInt(entropy.length); //Position to take
 			
-			if(additionalRnd.nextBoolean()){//Use only seeded RNG
-				int shift = additionalRnd.nextInt(9);//BitShift up to 9 bit
-				ba[i] = (byte)(entropy[p]>>shift);
-			}else{//XOr with other RNG
-				ba[i] = (byte)(entropy[p] ^ additionalRnd.nextInt(256));
-			}
-			
-			System.out.println(ba[i]);
+			int shift = additionalRnd.nextInt(9);//BitShift up to 9 bit
+			ba[i] = (byte)(ba[i] ^ (byte)(entropy[p]>>shift));
 		}
-		System.out.println(">>>>>>>>>>>>>>EndList");
-		
-		return new SecureRandom();//TODO !
+		entropyFuelGauge--;
+		return ba;
 	}
 	
 	/**
