@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferStrategy;
@@ -19,17 +20,26 @@ public class SeyprisMain extends JPanel{
 	private KeyListener key;
 	private MouseListener mouse;
 	
-	private JFrame frame;
+	private static JFrame frame;
 	private BufferStrategy strategy;
 	
 	private DebugFrame debFrame;
 	
+	private GuiControle gui;
+	
 	public SeyprisMain(){
+		
+		debFrame = new DebugFrame();
+		StartUp st = new StartUp(debFrame);
+		st.doStartUp();
+		
+		new PicLoader();
 		
 		frame = new JFrame();
 		frame.setBounds(10, 10, sizeX(), sizeY());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		frame.setUndecorated(true);
 		frame.add(this);
 		setVisible(true);
 		frame.setVisible(true);
@@ -38,13 +48,18 @@ public class SeyprisMain extends JPanel{
 		frame.setFocusable(false);
 		key = new KeyListener();
 		frame.addKeyListener(key);
+		mouse = new MouseListener();
+		frame.addMouseListener(mouse);
+		frame.addMouseMotionListener(mouse);
+		frame.addMouseWheelListener(mouse);
+		
+		gui = new GuiControle(mouse, key);
 		
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
 		frame.createBufferStrategy(3);
 		strategy = frame.getBufferStrategy();
 		
@@ -57,8 +72,7 @@ public class SeyprisMain extends JPanel{
 		});
 	}
 	
-	public void loop(int fps, int secFps, int thiFps, int triFps){
-		
+	public void loop(int fps, int sleep, int secFPS, int thirFPS){
 		Graphics2D g = null;
 		try {
 			g = (Graphics2D)strategy.getDrawGraphics();
@@ -68,7 +82,24 @@ public class SeyprisMain extends JPanel{
 		}
 		
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+		g.setColor(Color.black);
+		g.fillRect(0, 0, xPos, yPos);
+		g.setColor(Color.gray);
+		g.drawRect(0, 0, xPos-1, yPos-1);
 		
+		gui.loop();
+		mouse.leftClicked = false;
+		mouse.rightClicked = false;
+		gui.paint(g);
+		
+		if(mouse.mouseDraggStartX>0){
+			if(mouse.mouseDraggStartY > 0 && mouse.mouseDraggStartY < 30 &&
+					mouse.mouseDraggStartX<xPos-30)
+			frame.setLocation(-mouse.mouseDraggStartX+mouse.mouseDraggX, -mouse.mouseDraggStartY+mouse.mouseDraggY);
+		}
+		
+		g.dispose();
+		strategy.show();
 	}
 	
 	public static int sizeX(){
@@ -77,5 +108,9 @@ public class SeyprisMain extends JPanel{
 	
 	public static int sizeY(){
 		return yPos;
+	}
+	
+	public static JFrame getFrame(){
+		return frame;
 	}
 }

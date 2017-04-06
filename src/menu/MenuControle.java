@@ -15,6 +15,8 @@ public class MenuControle {
 	private int ym;
 	private boolean moving;
 	
+	private static final int yUpperBounds = 30;
+	
 	public MenuControle(){
 		lastLongTermUpdate = System.currentTimeMillis()/1000+(int)(Math.random()*1000);
 	}
@@ -79,7 +81,7 @@ public class MenuControle {
 			if(menus.yPos+menus.ySize>main.SeyprisMain.sizeY())
 				menus.yPos = main.SeyprisMain.sizeY()-menus.ySize;
 			if(menus.xPos<0)menus.xPos = 0;
-			if(menus.yPos<0)menus.yPos = 0;
+			if(menus.yPos<yUpperBounds)menus.yPos = yUpperBounds;
 		}
 		if(lastLongTermUpdate != System.currentTimeMillis()/1000){
 			lastLongTermUpdate = System.currentTimeMillis()/1000;

@@ -12,6 +12,7 @@ public class GuiControle {
 	private MenuControle debugMenu;
 	private MenuControle topMenu;
 	private static MenuControle[] menus;
+	private MenuControle frameMenu;
 	
 	public GuiControle(main.MouseListener m, main.KeyListener k){
 		mouse = m;
@@ -21,12 +22,22 @@ public class GuiControle {
 		for (int i = 0; i < menus.length; i++) {
 			menus[i] = new MenuControle();
 		}
+		frameMenu = new MenuControle();
+		
+		topMenu.setActivMenu(new gui.TopMenu());
+		frameMenu.setActivMenu(new gui.FrameMenu());
 	}
 	
 	public boolean loop(){
 		boolean left = mouse.left||mouse.leftClicked;
 		boolean right = mouse.right || mouse.rightClicked;
 		boolean clicked = false;
+		
+		if(frameMenu.mouseState(mouse.x, mouse.y, left, right)){
+			left = false;
+			right = false;
+			clicked = true;
+		}
 		
 		for (int i = menus.length-1; i >= 0; i--) {
 			if(menus[i].mouseState(mouse.x, mouse.y, left, right)){
@@ -57,6 +68,7 @@ public class GuiControle {
 		for (int i = 0; i < menus.length; i++) {
 			menus[i].paintYou(g);
 		}
+		frameMenu.paintYou(g);
 	}
 	
 	public static boolean addMenu(AbstractMenu  m){
