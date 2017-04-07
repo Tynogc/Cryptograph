@@ -11,12 +11,15 @@ public class StartUp {
 	private boolean playIntroSimple = true;
 	private boolean spectator = false;
 	
+	public boolean startPicCrypto = false;
+	public SetPassword picPW;
+	
 	public StartUp(debug.DebugFrame f){
 		frame = f;
 	}
 	
 	public void doStartUp(){
-		gtt();
+		gte();
 		debug.Debug.showExtendedBootInfo = advancedInfo;
 		//MainFrame.standartStartUp = standartStartUp;
 		//MainFrame.spectatorMode = spectator;
@@ -37,7 +40,7 @@ public class StartUp {
 	
 	private void gtt(){
 		debug.Debug.println("* Enter Password:");
-		pw();
+		pw(null);
 		debug.Debug.println("* Quick StartUp? [Y|n]");
 		if(question(true)) return;
 		debug.Debug.println("* Full Screen? [Y|n]");
@@ -62,9 +65,25 @@ public class StartUp {
 		}
 	}
 	
+	private void gte(){
+		debug.Debug.println("* Quick StartUp? [Y|n]");
+		if(!question(true)) picCrypt();
+		
+	}
+	
+	private void picCrypt(){
+		debug.Debug.println("* Start Pictur-Cryptograph? [y|N]");
+		if(!question(false)) return;
+		startPicCrypto = true;
+		picPW = new SetPassword();
+		debug.Debug.println("* Enter Password: ");
+		debug.Debug.print("[Pictur Cryptograph]", debug.Debug.COM);
+		pw(picPW);
+	}
+	
 	@SuppressWarnings("static-access")
-	public void pw(){
-		frame.setPwState(true);
+	public void pw(SetPassword p){
+		frame.setPwState(true, p);
 		while(frame.canState()==0){
 			try {
 				Thread.currentThread().sleep(500);
@@ -72,7 +91,7 @@ public class StartUp {
 				e.printStackTrace();
 			}
 		}
-		frame.setPwState(false);
+		frame.setPwState(false, null);
 	}
 	
 	public boolean question(boolean enter){

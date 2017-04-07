@@ -107,7 +107,7 @@ public class DebugComand {
 			//DebGraphic.processCursor(s);
 		}
 		if(s[1][0].compareToIgnoreCase("PW")== 0){
-			d.setPwState(true);
+			d.setPwState(true, null);//FIXME not null!
 			Debug.println("* Enter Password:", Debug.SUBCOM);
 		}
 		if(s[1][0].compareToIgnoreCase("help")== 0){

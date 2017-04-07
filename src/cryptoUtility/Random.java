@@ -8,10 +8,12 @@ public class Random {
 			'r','s','u','v','w','x','z','y','1','0','2','3','5','4','6','7','8','9','+','-'};
 	
 	private static int[] entropy;
-	private static int pos;
+	//Assignment Position of Entropy
+	private static int pos = 0;
+	//Stack-Traverse Number, if >0 there is enough Entropy 
 	private static int entropyFuelGauge = -10;
-	
-	private static int subCount;
+	//Counts the Entropy "Usage", every 1000 times, it decreases the EntropyFuelGauge
+	private static int entropyUsed = 0;
 	
 	//A Secure-Random, to use, if there is are not enough Seed-Values,
 	//it is also used for entropy XOr ect.
@@ -27,12 +29,6 @@ public class Random {
 			pos = 0;
 			entropyFuelGauge = -1;
 		}
-		
-		if(subCount<5){
-			subCount++;
-			return;
-		}
-		subCount = 0;
 		
 		//XOr of existing entropy with new value
 		entropy[pos] = entropy[pos] ^ i;
@@ -68,39 +64,72 @@ public class Random {
 	 * status of the farmed Entropy.
 	 * @return Fresh-Seeded SecureRandom
 	 */
-	public static SecureRandom generateSR(){
+	public static AdvancedSecureRandom generateSR(){
 		if(additionalRnd == null)additionalRnd = new SecureRandom();
 		//Not enough entropy!
 		if(entropyFuelGauge < 0)
-			return additionalRnd;
+			return new AdvancedSecureRandom();
 		
-		return new SecureRandom(generateSeed());
+		return new AdvancedSecureRandom(generateSeed(125,45));
 	}
 	
 	/**
 	 * Generates a Random Seed, by using an existing SecureRandom and the entropy stored in the database.
 	 * If the entropyFuelGauge is lower than 0 this should not be called!
-	 * @return seed of 125-170 byte lenght
+	 * @return seed of the minimum length l1, maximum length l1+l2
 	 */
-	public static byte[] generateSeed(){
+	public static byte[] generateSeed(int l1, int l2){
 		if(additionalRnd == null)additionalRnd = new SecureRandom();
-		byte[] ba = additionalRnd.generateSeed(additionalRnd.nextInt(45)+125);
+		byte[] ba = generateBlankSeed(l1, l2);
+		byte[] be = additionalRnd.generateSeed(ba.length); 
 		for (int i = 0; i < ba.length; i++) {
-			int p = additionalRnd.nextInt(entropy.length); //Position to take
-			
-			int shift = additionalRnd.nextInt(9);//BitShift up to 9 bit
-			ba[i] = (byte)(ba[i] ^ (byte)(entropy[p]>>shift));
+			ba[i] = (byte)(ba[i] ^ be[i]);
 		}
-		entropyFuelGauge--;
 		return ba;
 	}
 	
 	/**
+	 * Generates a Pseudo-Random Seed,by using ONLY the entropy stored in the database.
+	 * If the entropyFuelGauge is lower than 0 this should not be called!
+	 * @return seed of the minimum length l1, maximum length l1+l2
+	 */
+	public static byte[] generateBlankSeed(int l1, int l2){
+		byte[] ba = new byte[additionalRnd.nextInt(l2)+l1];
+		for (int i = 0; i < ba.length; i++) {
+			int p = additionalRnd.nextInt(entropy.length); //Position to take
+			
+			int shift = additionalRnd.nextInt(9);//BitShift up to 9 bit
+			ba[i] = (byte)(entropy[p]>>shift);
+		}
+		return ba;
+	}
+	
+	/**
+	 * Generates A Random Byte, by traversing the stack of Entropy
+	 * If there is not enough Entropy, it may return 0
+	 * @return Random Byte
+	 */
+	public static byte aRandomByte(){
+		entropyUsed++;
+		if(entropyUsed>=1000){
+			entropyUsed = 0;
+			entropyFuelGauge--;
+			if(entropyFuelGauge<-1)
+				entropyFuelGauge = -1;
+		}
+		
+		int p = additionalRnd.nextInt(entropy.length); //Position to take
+		
+		int shift = additionalRnd.nextInt(9);//BitShift up to 9 bit
+		return (byte)(entropy[p]>>shift);
+	}
+	
+	/**
 	 * Returns an pseudo-Value do determine Entropy quality, higher = better!
-	 * If its lower than 0, there is not enough to generate SecureRandom.
+	 * If its lower than 0, there is not enough to generate AdvancedSecureRandom Objects.
 	 * @return
 	 */
 	public static int getEntropyFuelGauge(){
-		return entropyFuelGauge*1000+pos;
+		return entropyFuelGauge*1000+(pos-entropyUsed);
 	}
 }

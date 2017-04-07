@@ -11,6 +11,8 @@ import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
 
+import main.SetPassword;
+
 public class DebugFrame extends JFrame{
 	
 	private DebPanel panel;
@@ -24,6 +26,7 @@ public class DebugFrame extends JFrame{
 	private boolean checkState;
 	private boolean pwState;
 	private String pwString = "";
+	private SetPassword toSet;
 	
 	public static int dfl = -280;
 	
@@ -106,7 +109,9 @@ public class DebugFrame extends JFrame{
 				}else if(pwState){
 					if(c == '\n'){
 						canState = 1;
-						//comunication.FingerPrint.setPW(pwString); //TODO
+						if(toSet!=null){
+							toSet.setPassword(pwString);
+						}
 						pwString = "";
 						input = "";
 						pwState = false;
@@ -182,7 +187,8 @@ public class DebugFrame extends JFrame{
 		canState = 0;
 	}
 	
-	public void setPwState(boolean state){
+	public void setPwState(boolean state, SetPassword p){
+		toSet = p;
 		checkState = false;
 		pwState = state;
 		pwString = "";

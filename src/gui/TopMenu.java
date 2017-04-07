@@ -8,6 +8,7 @@ import java.security.SecureRandom;
 import javax.swing.JFrame;
 
 import crypto.PicturCrypto;
+import cryptoUtility.AdvancedSecureRandom;
 import cryptoUtility.Random;
 import main.SeyprisMain;
 import menu.AbstractMenu;
@@ -26,7 +27,15 @@ public class TopMenu extends AbstractMenu{
 			protected void isClicked() {
 				//System.out.println("a");
 				//SeyprisMain.getFrame().setState(JFrame.ICONIFIED);
-				//SecureRandom s = Random.generateSR();
+				/*SecureRandom s = Random.generateSR();
+				for (int i = 0; i < 100; i++) {
+					System.out.println(s.nextInt());
+				}
+				try {
+					crypto.RSAsaveKEY.generateKey(2048, true, true, 5, s);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}*/
 				
 				testCounter = 20;
 			}
@@ -83,7 +92,8 @@ public class TopMenu extends AbstractMenu{
 			
 			@Override
 			protected void isClicked() {
-				crypto.PicturCrypto.addNoise(test);
+				//crypto.PicturCrypto.addNoise(test);
+				new cryptoUtility.TraverseFiles(new SecureRandom()).feedEntropy(1500);
 			}
 		});
 		
@@ -94,7 +104,10 @@ public class TopMenu extends AbstractMenu{
 	protected void uppdateIntern() {
 		if(testCounter>0){
 			testCounter--;
-			byte[] b = Random.generateSeed();
+			AdvancedSecureRandom s = Random.generateSR();
+			
+			byte[] b = new byte[125];
+			s.nextBytes(b);
 			
 			Graphics g = test.getGraphics();
 			if(testCounter%20<=10)

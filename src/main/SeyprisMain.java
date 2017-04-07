@@ -10,12 +10,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import debug.DebugFrame;
+import gui.PicturSystem;
 
 public class SeyprisMain extends JPanel{
 
 	private static final long serialVersionUID = 1890361404691564161L;
-	private static int xPos = 400;
-	private static int yPos = 500;
+	private static int xPos = 1500;
+	private static int yPos = 700;
 	
 	private KeyListener key;
 	private MouseListener mouse;
@@ -54,6 +55,13 @@ public class SeyprisMain extends JPanel{
 		frame.addMouseWheelListener(mouse);
 		
 		gui = new GuiControle(mouse, key);
+		
+		//Set Menus
+		if(st.startPicCrypto){
+			PicturSystem picSy = new PicturSystem(20, 20);//TODO coordinats
+			picSy.setPassword(st.picPW);
+			GuiControle.addMenu(picSy);
+		}
 		
 		try {
 			Thread.sleep(50);
