@@ -19,7 +19,12 @@ public abstract class TextEnterButton extends DataFiled{
 	@Override
 	protected void isClicked() {
 		key.deletInput();
-		key.setText(text);
+		if(pwMode){
+			setText("");
+			key.setText("");
+		}else{
+			key.setText(text);
+		}
 	}
 
 	@Override
@@ -73,6 +78,7 @@ public abstract class TextEnterButton extends DataFiled{
 	
 	public void setPwMode(boolean pwMode) {
 		this.pwMode = pwMode;
+		setText("");
 	}
 
 }

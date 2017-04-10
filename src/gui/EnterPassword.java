@@ -51,7 +51,6 @@ public class EnterPassword extends OverswapMenu{
 		add(teb);
 		teb.setPwMode(true);
 		teb.setTextColor(Color.white);
-		teb.setText("");
 		
 		imas = new BufferedImage[]{
 			PicLoader.pic.getImage("res/ima/ote/pw1.png")	
@@ -110,7 +109,7 @@ public class EnterPassword extends OverswapMenu{
 		g.setColor(Color.white);
 		g.setFont(Fonts.fontBold18);
 		g.drawString("Enter Password:", rop, 60);
-		g.setFont(Fonts.font12);
+		g.setFont(Fonts.fontSans14);
 		g.drawString("Password Strength: ", rop, 120);
 		g.setColor(analysisColor[analysis]);
 		if(repeading)

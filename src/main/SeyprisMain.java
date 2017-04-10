@@ -7,6 +7,7 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import debug.DebugFrame;
@@ -29,6 +30,8 @@ public class SeyprisMain extends JPanel{
 	
 	private GuiControle gui;
 	
+	private JTextArea text;
+	
 	public SeyprisMain(){
 		
 		debFrame = new DebugFrame();
@@ -44,6 +47,7 @@ public class SeyprisMain extends JPanel{
 		frame.setUndecorated(true);
 		frame.add(this);
 		setVisible(true);
+		frame.setLayout(null);
 		frame.setVisible(true);
 		
 		setFocusable(!true);
@@ -55,9 +59,17 @@ public class SeyprisMain extends JPanel{
 		frame.addMouseMotionListener(mouse);
 		frame.addMouseWheelListener(mouse);
 		
+		Fonts.createAllFonts();
+		
 		gui = new GuiControle(mouse, key);
 		
 		GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
+		
+		text = new JTextArea();
+		text.setBounds(0, 0, 100, 100);
+		frame.add(text);
+		text.setText("Hello \n is this the new Text");
+		text.setFocusable(true);
 		
 		//Set Menus
 		if(st.startPicCrypto){
@@ -108,6 +120,8 @@ public class SeyprisMain extends JPanel{
 					mouse.mouseDraggStartX<xPos-30)
 			frame.setLocation(-mouse.mouseDraggStartX+mouse.mouseDraggX, -mouse.mouseDraggStartY+mouse.mouseDraggY);
 		}
+		
+		text.paint(g);
 		
 		g.dispose();
 		strategy.show();
