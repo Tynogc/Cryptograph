@@ -166,3 +166,5 @@ res/ima/cli/Rc.png
 res/ima/cli/Rf.png
 res/ima/cli/Rd.png
 res/ima/cli/Rd.png
+res/ima/ote/pw1.png
+res/ima/ote/pw1.png

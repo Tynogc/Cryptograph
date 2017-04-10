@@ -47,7 +47,7 @@ public class PicturSystem extends AbstractMenu{
 	private static final int DECRYPT = 8;
 	
 	public PicturSystem(int x, int y) {
-		super(x, y, 700, 600);
+		super(x, y, 1000, 800);
 		left = new Button(10,30,"res/ima/cli/Gs") {
 			@Override
 			protected void uppdate() {}

@@ -10,13 +10,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import debug.DebugFrame;
+import gui.EnterPassword;
 import gui.PicturSystem;
 
 public class SeyprisMain extends JPanel{
 
 	private static final long serialVersionUID = 1890361404691564161L;
 	private static int xPos = 1500;
-	private static int yPos = 700;
+	private static int yPos = 900;
 	
 	private KeyListener key;
 	private MouseListener mouse;
@@ -45,8 +46,8 @@ public class SeyprisMain extends JPanel{
 		setVisible(true);
 		frame.setVisible(true);
 		
-		setFocusable(true);
-		frame.setFocusable(false);
+		setFocusable(!true);
+		frame.setFocusable(!false);
 		key = new KeyListener();
 		frame.addKeyListener(key);
 		mouse = new MouseListener();
@@ -55,6 +56,8 @@ public class SeyprisMain extends JPanel{
 		frame.addMouseWheelListener(mouse);
 		
 		gui = new GuiControle(mouse, key);
+		
+		GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
 		
 		//Set Menus
 		if(st.startPicCrypto){
