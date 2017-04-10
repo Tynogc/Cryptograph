@@ -42,7 +42,7 @@ public class MenuControle {
 			menus.scrolled(i);
 	}
 	
-	public boolean mouseState(int x, int y, boolean left, boolean right){
+	public boolean mouseState(int x, int y, boolean left, boolean right, boolean canBeFocused){
 		if(menus == null)return false;
 		
 		boolean lPress = !lef && left;
@@ -94,6 +94,10 @@ public class MenuControle {
 		y-=menus.yPos;
 		menus.updateMenu();
 		menus.maousAt(x, y);
+		if(canBeFocused)
+			menus.maousAtOnlyIfFocused(x, y);
+		else
+			menus.maousAtOnlyIfFocused(-10000, -10000);
 		if(rPress)
 			menus.reightClick(x, y);
 		if(lPress)
@@ -108,6 +112,11 @@ public class MenuControle {
 		}
 		
 		return inside;
+	}
+	
+	public void leftClickForFocus(int x, int y){
+		if(menus != null)
+			menus.leftClickForFocus(x-menus.xPos, y-menus.yPos);
 	}
 
 }

@@ -36,6 +36,8 @@ public class PicturSystem extends AbstractMenu{
 	private Button right;
 	private Button chooseFiles;
 	
+	private Button closeB;
+	
 	private DataFiled info;
 	
 	private FileSelecter fs;
@@ -48,6 +50,18 @@ public class PicturSystem extends AbstractMenu{
 	
 	public PicturSystem(int x, int y) {
 		super(x, y, 1000, 800);
+		
+		closeB = new Button(xSize-20,1,"res/ima/cli/X"){
+			@Override
+			protected void uppdate() {}
+			@Override
+			protected void isFocused() {}
+			@Override
+			protected void isClicked() {
+				closeYou();
+			}
+		};
+		add(closeB);
 		left = new Button(10,30,"res/ima/cli/Gs") {
 			@Override
 			protected void uppdate() {}

@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferStrategy;
@@ -13,6 +14,8 @@ import javax.swing.SwingUtilities;
 import debug.DebugFrame;
 import gui.EnterPassword;
 import gui.PicturSystem;
+import gui.TextEnterAssist;
+import gui.TextEnterField;
 
 public class SeyprisMain extends JPanel{
 
@@ -20,7 +23,7 @@ public class SeyprisMain extends JPanel{
 	private static int xPos = 1500;
 	private static int yPos = 900;
 	
-	private KeyListener key;
+	private static KeyListener key;
 	private MouseListener mouse;
 	
 	private static JFrame frame;
@@ -30,7 +33,7 @@ public class SeyprisMain extends JPanel{
 	
 	private GuiControle gui;
 	
-	private JTextArea text;
+	private TextEnterField text;
 	
 	public SeyprisMain(){
 		
@@ -50,10 +53,11 @@ public class SeyprisMain extends JPanel{
 		frame.setLayout(null);
 		frame.setVisible(true);
 		
-		setFocusable(!true);
-		frame.setFocusable(!false);
+		//setFocusable(true);
+		frame.setFocusable(true);
 		key = new KeyListener();
 		frame.addKeyListener(key);
+		addKeyListener(key);
 		mouse = new MouseListener();
 		frame.addMouseListener(mouse);
 		frame.addMouseMotionListener(mouse);
@@ -63,13 +67,12 @@ public class SeyprisMain extends JPanel{
 		
 		gui = new GuiControle(mouse, key);
 		
-		GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
-		
-		text = new JTextArea();
-		text.setBounds(0, 0, 100, 100);
+		text = new TextEnterField(mouse);
 		frame.add(text);
 		text.setText("Hello \n is this the new Text");
-		text.setFocusable(true);
+		
+		GuiControle.addMenu(new TextEnterAssist(300, 300, text));
+		//GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
 		
 		//Set Menus
 		if(st.startPicCrypto){
@@ -83,7 +86,7 @@ public class SeyprisMain extends JPanel{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		frame.createBufferStrategy(3);
+		frame.createBufferStrategy(2);
 		strategy = frame.getBufferStrategy();
 		
 		final MainThread mainThr = new MainThread(this);
@@ -117,11 +120,9 @@ public class SeyprisMain extends JPanel{
 		
 		if(mouse.mouseDraggStartX>0){
 			if(mouse.mouseDraggStartY > 0 && mouse.mouseDraggStartY < 30 &&
-					mouse.mouseDraggStartX<xPos-30)
+					mouse.mouseDraggStartX < xPos-30)
 			frame.setLocation(-mouse.mouseDraggStartX+mouse.mouseDraggX, -mouse.mouseDraggStartY+mouse.mouseDraggY);
 		}
-		
-		text.paint(g);
 		
 		g.dispose();
 		strategy.show();
@@ -137,5 +138,9 @@ public class SeyprisMain extends JPanel{
 	
 	public static JFrame getFrame(){
 		return frame;
+	}
+	
+	public static KeyListener getKL(){
+		return key;
 	}
 }

@@ -13,6 +13,8 @@ public class GuiControle {
 	private MenuControle topMenu;
 	private static MenuControle[] menus;
 	private MenuControle frameMenu;
+	private MenuControle textEnter;
+	private static MenuControle superMenu;
 	
 	public GuiControle(main.MouseListener m, main.KeyListener k){
 		mouse = m;
@@ -23,6 +25,8 @@ public class GuiControle {
 			menus[i] = new MenuControle();
 		}
 		frameMenu = new MenuControle();
+		textEnter = new MenuControle();
+		superMenu = new MenuControle();
 		
 		topMenu.setActivMenu(new gui.TopMenu());
 		frameMenu.setActivMenu(new gui.FrameMenu());
@@ -33,42 +37,70 @@ public class GuiControle {
 		boolean right = mouse.right || mouse.rightClicked;
 		boolean clicked = false;
 		
-		if(frameMenu.mouseState(mouse.x, mouse.y, left, right)){
+		boolean leftForFocus = left;
+		
+		if(superMenu.isActiv()){
+			if(superMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
+				clicked = true;
+			}
+			left = false;
+			right = false;
+		}
+		
+		if(frameMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
 			left = false;
 			right = false;
 			clicked = true;
 		}
+		if(leftForFocus)
+			frameMenu.leftClickForFocus(mouse.x, mouse.y);
 		
 		for (int i = menus.length-1; i >= 0; i--) {
-			if(menus[i].mouseState(mouse.x, mouse.y, left, right)){
+			if(menus[i].mouseState(mouse.x, mouse.y, left, right, !clicked)){
 				left = false;
 				right = false;
 				clicked = true;
 			}
+			if(leftForFocus)
+				menus[i].leftClickForFocus(mouse.x, mouse.y);
 		}
 		
-		if(debugMenu.mouseState(mouse.x, mouse.y, left, right)){
+		if(textEnter.mouseState(mouse.x, mouse.y, left, right, !clicked)){
 			left = false;
 			right = false;
 			clicked = true;
 		}
+		if(leftForFocus)
+			textEnter.leftClickForFocus(mouse.x, mouse.y);
 		
-		if(topMenu.mouseState(mouse.x, mouse.y, left, right)){
+		if(debugMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
 			left = false;
 			right = false;
 			clicked = true;
 		}
+		if(leftForFocus)
+			debugMenu.leftClickForFocus(mouse.x, mouse.y);
+		
+		if(topMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
+			left = false;
+			right = false;
+			clicked = true;
+		}
+		if(leftForFocus)
+			topMenu.leftClickForFocus(mouse.x, mouse.y);
 		
 		return clicked;
 	}
 	
 	public void paint(Graphics g){
+		textEnter.paintYou(g);
 		topMenu.paintYou(g);
 		debugMenu.paintYou(g);
 		for (int i = 0; i < menus.length; i++) {
 			menus[i].paintYou(g);
 		}
 		frameMenu.paintYou(g);
+		superMenu.paintYou(g);
 	}
 	
 	public static boolean addMenu(AbstractMenu  m){
@@ -94,5 +126,9 @@ public class GuiControle {
 	
 	public void setdebugMenu(AbstractMenu m){
 		debugMenu.setActivMenu(m);
+	}
+	
+	public static void setSuperMenu(AbstractMenu m){
+		superMenu.setActivMenu(m);
 	}
 }

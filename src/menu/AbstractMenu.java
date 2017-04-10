@@ -81,11 +81,19 @@ public abstract class AbstractMenu {
 		
 	}
 	
+	public void leftClickForFocus(int x, int y){
+		
+	}
+	
 	public void reightClick(int x, int y){
 		
 	}
 	
 	public void maousAt(int x, int y){
+		
+	}
+	
+	public void maousAtOnlyIfFocused(int x, int y){
 		
 	}
 	

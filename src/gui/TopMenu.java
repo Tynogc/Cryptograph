@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 import crypto.PicturCrypto;
 import cryptoUtility.AdvancedSecureRandom;
 import cryptoUtility.Random;
+import main.GuiControle;
+import main.SetPassword;
 import main.SeyprisMain;
 import menu.AbstractMenu;
 import menu.Button;
@@ -37,7 +39,12 @@ public class TopMenu extends AbstractMenu{
 					e.printStackTrace();
 				}*/
 				
-				testCounter = 20;
+				//testCounter = 20;
+				PicturSystem pc = new PicturSystem(30, 100);
+				GuiControle.addMenu(pc);
+				SetPassword sp = new SetPassword();
+				GuiControle.setSuperMenu(new EnterPassword(sp, SeyprisMain.getKL(), true));
+				pc.setPassword(sp);
 			}
 			@Override
 			protected void isFocused() {

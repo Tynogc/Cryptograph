@@ -17,6 +17,7 @@ public class EnterPassword extends OverswapMenu{
 
 	private TextEnterButton teb;
 	private Button close;
+	private Button ok;
 	
 	private int lastLength;
 	private boolean showAnalysis;
@@ -25,12 +26,12 @@ public class EnterPassword extends OverswapMenu{
 	private boolean repeading;
 	
 	private static final String[] analysisString = new String[]{
-		"Too Short", "Very Weak", "Weak", "Medium", "Strong", "Very Strong", "Extreme", "Ridiculous"
+		"Too Short", "Very Weak", "Weak", "Medium", "Strong", "Very Strong", "Extreme", "Ridiculous", "Neeeerd!"
 	};
 	private static final Color[] analysisColor = new Color[]{
 		new Color(122,10,15), new Color(237,22,22), new Color(250,122,22),
 		new Color(250,210,30), new Color(91,252,22),  new Color(23,252,180),
-		new Color(19,225,252), new Color(218,10,255)
+		new Color(19,225,252), new Color(218,10,255), new Color(0,120,255)
 	};
 	private static final char[] list1 = new char[]{'a','b','c','d','e','f','g','h',
 		'i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
@@ -42,10 +43,9 @@ public class EnterPassword extends OverswapMenu{
 	
 	public EnterPassword(SetPassword spw, KeyListener k, boolean analysis) {
 		
-		teb = new TextEnterButton(xSize/2-100, 80, 200,20, Color.black, k) {
+		teb = new TextEnterButton(xSize/2-110, 80, 220, 20, Color.black, k) {
 			@Override
 			protected void textEntered(String text) {
-				setPassword.setPW(text);
 			}
 		};
 		add(teb);
@@ -58,6 +58,36 @@ public class EnterPassword extends OverswapMenu{
 		
 		setPassword = spw;
 		showAnalysis = analysis;
+		
+		ok = new Button(xSize/2-80,146,"res/ima/cli/Gsk") {
+			@Override
+			protected void uppdate() {}
+			@Override
+			protected void isFocused() {}
+			@Override
+			protected void isClicked() {
+				setPassword.setPW(teb.getText());
+				System.out.println(setPassword.getPassword());
+				closeYou();
+			}
+		};
+		add(ok);
+		ok.setText("OK");
+		
+		close = new Button(xSize/2+5,146,"res/ima/cli/Gsk") {
+			@Override
+			protected void uppdate() {}
+			@Override
+			protected void isFocused() {}
+			@Override
+			protected void isClicked() {
+				closeYou();
+			}
+		};
+		add(close);
+		close.setText("Cancle");
+		
+		moveAble = false;
 	}
 
 	@Override
@@ -73,11 +103,12 @@ public class EnterPassword extends OverswapMenu{
 			int sl = searchLists(s);
 			analysis+=sl;
 			
-			if(lastLength<8&&analysis>=2)analysis = 1;
+			if(lastLength<9&&analysis>=2)analysis = 1;
 			if(lastLength>12)analysis++;
 			if(lastLength>20)analysis++;
 			
 			if(lastLength>40 && sl>=4)analysis++;
+			if(lastLength>80 && sl>=4)analysis++;
 			
 			repeading = false;
 			for (int i = 1; i <= s.length()/2; i++) {
