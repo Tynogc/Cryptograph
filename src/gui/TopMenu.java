@@ -15,6 +15,7 @@ import main.SetPassword;
 import main.SeyprisMain;
 import menu.AbstractMenu;
 import menu.Button;
+import menu.Container;
 import menu.DataFiled;
 
 public class TopMenu extends AbstractMenu{
@@ -22,24 +23,14 @@ public class TopMenu extends AbstractMenu{
 	private BufferedImage test;
 	private int testCounter;
 	
+	private Container[] allCont;
+	private Button[] allBut;
+	
 	public TopMenu() {
 		super(0,30,300,300);
 		Button b1 = new Button(20,50,"res/ima/cli/b"){
 			@Override
 			protected void isClicked() {
-				//System.out.println("a");
-				//SeyprisMain.getFrame().setState(JFrame.ICONIFIED);
-				/*SecureRandom s = Random.generateSR();
-				for (int i = 0; i < 100; i++) {
-					System.out.println(s.nextInt());
-				}
-				try {
-					crypto.RSAsaveKEY.generateKey(2048, true, true, 5, s);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}*/
-				
-				//testCounter = 20;
 				PicturSystem pc = new PicturSystem(30, 100);
 				GuiControle.addMenu(pc);
 				SetPassword sp = new SetPassword();
@@ -69,7 +60,35 @@ public class TopMenu extends AbstractMenu{
 			}
 		});
 		
+		allCont = new Container[4];
+		allBut = new Button[4];
+		
+		allBut[0] = generateButton(0, "Friends");
+		allBut[1] = generateButton(1, "Conversations");
+		allBut[2] = generateButton(2, "Servers");
+		allBut[3] = generateButton(3, "Own Accounts");
+		
+		for (int i = 0; i < allBut.length; i++) {
+			add(allBut[i]);
+			//add(allCont[i]);
+		}
+		
 		test = new BufferedImage(400, 256, BufferedImage.TYPE_INT_RGB);
+	}
+	
+	private Button generateButton(final int i, String s){
+		Button b = new Button(0,i*32+100,"res/ima/cli/spb/DOWN") {
+			@Override
+			protected void uppdate() {}
+			@Override
+			protected void isFocused() {}
+			@Override
+			protected void isClicked() {
+				//TODO
+			}
+		};
+		b.setText(s);
+		return b;
 	}
 
 	@Override
@@ -102,7 +121,8 @@ public class TopMenu extends AbstractMenu{
 	@Override
 	protected void paintIntern(Graphics g) {
 		g.drawImage(test, 0, 90, null);
-		
+		//System.out.println(g.getFontMetrics().getStringBounds("abcdefg", g).getWidth());
+		//g.drawString("abcdefg", 100, 200);
 	}
 
 }
