@@ -9,7 +9,8 @@ import menu.Button;
 public class FrameMenu extends AbstractMenu{
 
 	private Button close;
-	private Button minimize;
+	private Button minimised;
+	private Button maximised;
 	
 	public FrameMenu() {
 		super(0,0,SeyprisMain.sizeX(),30);

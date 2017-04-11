@@ -47,6 +47,13 @@ public class EnterPassword extends OverswapMenu{
 			@Override
 			protected void textEntered(String text) {
 			}
+			@Override
+			protected void textEnteredDirectly(String text) {
+				setPassword.setPW(teb.getText());
+				System.out.println(setPassword.getPassword());
+				teb.destroy();
+				closeYou();
+			}
 		};
 		add(teb);
 		teb.setPwMode(true);
@@ -68,6 +75,7 @@ public class EnterPassword extends OverswapMenu{
 			protected void isClicked() {
 				setPassword.setPW(teb.getText());
 				System.out.println(setPassword.getPassword());
+				teb.destroy();
 				closeYou();
 			}
 		};
@@ -81,6 +89,7 @@ public class EnterPassword extends OverswapMenu{
 			protected void isFocused() {}
 			@Override
 			protected void isClicked() {
+				teb.destroy();
 				closeYou();
 			}
 		};

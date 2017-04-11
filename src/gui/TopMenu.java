@@ -69,41 +69,6 @@ public class TopMenu extends AbstractMenu{
 			}
 		});
 		
-		add(new DataFiled(120,30,40,20,Color.white) {
-			@Override
-			protected void uppdate() {
-			}
-			
-			@Override
-			protected void isClicked() {
-				crypto.PicturCrypto pc = new PicturCrypto("ThisIsOnlyATestABC");
-				pc.processPictur(test, true);
-			}
-		});
-		add(new DataFiled(160,30,40,20,Color.white) {
-			@Override
-			protected void uppdate() {
-			}
-			
-			@Override
-			protected void isClicked() {	
-				crypto.PicturCrypto pc = new PicturCrypto("ThisIsOnlyATestABC");
-				pc.processPictur(test, false);
-			}
-		});
-		
-		add(new DataFiled(210,30,40,20,Color.white) {
-			@Override
-			protected void uppdate() {
-			}
-			
-			@Override
-			protected void isClicked() {
-				//crypto.PicturCrypto.addNoise(test);
-				new cryptoUtility.TraverseFiles(new SecureRandom()).feedEntropy(1500);
-			}
-		});
-		
 		test = new BufferedImage(400, 256, BufferedImage.TYPE_INT_RGB);
 	}
 
