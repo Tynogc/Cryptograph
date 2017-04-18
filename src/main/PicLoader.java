@@ -110,7 +110,7 @@ public class PicLoader {
 		}
 		count++;
 		names[count] = s;
-		debug.Debug.println("Image "+s+" is now being loaded!", debug.Debug.MASSAGE);
+		debug.Debug.println("Image "+s+" is now being loaded!", debug.Debug.MESSAGE);
 		loadImage(count);
 		
 		PrintWriter writer = null; 

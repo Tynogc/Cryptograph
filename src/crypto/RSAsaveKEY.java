@@ -28,6 +28,8 @@ public final class RSAsaveKEY implements Destroyable{
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
+	public final int size;
+	
 	public RSAsaveKEY(String priv, String publ, String mod) throws InvalidKeySpecException{
 		if(priv != null)privateExponent = new BigInteger(priv, 16);
 		if(publ != null)publicExponent = new BigInteger(publ, 16);
@@ -37,6 +39,7 @@ public final class RSAsaveKEY implements Destroyable{
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+		size = modulus.bitLength();
 	}
 	
 	public RSAsaveKEY(BigInteger priv, BigInteger publ, BigInteger mod) throws InvalidKeySpecException{
@@ -48,6 +51,7 @@ public final class RSAsaveKEY implements Destroyable{
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+		size = modulus.bitLength();
 	}
 	
 	private void generateKeys() throws NoSuchAlgorithmException, InvalidKeySpecException{
@@ -129,6 +133,10 @@ public final class RSAsaveKEY implements Destroyable{
 			throws KeyException, Exception{
 		if(random == null)
 			random = new SecureRandom();
+		
+		//The KeySize should be mod 8 = 0
+		keySize -= keySize%8;
+		
 		/**
 		 * The following Lines of Code are from the stackoverflow.com Forum, published by the user 'albciff'
 		 * Thanks for the help! :D
@@ -194,7 +202,7 @@ public final class RSAsaveKEY implements Destroyable{
 	private static void testEncryption(PublicKey publicKey, PrivateKey privateKey) throws Exception{
 		String plaintext = cryptoUtility.Random.generateRandomString(34+(int)(Math.random()*40));
 
-		System.out.println("Decypher: "+plaintext);
+		System.out.println("Decypher: "+plaintext+" "+plaintext.getBytes().length);
 		// Compute signature
 		Signature instance = Signature.getInstance("SHA1withRSA");
 		instance.initSign(privateKey);

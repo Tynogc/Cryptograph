@@ -38,8 +38,13 @@ public class SeyprisMain extends JPanel{
 	public SeyprisMain(){
 		
 		debFrame = new DebugFrame();
+		debFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		StartUp st = new StartUp(debFrame);
 		st.doStartUp();
+		if(st.server){
+			new Server().run();
+			return;
+		}
 		
 		new PicLoader();
 		

@@ -8,27 +8,42 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
 import crypto.NumberEncrypter;
+import crypto.RSAcrypto;
+import crypto.RSAsaveKEY;
 
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-		//testNumberEnc();
+		for (int i = 0; i < 100; i++) {
+			//testNumberEnc();
+		}
 		//testKeyGen();
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
 		new SeyprisMain();
 	}
 	
-	protected static void testNumberEnc(){
-		crypto.NumberEncrypter n1 = new NumberEncrypter("abcfhdskj");
-		crypto.NumberEncrypter n2 = new NumberEncrypter("abcfhdskj");
-		BigInteger b1 = new BigInteger(1000, new Random());
-		System.out.println(b1.toString(16));
-		String s = n1.encrypt(b1.toString(16));
-		System.out.println(s);
-		s = n2.decrypt(s);
-		System.out.println(s);
-		System.out.println(new BigInteger(s,16).compareTo(b1));
+	protected static void testNumberEnc() throws Exception{
+		cryptoUtility.Random.enterEntropy(0);
+		/*String b1 = "HelloHello Tlionghaifskjaksjfkkjfkdsajkfjkdsajkf";
+		System.out.println(b1+" "+b1.getBytes().length);
+		byte[] b = crypto.RSAcrypto.addPadding(b1.getBytes(), 63);
+		b = crypto.RSAcrypto.removePadding(b);
+		String b2 = new String(b,"UTF-8");
+		System.out.println(b2);
+		System.out.println(b2.compareTo(b1));*/
+		String s1 = cryptoUtility.Random.generateRandomString((int)(Math.random()*100));
+		RSAsaveKEY key = RSAsaveKEY.generateKey(1024, true, false, 0, cryptoUtility.Random.generateSR());
+		RSAsaveKEY key2 = RSAsaveKEY.generateKey(2048, true, false, 0, cryptoUtility.Random.generateSR());
+		System.out.println(s1+" "+s1.getBytes().length);
+		String s2 = RSAcrypto.encrypt(s1, key, true);
+		s2 = RSAcrypto.encrypt(s2, key2, true);
+		System.out.println(s2);
+		s2 = RSAcrypto.decrypt(s2, key2, false);
+		s2 = RSAcrypto.decrypt(s2, key, false);
+		System.out.println(s2);
+		if(s1.compareTo(s2)!=0)
+			throw new Exception("No match! "+s1+" "+s2);
 	}
 	
 	protected static void testKeyGen() throws Exception{
@@ -50,3 +65,4 @@ public class Main {
 	}
 
 }
+ 

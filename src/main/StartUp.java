@@ -11,6 +11,8 @@ public class StartUp {
 	private boolean playIntroSimple = true;
 	private boolean spectator = false;
 	
+	public boolean server = false;
+	
 	public boolean startPicCrypto = false;
 	public SetPassword picPW;
 	
@@ -67,7 +69,14 @@ public class StartUp {
 	
 	private void gte(){
 		debug.Debug.println("* Quick StartUp? [Y|n]");
-		if(!question(true)) picCrypt();
+		if(question(true)) return;
+		debug.Debug.println("* Start Server? [y|N]");
+		if(question(false)){
+			server = true;
+			return;
+		}
+		
+		picCrypt();
 		
 	}
 	

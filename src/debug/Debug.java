@@ -36,7 +36,7 @@ public class Debug {
 	
 	public static final int REMOTE = 77;
 	
-	public static final int MASSAGE = 80;
+	public static final int MESSAGE = 80;
 	
 	public static final int TEXT = 100;
 	
@@ -357,7 +357,7 @@ public class Debug {
 		case WARN: return new Color(250,250,0);
 		case SUBWARN: return new Color(160,200,0);
 		
-		case MASSAGE: return new Color(0,180,0);
+		case MESSAGE: return new Color(0,180,0);
 		
 		case FATAL: return new Color(250,11,255);
 		
@@ -381,7 +381,7 @@ public class Debug {
 		case WARN: return "[WA]";
 		case SUBWARN: return "[SW]";
 		
-		case MASSAGE: return "[--]";
+		case MESSAGE: return "[--]";
 		
 		case FATAL: return "[XX]";
 		
@@ -479,7 +479,7 @@ public class Debug {
 		if(state == 0){
 			println(s+"[ OK  ]");
 			remove(6);
-			print(" OK  ",MASSAGE);
+			print(" OK  ",MESSAGE);
 			print("]");
 		}else if(state == 1){
 			println(s+"[ERROR]");

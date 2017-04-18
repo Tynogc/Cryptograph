@@ -27,6 +27,8 @@ public class ScrollBar extends Button {
 	
 	private boolean isState3 = false;
 	
+	private int scrollBy = 1;
+	
 	private BufferedImage state3;
 	
 	public ScrollBar(int x, int y, int hi, int barHight, int iteratio) {
@@ -43,7 +45,7 @@ public class ScrollBar extends Button {
 				isState3 = true;
 				if(subButtonUp.isOnClick()){
 					if(setATick()){
-						scUp();
+						scUp(scrollBy);
 					}
 				}else{
 					tickState = 0;
@@ -68,7 +70,7 @@ public class ScrollBar extends Button {
 				isState3 = true;
 				if(subButtonDo.isOnClick()){
 					if(setATick()){
-						scDo();
+						scDo(scrollBy);
 					}
 				}else{
 					tickState = 0;
@@ -153,16 +155,21 @@ public class ScrollBar extends Button {
 		
 	}
 	
+	public void setScrollBy(int i){
+		scrollBy = i;
+	}
+	
 	private void scrolled(){
 		setyPos((int)(iterated*sizeOfIteration)+startY);
 	}
-	private void scUp(){
-		iterated--;
+	
+	private void scUp(int ammount){
+		iterated-=ammount;
 		if(iterated<0)iterated = 0;
 		scrolled();
 	}
-	private void scDo(){
-		iterated++;
+	private void scDo(int ammount){
+		iterated+=ammount;
 		if(iterated>iterations)iterated = iterations;
 		scrolled();
 	}
@@ -197,12 +204,12 @@ public class ScrollBar extends Button {
 			if(tgf != iterated){
 				if(tgf<iterated){
 					if(System.currentTimeMillis()-firstTick>1000/iterations){
-						scUp();
+						scUp(1);
 						firstTick = System.currentTimeMillis();
 					}
 				}else{
 					if(System.currentTimeMillis()-firstTick>1000/iterations){
-						scDo();
+						scDo(1);
 						firstTick = System.currentTimeMillis();
 					}
 				}

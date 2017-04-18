@@ -59,7 +59,7 @@ public class Random {
 	}
 	
 	/**
-	 * Generates a Fresh-Seeded SecureRandom.
+	 * Generates a Fresh-Seeded AdvancedSecureRandom.
 	 * If there is not enough entropy, it is self-seeded; use the entropyFuelGauge to check the
 	 * status of the farmed Entropy.
 	 * @return Fresh-Seeded SecureRandom
@@ -131,5 +131,10 @@ public class Random {
 	 */
 	public static int getEntropyFuelGauge(){
 		return entropyFuelGauge*1000+(pos-entropyUsed);
+	}
+	
+	public static int getInt(int k){
+		if(additionalRnd == null)additionalRnd = new SecureRandom();
+		return additionalRnd.nextInt(k);
 	}
 }
