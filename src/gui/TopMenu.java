@@ -20,6 +20,7 @@ import menu.AbstractMenu;
 import menu.Button;
 import menu.Container;
 import menu.DataFiled;
+import menu.TextEnterButton;
 import user.SideDisplay;
 
 public class TopMenu extends AbstractMenu{
@@ -35,6 +36,7 @@ public class TopMenu extends AbstractMenu{
 	private boolean up;
 	
 	private SRSHA hash;
+	private TextEnterButton teb;
 	
 	public TopMenu() {
 		super(0,30,300,HIGHT_OF_CONTAINERS+DISTANCE+128);
@@ -50,7 +52,9 @@ public class TopMenu extends AbstractMenu{
 				pc.setPassword(sp);*/
 				//new network.TCPserver(1234);
 				
-				hash.doLoop();
+				hash = new SRSHA(SRSHA.SRSHA_512);
+				hash.noAutomaticLoop();
+				hash.update(teb.getText().getBytes());
 			}
 			@Override
 			protected void isFocused() {
@@ -65,10 +69,12 @@ public class TopMenu extends AbstractMenu{
 		b1.setText("TEST");
 		
 		Button b2 = new Button(220,50,"res/ima/cli/b"){
-			network.TCPclient cl;
+			//network.TCPclient cl;
 			@Override
 			protected void isClicked() {
-				cl = new network.TCPclient("localhost", 1234);
+				//cl = new network.TCPclient("localhost", 1234);
+				hash = new SRSHA(SRSHA.SRSHA_512);
+				hash.update(teb.getText().getBytes());
 			}
 			@Override
 			protected void isFocused() {
@@ -76,8 +82,8 @@ public class TopMenu extends AbstractMenu{
 			}
 			@Override
 			protected void uppdate() {
-				if(cl != null)
-					cl.refresh();
+				//if(cl != null)
+					//cl.refresh();
 			}
 		};
 		add(b2);
@@ -92,7 +98,9 @@ public class TopMenu extends AbstractMenu{
 			}
 			
 			@Override
-			protected void isClicked() {	
+			protected void isClicked() {
+				if(hash != null)
+					hash.doLoop();
 			}
 		});
 		
@@ -111,6 +119,7 @@ public class TopMenu extends AbstractMenu{
 			allCont[i].setVisible(false);
 		}
 		
+		//////////////////////////
 		SideDisplay[] sd = new SideDisplay[]{
 				new SideDisplay("Tynogc01", "tynogc01@tynogc.com",SideDisplay.FRIEND_ONLINE),
 				new SideDisplay("Ridel", "ridel@myleep.ru",SideDisplay.FRIEND_OFFLINE),
@@ -128,6 +137,14 @@ public class TopMenu extends AbstractMenu{
 				new SideDisplay("mirrow.edge.com", "Ping 10ms",SideDisplay.SERVER_MIRROW)
 		};
 		allCont[2].updateButtons(sd);
+		
+		teb = new TextEnterButton(180,30,100,20,Color.white,SeyprisMain.getKL()) {
+			@Override
+			protected void textEntered(String text) {
+				
+			}
+		};
+		add(teb);
 		
 		animCount = System.currentTimeMillis();
 	}
@@ -192,9 +209,10 @@ public class TopMenu extends AbstractMenu{
 		g.drawImage(hash.testPaint(9), 400, 400, null);
 		byte[] b = hash.digest();
 		String str = "";
-		for (int i = 0; i < b.length; i++) {
-			str += b[i]+" ";
-		}
+		//for (int i = 0; i < b.length; i++) {
+		//	str += b[i]+" ";
+		//}
+		str = Base64.getEncoder().encodeToString(b);
 		g.drawString(str, 400, 390);
 	}
 

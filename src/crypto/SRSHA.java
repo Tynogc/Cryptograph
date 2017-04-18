@@ -31,8 +31,11 @@ public class SRSHA{
 	private byte[] mem;
 	private int memPos;
 	//Cycles per update
-	private static final int CYCLES = 13;
+	private static final int CYCLES = 17;
 	private int cycleCounter;
+	
+	//Only switch off for debug reasons!
+	private boolean doCycleAutomatic = true;
 	
 	//Stops changing to the Hash
 	private boolean isFinal;
@@ -102,6 +105,11 @@ public class SRSHA{
 				}
 			}
 		}
+		if(doCycleAutomatic){
+			for (int i = 0; i < CYCLES; i++) {
+				doLoopIntern();
+			}
+		}
 	}
 	
 	/**
@@ -153,6 +161,14 @@ public class SRSHA{
 		doLoopIntern();
 	}
 	
+	/**
+	 * Stops the automatic processing of doLoop()
+	 * @deprecated Only for debug reasons! Should not be used during normal operation!
+	 */
+	public void noAutomaticLoop(){
+		doCycleAutomatic = false;
+	}
+	
 	private void doLoopIntern(){
 		if(isFinal)
 			return;
@@ -176,9 +192,6 @@ public class SRSHA{
 			}
 		}
 		array = b;
-		
-		//Fill mem
-		mem[memPos] = (byte)(mem[memPos] ^ (byte)traverse(sum%q));
 		
 		//Super Random Loop
 		if(DO_COMPLEX)
@@ -296,27 +309,38 @@ public class SRSHA{
 		memPos++;
 		if(memPos>=mem.length)memPos = 0;
 		int k = (mem[memPos] & 0xf);
+		
+		//Xor Mem with a Traverse to avoid pattening
+		mem[memPos] = (byte)(mem[memPos] ^ (byte)traverse(sum%q));
+		
 		memPos++;
 		if(memPos>=mem.length)memPos = 0;
 		int l = mem[memPos];
 		if(l<0) l *= -1;
 		
+		//Xor Mem with a Traverse to avoid pattening
+		mem[memPos] = (byte)(mem[memPos] ^ (byte)traverse((sum+2)%q));
+		
 		if(k == 0)return;
 		switch (k) {
-		case 1:
+		case 1: case 5:
 			invertLine(l%q);
 			break;
-		case 2:
+		case 2: case 6:
 			invertColum(l%q);
 			break;
-		case 3:
+		case 3: case 7:
 			moveLine(l%q);
 			break;
-		case 4:
+		case 4: case 8:
 			moveColum(l%q);
 			break;
-
+		case 9:
+			xorWithSum((l/q)%q, l%q);
+			break;
+			
 		default:
+			sum += k-9;
 			break;
 		}
 		
@@ -352,5 +376,16 @@ public class SRSHA{
 		}
 		array[q-1][y] = b;
 		System.out.println("move C"+y);
+	}
+	
+	private void xorWithSum(int x, int y){
+		int k = sum;
+		for (int i = x; i < q; i++) {
+			array[x][y] = (array[x][y] ^ (k%2 == 1));
+			
+			if(k<=1)break;
+			k/=2;
+		}
+		System.out.println("xOr L"+y+" at:"+x);
 	}
 }
