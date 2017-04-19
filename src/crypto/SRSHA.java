@@ -31,8 +31,12 @@ public class SRSHA{
 	private byte[] mem;
 	private int memPos;
 	//Cycles per update
-	private static final int CYCLES = 17;
+	private static final int CYCLES = 23;
 	private int cycleCounter;
+	
+	//Array for digesting operation
+	private int[] dig;
+	private int digPos;
 	
 	//Only switch off for debug reasons!
 	private boolean doCycleAutomatic = true;
@@ -74,6 +78,10 @@ public class SRSHA{
 		mem = new byte[CYCLES];
 		memPos = 0;
 		cycleCounter = 0;
+		
+		//digesting array
+		dig = new int[CYCLES*3];
+		digPos = 0;
 	}
 	
 	/**
@@ -83,6 +91,10 @@ public class SRSHA{
 	public void update(byte[] b){
 		if(isFinal)
 			return;
+		
+		//Pad Message
+		b = paddIncomingMessage(b);
+		
 		int x = 0;
 		int y = 0;
 		for (int i = 0; i < b.length; i++) {
@@ -146,12 +158,18 @@ public class SRSHA{
 			}
 		}
 		
+		if(cycleCounter==0)return ret1;
+		
+		int c = 0;
+		for (int i = 0; i < ret1.length; i++) {
+			ret1[i] = (byte)(ret1[i] ^ dig[c]);
+			
+			c++;
+			if(c >= dig.length)c = 0;
+		}
+		
 		return ret1;
 	}
-	
-	private static final int ZERO_TO_ONE = 2;
-	private static final int ONE_TO_ONE1 = 3;
-	private static final int ONE_TO_ONE2 = 6;
 	
 	/**
 	 * Dose one Iteration over the current state
@@ -169,10 +187,73 @@ public class SRSHA{
 		doCycleAutomatic = false;
 	}
 	
+	private static final int ZERO_TO_ONE_Conway = 3;
+	private static final int ONE_TO_ONE1_Conway = 2;
+	private static final int ONE_TO_ONE2_Conway = 3;
+	
+	private static final int ZERO_TO_ONE_Mutation = 2;
+	private static final int ONE_TO_ONE1_Mutation = 3;
+	private static final int ONE_TO_ONE2_Mutation = 6;
+	
+	private int ZERO_TO_ONE;
+	private int ONE_TO_ONE1;
+	private int ONE_TO_ONE2;
+	
+	//Within one Cycle the original of GameOfLife is played:
+	private static final int CONWAY_Start = 4;
+	private static final int CONWAY_End = CYCLES-3;
+	
+	/**
+	 * The Last iteration was the original "Game of Life"
+	 */
+	public boolean conwayWasPlayed;
+	
+	/**
+	 * Determines whether Conways original or the Mutation is played this cycle
+	 * Because Conways Game of Life is Non-Reversible, it destroys any possibility of undoing the change
+	 * however, it also leads quit fast to a blank chart, thats why the mutation must be called more often
+	 */
+	private void prepareLoop(){
+		if(doConway()){
+			ZERO_TO_ONE = ZERO_TO_ONE_Conway;
+			ONE_TO_ONE1 = ONE_TO_ONE1_Conway;
+			ONE_TO_ONE2 = ONE_TO_ONE2_Conway;
+			conwayWasPlayed = true;
+		}else{
+			ZERO_TO_ONE = ZERO_TO_ONE_Mutation;
+			ONE_TO_ONE1 = ONE_TO_ONE1_Mutation;
+			ONE_TO_ONE2 = ONE_TO_ONE2_Mutation;
+			conwayWasPlayed = false;
+		}
+	}
+	
+	private boolean doConway(){
+		if(cycleCounter%CYCLES > CONWAY_Start && cycleCounter%CYCLES <= CONWAY_End){
+			int lines = 0;
+			for (int i = 0; i < q; i++) {
+				if(countLine(i)>=q/4)
+					lines++;
+			}
+			if(lines>=q/4)
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Plays one iteration of GameOfLife or the mutation variant.
+	 * Also calls the Super_Random_Methode
+	 */
 	private void doLoopIntern(){
 		if(isFinal)
 			return;
 		cycleCounter++;
+		
+		//Super Random Loop
+		if(DO_COMPLEX)
+			srDoLoop();
+		
+		prepareLoop();
 		
 		boolean[][] b = new boolean[q][q]; 
 		for (int i = 0; i < array.length; i++) {
@@ -193,9 +274,13 @@ public class SRSHA{
 		}
 		array = b;
 		
-		//Super Random Loop
-		if(DO_COMPLEX)
-			srDoLoop();
+		//Fill the digesting Array with a "random" number
+		for (int i = 0; i < 3; i++) {
+			digPos++;
+			if(digPos>=dig.length)digPos = 0;
+			dig[digPos] = dig[digPos] ^ traverse((sum/q)%q, (sum+(i*q/3))%q);
+		}
+		
 	}
 	
 	/**
@@ -203,24 +288,38 @@ public class SRSHA{
 	 * @param k Size per Pixel
 	 * @return {@link BufferedImage} the visualization of the current state
 	 */
-	public BufferedImage testPaint(int k){
-		BufferedImage ima = new BufferedImage(q*k+2, q*k+50, BufferedImage.TYPE_INT_RGB);
+	public BufferedImage testPaint(int k, Color c){
+		BufferedImage ima = new BufferedImage(q*k+2, q*k+50, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = ima.getGraphics();
-		g.setColor(Color.red);
+		g.setColor(c);
 		for (int i = 0; i < q; i++) {
 			for (int j = 0; j < q; j++) {
 				if(array[i][j])
 					g.fillRect(i*k+1, j*k+1, k, k);
 			}
 		}
-		g.setColor(Color.blue);
+		g.setColor(Color.cyan);
+		for (int i = 0; i < 3; i++) {
+			int x = (sum/q)%q;
+			int y = (sum+(i*q/3))%q;
+			x*=k;
+			y*=k;
+			if(i!=0)
+				g.setColor(Color.blue);
+			g.drawLine(x+k/2, y+k/2, x+k*3, y+k*3);
+		}
+		
 		g.drawRect(0, 0, q*k+1, q*k+1);
 		g.fillRect(memPos*20, q*k+20, 20, 15);
-		g.setColor(Color.red);
+		g.setColor(c);
 		for (int i = 0; i < mem.length; i++) {
 			g.drawString(""+mem[i], i*20, q*k+32);
 		}
 		g.drawString(sum+"   "+cycleCounter, 20, q*k+46);
+		if(conwayWasPlayed)
+			g.drawString("C", 120, q*k+46);
+		else
+			g.drawString("N", 130, q*k+46);
 		return ima;
 	}
 	
@@ -284,19 +383,30 @@ public class SRSHA{
 		return (b & (1<<pos)) != 0;
 	}
 	
-	//System to generate certain additional randomness
-	private int traverse(int i){
-		int x = i;
-		i = 0;
+	//Goes through in an inverse diagonal pattern
+	private int traverse(int x, int y){
+		int i = 0;
 		int t = 1;
-		for (int y = 0; y < q; y++) {
-			if(array[x][y])
+		for (int j = 0; j < 8; j++) {
+			if(isThere(x, y))
 				i+=t;
-			t++;
-			x++;
-			if(x>=q)x = 0;
+			t*=2;
+			x--;
+			y++;
+			if(y>=q)y = 0;
+			if(x<0)x = q-1;
 		}
 		return i;
+	}
+	
+	//counts the bits in the line
+	private int countLine(int l){
+		int r = 0;
+		for (int i = 0; i < q; i++) {
+			if(array[l][i])
+				r++;
+		}
+		return r;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -306,86 +416,48 @@ public class SRSHA{
 	 * Loop for Super-Random: call once per doLoop()
 	 */
 	private void srDoLoop(){
-		memPos++;
-		if(memPos>=mem.length)memPos = 0;
-		int k = (mem[memPos] & 0xf);
 		
-		//Xor Mem with a Traverse to avoid pattening
-		mem[memPos] = (byte)(mem[memPos] ^ (byte)traverse(sum%q));
+		if(cycleCounter>=1)
+		do{
+			memPos++;
+			if(memPos>=mem.length)memPos = 0;
+		}while(mem[memPos]==0);
 		
-		memPos++;
-		if(memPos>=mem.length)memPos = 0;
-		int l = mem[memPos];
-		if(l<0) l *= -1;
-		
-		//Xor Mem with a Traverse to avoid pattening
-		mem[memPos] = (byte)(mem[memPos] ^ (byte)traverse((sum+2)%q));
-		
-		if(k == 0)return;
-		switch (k) {
-		case 1: case 5:
-			invertLine(l%q);
-			break;
-		case 2: case 6:
-			invertColum(l%q);
-			break;
-		case 3: case 7:
-			moveLine(l%q);
-			break;
-		case 4: case 8:
-			moveColum(l%q);
-			break;
-		case 9:
-			xorWithSum((l/q)%q, l%q);
-			break;
-			
-		default:
-			sum += k-9;
-			break;
-		}
-		
+		fillTraverse((sum/q)%q, sum%q, mem[memPos]);
+		sum++;
 	}
 	
-	private void invertLine(int x){
-		for (int y = 0; y < q; y++) {
-			array[x][y] = !array[x][y];
+	//XORs the byte at the given Position in a diagonal pattern
+	private void fillTraverse(int x, int y, byte b){
+		for (int i = 0; i < 8; i++) {
+			array[x][y] = (array[x][y] ^ takeBit(b, i));
+			x++;
+			y++;
+			if(x>=q)x = 0;
+			if(y>=q)y = 0;
 		}
-		System.out.println("invert L"+x);
 	}
 	
-	private void invertColum(int y){
-		for (int x = 0; x < q; x++) {
-			array[x][y] = !array[x][y];
-		}
-		System.out.println("invert C"+y);
-	}
+	//////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////
 	
-	private void moveLine(int x){
-		boolean b = array[x][0];
-		for (int y = 0; y < q-1; y++) {
-			array[x][y] = array[x][y+1];
+	/**
+	 * Padds an incoming Message to the word length
+	 * @param b
+	 * @return
+	 */
+	private byte[] paddIncomingMessage(byte[] b){
+		byte[] bNew = new byte[size];
+		for (int i = 0; i < b.length; i++) {
+			bNew[i] = b[i];
 		}
-		array[x][q-1] = b;
-		System.out.println("move L"+x);
-	}
-	
-	private void moveColum(int y){
-		boolean b = array[0][y];
-		for (int x = 0; x < q-1; x++) {
-			array[x][y] = array[x+1][y];
+		for (int i = b.length; i < bNew.length; i++) {
+			if(i == bNew.length-1){
+				bNew[i] = (byte)b.length;
+			}else{
+				bNew[i] = 0;
+			}
 		}
-		array[q-1][y] = b;
-		System.out.println("move C"+y);
-	}
-	
-	private void xorWithSum(int x, int y){
-		int k = sum;
-		for (int i = x; i < q; i++) {
-			array[x][y] = (array[x][y] ^ (k%2 == 1));
-			
-			if(k<=1)break;
-			k/=2;
-		}
-		System.out.println("xOr L"+y+" at:"+x);
+		return bNew;
 	}
 }
