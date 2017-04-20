@@ -2,15 +2,7 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.security.SecureRandom;
-import java.util.Base64;
 
-import javax.swing.JFrame;
-
-import crypto.PicturCrypto;
-import crypto.SRSHA;
-import cryptoUtility.AdvancedSecureRandom;
 import cryptoUtility.Random;
 import gui.sub.SideContainer;
 import main.GuiControle;
@@ -18,9 +10,7 @@ import main.SetPassword;
 import main.SeyprisMain;
 import menu.AbstractMenu;
 import menu.Button;
-import menu.Container;
 import menu.DataFiled;
-import menu.TextEnterButton;
 import user.SideDisplay;
 
 public class TopMenu extends AbstractMenu{
