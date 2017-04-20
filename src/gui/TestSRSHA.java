@@ -114,31 +114,7 @@ public class TestSRSHA extends AbstractMenu{
 		add(b3);
 		b3.setText("Do A Step");
 		
-		Button b4 = new Button(220,90,"res/ima/cli/Gs"){
-			//network.TCPclient cl;
-			@Override
-			protected void isClicked() {
-				//cl = new network.TCPclient("localhost", 1234);
-				if(hash1 != null)
-					hash1.mixInMemory();
-				if(hash2 != null)
-					hash2.mixInMemory();
-				
-				needUpdate = true;
-			}
-			@Override
-			protected void isFocused() {
-				
-			}
-			@Override
-			protected void uppdate() {
-				//if(cl != null)
-					//cl.refresh();
-			}
-		};
-		add(b4);
-		b4.setText("Mix");
-		Button b5 = new Button(320,90,"res/ima/cli/Gs"){
+		Button b5 = new Button(220,90,"res/ima/cli/Gs"){
 			//network.TCPclient cl;
 			@Override
 			protected void isClicked() {
