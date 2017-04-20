@@ -114,7 +114,7 @@ public class SRSHA{
 		int pos = 0;
 		while(pos<b.length){
 			//Split incomming Message into easy to chew chunks
-			byte[] bToUse = new byte[size/8-1];
+			byte[] bToUse = new byte[size/8];
 			for (int i = 0; i < bToUse.length; i++) {
 				bToUse[i] = b[pos];
 				pos++;
@@ -145,10 +145,6 @@ public class SRSHA{
 			mem[memPos] = (byte)(b[i] ^ mem[memPos]);
 			memPos++;
 			if(memPos>= mem.length) memPos = 0;
-			//Fill sum
-			int bi = b[i];
-			if(bi<0) bi += 256;
-			sum+=bi;
 			//Fill array
 			for (int j = 0; j < 8; j++) {
 				array[x][y] = (array[x][y] ^ takeBit(b[i], j));
@@ -408,7 +404,7 @@ public class SRSHA{
 	}
 	
 	/**
-	 * @return true: doFinal() had been called, Hash can't be changed anymore
+	 * @return true: <b>digest()</b> had been called, Hash can't be changed anymore
 	 */
 	public boolean isFinal(){
 		return isFinal;
@@ -454,7 +450,7 @@ public class SRSHA{
 	 * As soon as digest is called, this Method XORs the mem-Array with the boolean field.
 	 * This is an important part, now the whole "History" is needed to be correct.
 	 */
-	public void mixInMemory(){
+	private void mixInMemory(){
 		byte[] ret1 = new byte[size/8];
 		int c = 0;
 		for (int i = 0; i < ret1.length; i++) {
@@ -583,7 +579,7 @@ public class SRSHA{
 	//////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * Padds an incoming Message to the word length
+	 * Padds an incoming Message to the word length, also fills Sum
 	 * @param b
 	 * @return
 	 */
@@ -591,6 +587,10 @@ public class SRSHA{
 		byte[] bNew = new byte[size/8];
 		for (int i = 0; i < b.length; i++) {
 			bNew[i] = b[i];
+			//Fill sum
+			int bi = b[i];
+			if(bi<0) bi += 256;
+			sum+=bi;
 		}
 		if(b.length>=bNew.length)
 			return bNew;
