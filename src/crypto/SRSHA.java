@@ -8,7 +8,7 @@ public class SRSHA{
 	/**
 	 * The SuperRandomSecureHashingAlgorithm was considered and created by Sven T. Schneider (Nuernberg, Germany)
 	 * It was first published on the 18. April 2017 on github.com/Tynogc.
-	 * The code lies under the GNU-General-Public-License v3.0
+	 * The code is under the GNU-General-Public-License v3.0
 	 * Your free to use the code in your application, as long as the original Creator is marked.
 	 * 
 	 * The basic principle is based on John Horton Conway's "Game of Life" 
@@ -31,15 +31,17 @@ public class SRSHA{
 	//Never use if False! For Debug reason only!!!
 	private static final boolean DO_COMPLEX = true;
 	
-	//Super destructors
+	//Super destructors, mem gets XORed once per Cycle in an diagonal Pattern
 	private int sum;
+	private final int DESTRUCTOR_MEMORY_SIZE;
 	private byte[] mem;
 	private int memPos;
 	//Cycles per update
-	private static final int CYCLES = 23;
+	private final int CYCLES;
 	private int cycleCounter;
 	
-	//Array for digesting operation
+	//Array for digesting operation, is filled 6 times per cycle
+	private final int DIGESTING_ARRAY_SIZE;
 	private int[] dig;
 	private int digPos;
 	
@@ -68,6 +70,18 @@ public class SRSHA{
 		System.out.println(q+" "+(q*q));
 		isFinal = false;
 		
+		CYCLES = size/32+7;
+		
+		if(size/16<CYCLES)
+			DESTRUCTOR_MEMORY_SIZE = size/16;//(8bit XOr with each other) use 1 per cycle
+		else
+			DESTRUCTOR_MEMORY_SIZE = CYCLES-1;//Should be smaller than cycles
+		
+		if((size/16)%2==0)
+			DIGESTING_ARRAY_SIZE  = size/16-1;//(16bit XOr with hash) fill 6 per Cycle
+		else
+			DIGESTING_ARRAY_SIZE  = size/16;//must be odd!
+		
 		reset();
 	}
 	
@@ -80,12 +94,12 @@ public class SRSHA{
 		array = new boolean[q][q];
 		//Super destructors
 		sum = 0;
-		mem = new byte[CYCLES];
+		mem = new byte[DESTRUCTOR_MEMORY_SIZE];
 		memPos = 0;
 		cycleCounter = 0;
 		
 		//digesting array
-		dig = new int[CYCLES*3];
+		dig = new int[DIGESTING_ARRAY_SIZE];
 		digPos = 0;
 	}
 	
@@ -167,10 +181,14 @@ public class SRSHA{
 		
 		int c = 0;
 		for (int i = 0; i < ret1.length; i++) {
-			ret1[i] = (byte)(ret1[i] ^ dig[c]);
-			
-			c++;
-			if(c >= dig.length)c = 0;
+			if(i%2==0){
+				ret1[i] = (byte)(ret1[i] ^ (dig[c]&0xff));
+			}else{
+				ret1[i] = (byte)(ret1[i] ^ (dig[c]>>8));
+				
+				c++;
+				if(c >= dig.length)c = 0;
+			}
 		}
 		
 		return ret1;
@@ -206,7 +224,7 @@ public class SRSHA{
 	
 	//Within one Cycle the original of GameOfLife is played:
 	private static final int CONWAY_Start = 4;
-	private static final int CONWAY_End = CYCLES-3;
+	private static final int CONWAY_End = 3;
 	
 	/**
 	 * The Last iteration was the original "Game of Life"
@@ -233,13 +251,19 @@ public class SRSHA{
 	}
 	
 	private boolean doConway(){
-		if(cycleCounter%CYCLES > CONWAY_Start && cycleCounter%CYCLES <= CONWAY_End){
+		if(cycleCounter%CYCLES == CYCLES-CONWAY_End){
+			return true;
+		}
+		if(cycleCounter%CYCLES > CONWAY_Start && cycleCounter%CYCLES <= CYCLES-CONWAY_End){
 			int lines = 0;
+			int conw = q*2;
+			conw /= 7;
 			for (int i = 0; i < q; i++) {
-				if(countLine(i)>=q/4)
+				if(countLine(i)>=conw)
 					lines++;
 			}
-			if(lines>=q/4)
+			System.out.println(lines + " " + conw);
+			if(lines>=conw)
 				return true;
 		}
 		return false;
@@ -283,7 +307,11 @@ public class SRSHA{
 		for (int i = 0; i < 3; i++) {
 			digPos++;
 			if(digPos>=dig.length)digPos = 0;
-			dig[digPos] = dig[digPos] ^ traverse((sum/q)%q, (sum+(i*q/3))%q);
+			dig[digPos] = dig[digPos] ^ bitTraverse((sum/q)%q, (sum+(i*q/3))%q);
+			
+			digPos++;
+			if(digPos>=dig.length)digPos = 0;
+			dig[digPos] = dig[digPos] ^ bitLine((sum)%q, (sum/q+(i*q/3))%q);
 		}
 		
 	}
@@ -294,7 +322,8 @@ public class SRSHA{
 	 * @return {@link BufferedImage} the visualization of the current state
 	 */
 	public BufferedImage testPaint(int k, Color c){
-		BufferedImage ima = new BufferedImage(q*k+2, q*k+50, BufferedImage.TYPE_INT_ARGB);
+		if(q*k<140) k = 150/q;
+		BufferedImage ima = new BufferedImage(q*k+70, q*k+50, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = ima.getGraphics();
 		g.setColor(c);
 		for (int i = 0; i < q; i++) {
@@ -304,14 +333,32 @@ public class SRSHA{
 			}
 		}
 		g.setColor(Color.cyan);
+		int x = (sum/q)%q;
+		int y = (sum)%q;
+		x*=k;
+		y*=k;
+		//Draw filled bits
+		g.drawLine(x+k/2, y+k/2, x+k*3, y+k*3);
+		g.setColor(Color.red);
+		//DrawdigestingBits diagonal
 		for (int i = 0; i < 3; i++) {
-			int x = (sum/q)%q;
-			int y = (sum+(i*q/3))%q;
+			x = (sum/q)%q;
+			y = (sum+(i*q/3))%q;
 			x*=k;
 			y*=k;
-			if(i!=0)
-				g.setColor(Color.blue);
-			g.drawLine(x+k/2, y+k/2, x+k*3, y+k*3);
+			y+=k/2;
+			x+=k/2;
+			g.drawLine(x, y, x-k*3, y+k*3);
+		}
+		//DrawdigestingBits linear
+		for (int i = 0; i < 3; i++) {
+			y = (sum/q +(i*q/3))%q;
+			x = (sum)%q;
+			x*=k;
+			y*=k;
+			y+=k/2;
+			x+=k/2;
+			g.drawLine(x, y, x+30, y);
 		}
 		
 		g.drawRect(0, 0, q*k+1, q*k+1);
@@ -325,6 +372,11 @@ public class SRSHA{
 			g.drawString("C", 120, q*k+46);
 		else
 			g.drawString("N", 130, q*k+46);
+		
+		for (int i = 0; i < dig.length; i++) {
+			g.drawString(""+(byte)(dig[i]&0xff), q*k+10, i*10);
+			g.drawString(""+(byte)(dig[i]>>8), q*k+40, i*10);
+		}
 		return ima;
 	}
 	
@@ -389,10 +441,10 @@ public class SRSHA{
 	}
 	
 	//Goes through in an inverse diagonal pattern
-	private int traverse(int x, int y){
+	private int bitTraverse(int x, int y){
 		int i = 0;
 		int t = 1;
-		for (int j = 0; j < 8; j++) {
+		for (int j = 0; j < 16; j++) {
 			if(isThere(x, y))
 				i+=t;
 			t*=2;
@@ -410,6 +462,24 @@ public class SRSHA{
 		for (int i = 0; i < q; i++) {
 			if(array[l][i])
 				r++;
+		}
+		return r;
+	}
+	
+	//takes the int in the line
+	private int bitLine(int x, int y){
+		int r = 0;
+		int t = 1;
+		for (int i = 0; i < 16; i++) {
+			if(array[x][y])
+				r+=t;
+			t*=2;
+			y++;
+			if(y>=q){
+				y = 0;
+				x++;
+				if(x>=q)x=0;
+			}
 		}
 		return r;
 	}
