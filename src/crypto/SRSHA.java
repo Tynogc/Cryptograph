@@ -13,7 +13,7 @@ public class SRSHA{
 	 * 
 	 * The basic principle is based on John Horton Conway's "Game of Life" 
 	 * @author Sven T. Schneider
-	 * @version 0.1
+	 * @version 0.2
 	 */
 	
 	public final int size;
@@ -54,10 +54,10 @@ public class SRSHA{
 	/**
 	 * Generates a Hash by the SRSH-Algorithm ( (C) Sven T. Schneider)
 	 * Call the update(byte[])-Method to digest bytes into the Hash
-	 * The digest()-Methods return the current state of the Hash
+	 * The getState()-Method return the current state of the Hash
 	 * During operation you can call reset() to reset the Algorithm to the start!
-	 * To finish operation, call doFinal(). If necessary, it runs the digesting one final time.
-	 * After that is done, the final Hash is given to you.
+	 * To finish operation, call digest(). This runs the cycle one final time and adds the destructors.
+	 * After that is done, the final Hash is given to you (or can be retrived by calling getstate()).
 	 * @param size Bit-length of the Hash, use the Provided Variables:
 	 * 		SRSHA.SRSHA_64 - SRSHA.SRSHA_1024 
 	 * to ensure compatibility. (It should work with any other size as well)
@@ -114,6 +114,20 @@ public class SRSHA{
 		//Pad Message
 		b = paddIncomingMessage(b);
 		
+		addToMainField(b);
+		
+		if(doCycleAutomatic){
+			for (int i = 0; i < CYCLES; i++) {
+				doLoopIntern();
+			}
+		}
+	}
+	
+	/**
+	 * XORs the byte-Array to the boolean-field
+	 * @param b
+	 */
+	private void addToMainField(byte[] b){
 		int x = 0;
 		int y = 0;
 		for (int i = 0; i < b.length; i++) {
@@ -136,28 +150,13 @@ public class SRSHA{
 				}
 			}
 		}
-		if(doCycleAutomatic){
-			for (int i = 0; i < CYCLES; i++) {
-				doLoopIntern();
-			}
-		}
 	}
 	
 	/**
-	 * Same as update(byte[]), however also returns a digested Hash.
-	 * @param b the Bytes to digest
-	 * @return Hash of current state
-	 */
-	public byte[] digest(byte[] b){
-		update(b);
-		return digest();
-	}
-	
-	/**
-	 * Returns the current digested hash
+	 * Returns the current hash
 	 * @return current hash
 	 */
-	public byte[] digest(){
+	public byte[] getState(){
 		byte[] ret1 = new byte[size/8];
 		int p = 0;
 		int pi = 1;
@@ -177,17 +176,19 @@ public class SRSHA{
 			}
 		}
 		
-		if(cycleCounter==0)return ret1;
-		
-		int c = 0;
+		//Mix in mem.
+		int c = (sum+mem[0]+mem[1])%mem.length;
+		System.out.println(c);
 		for (int i = 0; i < ret1.length; i++) {
 			if(i%2==0){
-				ret1[i] = (byte)(ret1[i] ^ (dig[c]&0xff));
+				ret1[i] = (byte)((dig[c]&0xff));
 			}else{
-				ret1[i] = (byte)(ret1[i] ^ (dig[c]>>8));
+				ret1[i] = (byte)((dig[c]>>8));
 				
 				c++;
-				if(c >= dig.length)c = 0;
+				if(c >= dig.length){
+					c = 0;
+				}
 			}
 		}
 		
@@ -232,57 +233,11 @@ public class SRSHA{
 	public boolean conwayWasPlayed;
 	
 	/**
-	 * Determines whether Conways original or the Mutation is played this cycle
-	 * Because Conways Game of Life is Non-Reversible, it destroys any possibility of undoing the change
-	 * however, it also leads quit fast to a blank chart, thats why the mutation must be called more often
+	 * Plays One round of the GameOfLife or teh Mutation variant
+	 * @param conway use Original
 	 */
-	private void prepareLoop(){
-		if(doConway()){
-			ZERO_TO_ONE = ZERO_TO_ONE_Conway;
-			ONE_TO_ONE1 = ONE_TO_ONE1_Conway;
-			ONE_TO_ONE2 = ONE_TO_ONE2_Conway;
-			conwayWasPlayed = true;
-		}else{
-			ZERO_TO_ONE = ZERO_TO_ONE_Mutation;
-			ONE_TO_ONE1 = ONE_TO_ONE1_Mutation;
-			ONE_TO_ONE2 = ONE_TO_ONE2_Mutation;
-			conwayWasPlayed = false;
-		}
-	}
-	
-	private boolean doConway(){
-		if(cycleCounter%CYCLES == CYCLES-CONWAY_End){
-			return true;
-		}
-		if(cycleCounter%CYCLES > CONWAY_Start && cycleCounter%CYCLES <= CYCLES-CONWAY_End){
-			int lines = 0;
-			int conw = q*2;
-			conw /= 7;
-			for (int i = 0; i < q; i++) {
-				if(countLine(i)>=conw)
-					lines++;
-			}
-			System.out.println(lines + " " + conw);
-			if(lines>=conw)
-				return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Plays one iteration of GameOfLife or the mutation variant.
-	 * Also calls the Super_Random_Methode
-	 */
-	private void doLoopIntern(){
-		if(isFinal)
-			return;
-		cycleCounter++;
-		
-		//Super Random Loop
-		if(DO_COMPLEX)
-			srDoLoop();
-		
-		prepareLoop();
+	private void playOneRound(boolean conway){
+		prepareLoop(conway);
 		
 		boolean[][] b = new boolean[q][q]; 
 		for (int i = 0; i < array.length; i++) {
@@ -302,6 +257,63 @@ public class SRSHA{
 			}
 		}
 		array = b;
+	}
+	
+	/**
+	 * Sets the Rule-Numbers to the given rule
+	 */
+	private void prepareLoop(boolean conway){
+		if(conway){
+			ZERO_TO_ONE = ZERO_TO_ONE_Conway;
+			ONE_TO_ONE1 = ONE_TO_ONE1_Conway;
+			ONE_TO_ONE2 = ONE_TO_ONE2_Conway;
+			conwayWasPlayed = true;
+		}else{
+			ZERO_TO_ONE = ZERO_TO_ONE_Mutation;
+			ONE_TO_ONE1 = ONE_TO_ONE1_Mutation;
+			ONE_TO_ONE2 = ONE_TO_ONE2_Mutation;
+			conwayWasPlayed = false;
+		}
+	}
+	
+	/**
+	 * Determines whether Conways original or the Mutation is played this cycle
+	 * Because Conways Game of Life is Non-Reversible, it destroys any possibility of undoing the change
+	 * however, it also leads quit fast to a blank chart, thats why the mutation must be called more often
+	 */
+	private boolean doConway(){
+		if(cycleCounter%CYCLES == CYCLES-CONWAY_End){
+			return true;
+		}
+		if(cycleCounter%CYCLES > CONWAY_Start && cycleCounter%CYCLES <= CYCLES-CONWAY_End){
+			int lines = 0;
+			int conw = q*2;
+			conw /= 7;
+			for (int i = 0; i < q; i++) {
+				if(countLine(i)>=conw)
+					lines++;
+			}
+			if(lines>=conw)
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Plays one iteration of GameOfLife or the mutation variant.
+	 * Also calls the Super_Random_Methode
+	 */
+	private void doLoopIntern(){
+		if(isFinal)
+			return;
+		cycleCounter++;
+		
+		//Super Random Loop
+		if(DO_COMPLEX)
+			srDoLoop();
+		
+		//Play one round
+		playOneRound(doConway());
 		
 		//Fill the digesting Array with a "random" number
 		for (int i = 0; i < 3; i++) {
@@ -339,7 +351,7 @@ public class SRSHA{
 		y*=k;
 		//Draw filled bits
 		g.drawLine(x+k/2, y+k/2, x+k*3, y+k*3);
-		g.setColor(Color.red);
+		g.setColor(Color.blue);
 		//DrawdigestingBits diagonal
 		for (int i = 0; i < 3; i++) {
 			x = (sum/q)%q;
@@ -367,7 +379,7 @@ public class SRSHA{
 		for (int i = 0; i < mem.length; i++) {
 			g.drawString(""+mem[i], i*20, q*k+32);
 		}
-		g.drawString(sum+"   "+cycleCounter, 20, q*k+46);
+		g.drawString(sum+"   "+cycleCounter+ " " + countTrue(), 20, q*k+46);
 		if(conwayWasPlayed)
 			g.drawString("C", 120, q*k+46);
 		else
@@ -388,26 +400,50 @@ public class SRSHA{
 	}
 	
 	/**
-	 * Finalizes the digesting process and returns the digested Hash
+	 * Mixes the current state withe the Interpolations and runs the cycle one last time.
 	 * Form here on the Hash can't be changed!
 	 * @return
 	 */
-	public byte[] doFinal(){
+	public byte[] digest(){
+		if(isFinal)
+			return getState();
+		
+		//Mix the Memory into the field
+		//TODO TODO TODO TODO
+		
+		//Now its almost done, Conways Original GameOfLife is now played one last cycle,
+		//to destroy reversability completly.
+		playOneRound(true);
+		cycleCounter = CONWAY_Start+1;
+		playOneRound(doConway());
+		playOneRound(false);
+		
 		isFinal = true;
-		return digest();
+		return getState();
 	}
 	
 	/**
-	 * Calls the digesting algorithm one last time with the byte[] b and returns the final Hash
-	 * Form here on the Hash can't be changed!
-	 * @param b
-	 * @return
+	 * As soon as digest is called, this Method XORs the mem-Array with the boolean field.
+	 * This is an important part, now the whole "History" is needed to be correct.
 	 */
-	public byte[] doFinal(byte[] b){
-		byte[] r = digest(b);
-		isFinal = true;
-		return r;
+	public void mixInMemory(){
+		byte[] ret1 = new byte[size/8];
+		int c = 0;
+		for (int i = 0; i < ret1.length; i++) {
+			if(i%2==0){
+				ret1[i] = (byte)((dig[c]&0xff));
+			}else{
+				ret1[i] = (byte)((dig[c]>>8));
+				
+				c++;
+				if(c >= dig.length){
+					c = 0;
+				}
+			}
+		}
+		addToMainField(ret1);
 	}
+	
 	
 	/**
 	 * Counts the surrounding fields
@@ -534,5 +570,14 @@ public class SRSHA{
 			}
 		}
 		return bNew;
+	}
+	
+	//Counts all true bits
+	public int countTrue(){
+		int k = 0;
+		for (int i = 0; i < q; i++) {
+			k+=countLine(i);
+		}
+		return k;
 	}
 }

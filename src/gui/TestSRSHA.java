@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -22,6 +23,8 @@ public class TestSRSHA extends AbstractMenu{
 	
 	private menu.DropDownMenu ddm;
 	private menu.CheckBox cbx;
+	private BufferedImage buf;
+	private boolean needUpdate;
 	
 	
 	public TestSRSHA(int x, int y, final TextEnterField tef) {
@@ -44,6 +47,7 @@ public class TestSRSHA extends AbstractMenu{
 				hash2 = new SRSHA(ed);
 				hash2.noAutomaticLoop();
 				hash2.update(flipRandomBit(tef.getText().getBytes()));
+				needUpdate = true;
 			}
 			@Override
 			protected void isFocused() {
@@ -69,6 +73,7 @@ public class TestSRSHA extends AbstractMenu{
 				hash2 = new SRSHA(ed);
 				hash2.update(flipRandomBit(tef.getText().getBytes()));
 				debug.Debug.println("Done2");
+				needUpdate = true;
 			}
 			@Override
 			protected void isFocused() {
@@ -93,6 +98,8 @@ public class TestSRSHA extends AbstractMenu{
 					hash1.doLoop();
 				if(hash2 != null)
 					hash2.doLoop();
+				
+				needUpdate = true;
 			}
 			@Override
 			protected void isFocused() {
@@ -106,6 +113,55 @@ public class TestSRSHA extends AbstractMenu{
 		};
 		add(b3);
 		b3.setText("Do A Step");
+		
+		Button b4 = new Button(220,90,"res/ima/cli/Gs"){
+			//network.TCPclient cl;
+			@Override
+			protected void isClicked() {
+				//cl = new network.TCPclient("localhost", 1234);
+				if(hash1 != null)
+					hash1.mixInMemory();
+				if(hash2 != null)
+					hash2.mixInMemory();
+				
+				needUpdate = true;
+			}
+			@Override
+			protected void isFocused() {
+				
+			}
+			@Override
+			protected void uppdate() {
+				//if(cl != null)
+					//cl.refresh();
+			}
+		};
+		add(b4);
+		b4.setText("Mix");
+		Button b5 = new Button(320,90,"res/ima/cli/Gs"){
+			//network.TCPclient cl;
+			@Override
+			protected void isClicked() {
+				//cl = new network.TCPclient("localhost", 1234);
+				if(hash1 != null)
+					hash1.digest();
+				if(hash2 != null)
+					hash2.digest();
+				
+				needUpdate = true;
+			}
+			@Override
+			protected void isFocused() {
+				
+			}
+			@Override
+			protected void uppdate() {
+				//if(cl != null)
+					//cl.refresh();
+			}
+		};
+		add(b5);
+		b5.setText("Digest");
 		
 		ddm = new DropDownMenu(420,70,100) {
 			@Override
@@ -138,7 +194,7 @@ public class TestSRSHA extends AbstractMenu{
 		cbx = new CheckBox(420,30,"res/ima/cli/cbx/CB", 100) {
 			@Override
 			public void changed(boolean b) {
-				
+				needUpdate = true;
 			}
 		};
 		add(cbx);
@@ -156,11 +212,13 @@ public class TestSRSHA extends AbstractMenu{
 
 	@Override
 	protected void uppdateIntern() {
+		if(!needUpdate)
+			return;
+		needUpdate = false;
 		
-	}
-
-	@Override
-	protected void paintIntern(Graphics g) {
+		buf = new BufferedImage(600, 600, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = buf.getGraphics();
+		
 		if(hash1 != null)
 			g.drawImage(hash1.testPaint(9, new Color(150,0,250)), 0, 140, null);
 		if(hash2 != null && cbx.getState())
@@ -171,17 +229,34 @@ public class TestSRSHA extends AbstractMenu{
 		g.setFont(main.Fonts.fontSans14);
 		if(hash1 != null){
 			g.setColor(new Color(150,0,250));
-			byte[] b = hash1.digest();
+			byte[] b = hash1.getState();
 			str = Base64.getEncoder().encodeToString(b);
-			g.drawString(str, 0, 500);
+			if(str.length()> 64){
+				g.drawString(str.substring(0,64), 0, 500);
+				g.drawString(str.substring(64), 0, 510);
+			}else{
+				g.drawString(str, 0, 500);
+			}
+			
 		}
 		
 		if(hash2 != null && cbx.getState()){
 			g.setColor(Color.red);
-			byte[] b = hash2.digest();
+			byte[] b = hash2.getState();
 			str = Base64.getEncoder().encodeToString(b);
-			g.drawString(str, 0, 520);
+			if(str.length()> 64){
+				g.drawString(str.substring(0,64), 0, 520);
+				g.drawString(str.substring(64), 0, 530);
+			}else{
+				g.drawString(str, 0, 520);
+			}
 		}
+	}
+
+	@Override
+	protected void paintIntern(Graphics g) {
+		if(buf != null)
+			g.drawImage(buf, 0, 140, null);
 	}
 	
 	private byte[] flipRandomBit(byte[] b){
