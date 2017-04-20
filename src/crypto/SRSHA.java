@@ -63,7 +63,7 @@ public class SRSHA{
 	 * 		SRSHA.SRSHA_64 - SRSHA.SRSHA_1024 
 	 * to ensure compatibility. (It should work with any other size as well)
 	 */
-	public SRSHA(int size){
+	public SRSHA(final int size){
 		this.size = size;
 		int qs = (int) Math.sqrt(size);
 		if(qs*qs < size)qs++;
@@ -590,7 +590,7 @@ public class SRSHA{
 			//Fill sum
 			int bi = b[i];
 			if(bi<0) bi += 256;
-			sum+=bi;
+			sum+=bi+1;
 		}
 		if(b.length>=bNew.length)
 			return bNew;

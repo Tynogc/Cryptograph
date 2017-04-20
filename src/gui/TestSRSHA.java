@@ -202,7 +202,7 @@ public class TestSRSHA extends AbstractMenu{
 		
 		String str = "";
 		
-		g.setFont(main.Fonts.fontSans14);
+		g.setFont(main.Fonts.fontSans12);
 		if(hash1 != null){
 			g.setColor(new Color(150,0,250));
 			byte[] b = hash1.getState();
