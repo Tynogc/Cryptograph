@@ -35,36 +35,18 @@ public class TopMenu extends AbstractMenu{
 	private int position;
 	private boolean up;
 	
-	private SRSHA hash1;
-	private SRSHA hash2;
-	private TextEnterButton teb;
-	private final int ed = SRSHA.SRSHA_1024;
-	
 	public TopMenu() {
 		super(0,30,300,HIGHT_OF_CONTAINERS+DISTANCE+128);
-		
-		hash1 = new SRSHA(ed);
-		hash1.update("ac".getBytes());
-		hash2 = new SRSHA(ed);
-		hash2.update("ac".getBytes());
 		
 		Button b1 = new Button(20,50,"res/ima/cli/b"){
 			@Override
 			protected void isClicked() {
-				/*PicturSystem pc = new PicturSystem(30, 100);
+				PicturSystem pc = new PicturSystem(30, 100);
 				GuiControle.addMenu(pc);
 				SetPassword sp = new SetPassword();
 				GuiControle.setSuperMenu(new EnterPassword(sp, SeyprisMain.getKL(), true));
-				pc.setPassword(sp);*/
+				pc.setPassword(sp);
 				//new network.TCPserver(1234);
-				
-				hash1 = new SRSHA(ed);
-				hash1.noAutomaticLoop();
-				hash1.update(teb.getText().getBytes());
-				
-				hash2 = new SRSHA(ed);
-				hash2.noAutomaticLoop();
-				hash2.update(flipRandomBit(teb.getText().getBytes()));
 			}
 			@Override
 			protected void isFocused() {
@@ -79,16 +61,10 @@ public class TopMenu extends AbstractMenu{
 		b1.setText("TEST");
 		
 		Button b2 = new Button(220,50,"res/ima/cli/b"){
-			//network.TCPclient cl;
+			network.TCPclient cl;
 			@Override
 			protected void isClicked() {
-				//cl = new network.TCPclient("localhost", 1234);
-				hash1 = new SRSHA(ed);
-				hash1.update(teb.getText().getBytes());
-				debug.Debug.println("Done1");
-				hash2 = new SRSHA(ed);
-				hash2.update(flipRandomBit(teb.getText().getBytes()));
-				debug.Debug.println("Done2");
+				cl = new network.TCPclient("localhost", 1234);
 			}
 			@Override
 			protected void isFocused() {
@@ -96,8 +72,8 @@ public class TopMenu extends AbstractMenu{
 			}
 			@Override
 			protected void uppdate() {
-				//if(cl != null)
-					//cl.refresh();
+				if(cl != null)
+					cl.refresh();
 			}
 		};
 		add(b2);
@@ -113,11 +89,7 @@ public class TopMenu extends AbstractMenu{
 			
 			@Override
 			protected void isClicked() {
-				if(hash1 != null)
-					hash1.doLoop();
 				
-				if(hash2 != null)
-					hash2.doLoop();
 			}
 		});
 		
@@ -154,14 +126,6 @@ public class TopMenu extends AbstractMenu{
 				new SideDisplay("mirrow.edge.com", "Ping 10ms",SideDisplay.SERVER_MIRROW)
 		};
 		allCont[2].updateButtons(sd);
-		
-		teb = new TextEnterButton(180,30,100,20,Color.white,SeyprisMain.getKL()) {
-			@Override
-			protected void textEntered(String text) {
-				
-			}
-		};
-		add(teb);
 		
 		animCount = System.currentTimeMillis();
 	}
@@ -223,30 +187,6 @@ public class TopMenu extends AbstractMenu{
 	protected void paintIntern(Graphics g) {
 		//System.out.println(g.getFontMetrics().getStringBounds("abcdefg", g).getWidth());
 		//g.drawString("abcdefg", 100, 200);
-		g.drawImage(hash1.testPaint(9, new Color(255,0,0)), 400, 400, null);
-		g.drawImage(hash2.testPaint(9, new Color(5,255,0,125)), 400, 400, null);
-		
-		String str = "";
-		
-		g.setColor(Color.red);
-		byte[] b = hash1.digest();
-		str = Base64.getEncoder().encodeToString(b);
-		g.drawString(str, 400, 370);
-		
-		g.setColor(Color.green);
-		b = hash2.digest();
-		str = Base64.getEncoder().encodeToString(b);
-		g.drawString(str, 400, 390);
-	}
-	
-	private byte[] flipRandomBit(byte[] b){
-		SecureRandom s = Random.generateSR();
-		int a = s.nextInt(b.length);
-		int c = s.nextInt(8);
-		
-		b[a]+=(1<<c);
-		
-		return b;
 	}
 
 }

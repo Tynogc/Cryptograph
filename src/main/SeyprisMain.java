@@ -76,8 +76,9 @@ public class SeyprisMain extends JPanel{
 		frame.add(text);
 		text.setText("Hello \n is this the new Text");
 		
-		GuiControle.addMenu(new TextEnterAssist(300, 300, text));
+		GuiControle.addMenu(new TextEnterAssist(300, 500, text));
 		//GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
+		GuiControle.addMenu(new gui.TestSRSHA(200, 30, text));
 		
 		//Set Menus
 		if(st.startPicCrypto){
