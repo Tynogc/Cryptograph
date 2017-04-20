@@ -17,6 +17,12 @@ public abstract class DropDownMenu extends Button{
 	
 	private int virtualXSize;
 	
+	/**
+	 * Creates a new container for DropDownButton Objects
+	 * @param x xPosition
+	 * @param y yPosition
+	 * @param size xSiez of Buttons
+	 */
 	public DropDownMenu(int x, int y, int size) {
 		super(x+size, y, "res/ima/cli/scr/1d");
 		
