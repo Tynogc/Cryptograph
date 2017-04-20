@@ -4,22 +4,26 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
 import crypto.NumberEncrypter;
 import crypto.RSAcrypto;
 import crypto.RSAsaveKEY;
+import crypto.SRSHA;
 
 public class Main {
 
 	public static void main(String[] args) throws Exception {
+		cryptoUtility.Random.enterEntropy(0);
 		for (int i = 0; i < 100; i++) {
 			//testNumberEnc();
 		}
 		//testKeyGen();
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
+		testSRSHA(1000, 1024);
 		new SeyprisMain();
 	}
 	
@@ -63,6 +67,56 @@ public class Main {
 		i = crypto.RSAcrypto.encryptBlock(i, priv, true);
 		System.out.println(i.toString(16));
 	}
-
+	
+	protected static void testSRSHA(int a, int size){
+		long tStart = System.currentTimeMillis();
+		long trueBits = 0;
+		int minBits = 10000;
+		int maxBits = 0;
+		int[] ammount = new int[256];
+		
+		SecureRandom rndm = cryptoUtility.Random.generateSR();
+		crypto.SRSHA srsha;
+		byte[] b;
+		for (int i = 0; i < a; i++) {
+			srsha = new SRSHA(size);
+			srsha.update(cryptoUtility.Random.generateRandomString(rndm.nextInt(size/5)+2, rndm).getBytes());
+			b = srsha.digest();
+			for (int j = 0; j < b.length; j++) {
+				int q = b[j];
+				if(q<0)q+=256;
+				ammount[q]++;
+			}
+			int q = gui.TestSRSHA.countSetBits(b);
+			if(q<minBits)minBits = q;
+			if(q>maxBits)maxBits = q;
+			trueBits+=q;
+			System.out.println(i);
+			srsha = null;
+			Runtime.getRuntime().gc();
+		}
+		
+		tStart = System.currentTimeMillis()-tStart;
+		System.out.println("DONE! Time was:"+tStart+"(Avr.:"+tStart/a+")");
+		System.out.println("Tru Bits: "+trueBits/a+" Min:"+minBits+" Max:"+maxBits);
+		for (int i = 0; i < ammount.length; i++) {
+			if(i<10)
+				System.out.println("  "+i+": "+ammount[i]);
+			else if(i<100)
+				System.out.println(" "+i+": "+ammount[i]);
+			else
+				System.out.println(i+": "+ammount[i]);
+		}
+		
+		minBits = 100000;
+		maxBits = 0;
+		trueBits = 0;
+		for (int i = 0; i < ammount.length; i++) {
+			if(ammount[i]<minBits)minBits = ammount[i];
+			if(ammount[i]>maxBits)maxBits = ammount[i];
+			trueBits+=ammount[i];
+		}
+		System.out.println("Histogramm min:"+minBits+" max:"+maxBits);
+	}
 }
  

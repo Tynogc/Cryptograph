@@ -13,7 +13,7 @@ public class SRSHA{
 	 * 
 	 * The basic principle is based on John Horton Conway's "Game of Life" 
 	 * @author Sven T. Schneider
-	 * @version 0.2
+	 * @version 0.2.1
 	 */
 	
 	public final int size;
@@ -21,6 +21,7 @@ public class SRSHA{
 	//Size of Array: sqrt(size) or sqrt(size)+1
 	private final int q;
 	private boolean[][] array;
+	private boolean[][] arrayInactiv;
 	
 	public static final int SRSHA_64 = 64;
 	public static final int SRSHA_128 = 128;
@@ -67,7 +68,6 @@ public class SRSHA{
 		int qs = (int) Math.sqrt(size);
 		if(qs*qs < size)qs++;
 		q = qs;
-		System.out.println(q+" "+(q*q));
 		isFinal = false;
 		
 		CYCLES = size/32+7;
@@ -89,9 +89,9 @@ public class SRSHA{
 	 * Resets the Algorithm to start
 	 */
 	public void reset(){
-		if(isFinal)
-			return;
+		isFinal = false;
 		array = new boolean[q][q];
+		arrayInactiv = new boolean[q][q];
 		//Super destructors
 		sum = 0;
 		mem = new byte[DESTRUCTOR_MEMORY_SIZE];
@@ -111,14 +111,24 @@ public class SRSHA{
 		if(isFinal)
 			return;
 		
-		//Pad Message
-		b = paddIncomingMessage(b);
-		
-		addToMainField(b);
-		
-		if(doCycleAutomatic){
-			for (int i = 0; i < CYCLES; i++) {
-				doLoopIntern();
+		int pos = 0;
+		while(pos<b.length){
+			//Split incomming Message into easy to chew chunks
+			byte[] bToUse = new byte[size/8-1];
+			for (int i = 0; i < bToUse.length; i++) {
+				bToUse[i] = b[pos];
+				pos++;
+				if(pos>=b.length)break;
+			}
+			
+			//Pad Message
+			bToUse = paddIncomingMessage(bToUse);
+			
+			addToMainField(bToUse);
+			if(doCycleAutomatic){
+				for (int i = 0; i < CYCLES; i++) {
+					doLoopIntern();
+				}
 			}
 		}
 	}
@@ -177,13 +187,13 @@ public class SRSHA{
 		}
 		
 		//Mix in mem.
-		int c = (sum+mem[0]+mem[1])%mem.length;
-		System.out.println(c);
+		int c = (sum+mem[0]+dig[1]+mem[2])%dig.length;
+		if(c<0)c*=-1;
 		for (int i = 0; i < ret1.length; i++) {
 			if(i%2==0){
-				ret1[i] = (byte)((dig[c]&0xff));
+				ret1[i] = (byte)(ret1[i] ^ (dig[c]&0xff));
 			}else{
-				ret1[i] = (byte)((dig[c]>>8));
+				ret1[i] = (byte)(ret1[i] ^ (dig[c]>>8));
 				
 				c++;
 				if(c >= dig.length){
@@ -215,11 +225,13 @@ public class SRSHA{
 	private static final int ONE_TO_ONE1_Conway = 2;
 	private static final int ONE_TO_ONE2_Conway = 3;
 	
-	private static final int ZERO_TO_ONE_Mutation = 2;
+	private static final int ZERO_TO_ONE1_Mutation = 2;
+	private static final int ZERO_TO_ONE2_Mutation = 3;
 	private static final int ONE_TO_ONE1_Mutation = 3;
 	private static final int ONE_TO_ONE2_Mutation = 6;
 	
-	private int ZERO_TO_ONE;
+	private int ZERO_TO_ONE1;
+	private int ZERO_TO_ONE2;
 	private int ONE_TO_ONE1;
 	private int ONE_TO_ONE2;
 	
@@ -239,9 +251,9 @@ public class SRSHA{
 	private void playOneRound(boolean conway){
 		prepareLoop(conway);
 		
-		boolean[][] b = new boolean[q][q]; 
-		for (int i = 0; i < array.length; i++) {
-			for (int j = 0; j < array[i].length; j++) {
+		boolean[][] b = arrayInactiv;
+		for (int i = 0; i < q; i++) {
+			for (int j = 0; j < q; j++) {
 				int f = count(i, j);
 				if(isThere(i, j)){
 					if(f == ONE_TO_ONE1 || f == ONE_TO_ONE2)
@@ -249,13 +261,14 @@ public class SRSHA{
 					else
 						b[i][j] = false;
 				}else{
-					if(f == ZERO_TO_ONE)
+					if(f == ZERO_TO_ONE1 || f == ZERO_TO_ONE2)
 						b[i][j] = true;
 					else
 						b[i][j] = false;
 				}
 			}
 		}
+		arrayInactiv = array;
 		array = b;
 	}
 	
@@ -264,12 +277,14 @@ public class SRSHA{
 	 */
 	private void prepareLoop(boolean conway){
 		if(conway){
-			ZERO_TO_ONE = ZERO_TO_ONE_Conway;
+			ZERO_TO_ONE1 = ZERO_TO_ONE_Conway;
+			ZERO_TO_ONE2 = 100;
 			ONE_TO_ONE1 = ONE_TO_ONE1_Conway;
 			ONE_TO_ONE2 = ONE_TO_ONE2_Conway;
 			conwayWasPlayed = true;
 		}else{
-			ZERO_TO_ONE = ZERO_TO_ONE_Mutation;
+			ZERO_TO_ONE1 = ZERO_TO_ONE1_Mutation;
+			ZERO_TO_ONE2 = ZERO_TO_ONE2_Mutation;
 			ONE_TO_ONE1 = ONE_TO_ONE1_Mutation;
 			ONE_TO_ONE2 = ONE_TO_ONE2_Mutation;
 			conwayWasPlayed = false;
@@ -379,7 +394,7 @@ public class SRSHA{
 		for (int i = 0; i < mem.length; i++) {
 			g.drawString(""+mem[i], i*20, q*k+32);
 		}
-		g.drawString(sum+"   "+cycleCounter+ " " + countTrue(), 20, q*k+46);
+		g.drawString(sum+"   "+cycleCounter+"   "+countTrue(), 20, q*k+46);
 		if(conwayWasPlayed)
 			g.drawString("C", 120, q*k+46);
 		else
@@ -409,7 +424,7 @@ public class SRSHA{
 			return getState();
 		
 		//Mix the Memory into the field
-		//TODO TODO TODO TODO
+		mixInMemory();
 		
 		//Now its almost done, Conways Original GameOfLife is now played one last cycle,
 		//to destroy reversability completly.
@@ -417,6 +432,19 @@ public class SRSHA{
 		cycleCounter = CONWAY_Start+1;
 		playOneRound(doConway());
 		playOneRound(false);
+		playOneRound(false);
+		
+		//We are almost there, destroy dig[] by adding mem[]
+		int m = 0;
+		for (int i = 0; i < dig.length; i++) {
+			int b1 = mem[m];
+			m++;
+			if(m>=mem.length)m = 0;
+			int b2 = mem[m];
+			m++;
+			if(m>=mem.length)m = 0;
+			dig[i] = (dig[i] ^ ((b2<<8)|b1));
+		}
 		
 		isFinal = true;
 		return getState();
@@ -527,12 +555,14 @@ public class SRSHA{
 	 * Loop for Super-Random: call once per doLoop()
 	 */
 	private void srDoLoop(){
-		
+		int r = 0;
 		if(cycleCounter>=1)
 		do{
 			memPos++;
 			if(memPos>=mem.length)memPos = 0;
-		}while(mem[memPos]==0);
+			
+			r++;
+		}while(mem[memPos]==0 && r<mem.length);
 		
 		fillTraverse((sum/q)%q, sum%q, mem[memPos]);
 		sum++;
@@ -558,10 +588,12 @@ public class SRSHA{
 	 * @return
 	 */
 	private byte[] paddIncomingMessage(byte[] b){
-		byte[] bNew = new byte[size];
+		byte[] bNew = new byte[size/8];
 		for (int i = 0; i < b.length; i++) {
 			bNew[i] = b[i];
 		}
+		if(b.length>=bNew.length)
+			return bNew;
 		for (int i = b.length; i < bNew.length; i++) {
 			if(i == bNew.length-1){
 				bNew[i] = (byte)b.length;

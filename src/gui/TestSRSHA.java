@@ -237,6 +237,7 @@ public class TestSRSHA extends AbstractMenu{
 			}else{
 				g.drawString(str, 0, 500);
 			}
+			g.drawString("High bits: "+countSetBits(b), 0, 520);
 			
 		}
 		
@@ -245,11 +246,12 @@ public class TestSRSHA extends AbstractMenu{
 			byte[] b = hash2.getState();
 			str = Base64.getEncoder().encodeToString(b);
 			if(str.length()> 64){
-				g.drawString(str.substring(0,64), 0, 520);
-				g.drawString(str.substring(64), 0, 530);
+				g.drawString(str.substring(0,64), 0, 530);
+				g.drawString(str.substring(64), 0, 540);
 			}else{
-				g.drawString(str, 0, 520);
+				g.drawString(str, 0, 530);
 			}
+			g.drawString("High bits: "+countSetBits(b), 0, 550);
 		}
 	}
 
@@ -268,6 +270,31 @@ public class TestSRSHA extends AbstractMenu{
 		
 		return b;
 	}
+	
+	//Cod frome stackoverflow.com by the user myborobudur just for debug...
 
+	public static int countSetBits(byte[] array) {
+	    int setBits = 0;
+
+	    if (array != null) {
+	        for (int byteIndex = 0; byteIndex < array.length; byteIndex++) {
+	            for (int bitIndex = 0; bitIndex < 7; bitIndex++) {
+	                if (getBit(bitIndex, array[byteIndex])) {
+	                    setBits++;
+	                }
+	            }
+	        }
+	    }
+	    return setBits;
+	}
+	
+	public static boolean getBit(int index, final byte b) {
+	    byte t = setBit(index, (byte) 0);
+	    return (b & t) > 0;
+	}
+	
+	public static byte setBit(int index, final byte b) {
+	    return (byte) ((1 << index) | b);
+	}
 	
 }
