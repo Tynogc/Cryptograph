@@ -6,7 +6,12 @@ import java.awt.image.BufferedImage;
 
 public class SRSHA{
 	/**
-	 * The SuperRandomSecureHashingAlgorithm is Idear and Copyright Sven T. Schneider
+	 * The SuperRandomSecureHashingAlgorithm was considered and created by Sven T. Schneider (Nuernberg, Germany)
+	 * It was first published on the 18. April 2017 on github.com/Tynogc.
+	 * The code lies under the GNU-General-Public-License v3.0
+	 * Your free to use the code in your application, as long as the original Creator is marked.
+	 * 
+	 * The basic principle is based on John Horton Conway's "Game of Life" 
 	 * @author Sven T. Schneider
 	 * @version 0.1
 	 */
