@@ -23,7 +23,7 @@ public class Main {
 		//testKeyGen();
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
-		testSRSHA(1000, 1024);
+		testSRSHA(100, 1024);
 		new SeyprisMain();
 	}
 	
@@ -87,18 +87,17 @@ public class Main {
 				if(q<0)q+=256;
 				ammount[q]++;
 			}
+			System.out.println(b.length);
 			int q = gui.TestSRSHA.countSetBits(b);
 			if(q<minBits)minBits = q;
 			if(q>maxBits)maxBits = q;
 			trueBits+=q;
 			System.out.println(i);
-			srsha = null;
-			Runtime.getRuntime().gc();
 		}
 		
 		tStart = System.currentTimeMillis()-tStart;
 		System.out.println("DONE! Time was:"+tStart+"(Avr.:"+tStart/a+")");
-		System.out.println("Tru Bits: "+trueBits/a+" Min:"+minBits+" Max:"+maxBits);
+		System.out.println("True Bits: "+trueBits/a+" Min:"+minBits+" Max:"+maxBits);
 		for (int i = 0; i < ammount.length; i++) {
 			if(i<10)
 				System.out.println("  "+i+": "+ammount[i]);
