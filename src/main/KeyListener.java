@@ -70,6 +70,9 @@ public class KeyListener implements java.awt.event.KeyListener{
 			enter = true;
 			return;
 		}
+		if(keychain == null){
+			return;
+		}
 		if((int)e.getKeyChar() == 8){
 			if(keychain.length()>=1)
 				keychain = keychain.substring(0, keychain.length()-1);
