@@ -20,6 +20,7 @@ public class SRSHA{
 	
 	//Size of Array: sqrt(size) or sqrt(size)+1
 	private final int q;
+	//The Playing-Ground, to play Game-Of-Life
 	private boolean[][] array;
 	private boolean[][] arrayInactiv;
 	
@@ -42,6 +43,9 @@ public class SRSHA{
 	private int cycleCounter;
 	
 	//Array for digesting operation, is filled 6 times per cycle
+	//This is represents the "History" of the hash,
+	//It is mixed with the Playing-Ground in the Method getState()
+	//So there is not only the final step of the Playing-Ground to be correct, but all the steps leading to it!
 	private final int DIGESTING_ARRAY_SIZE;
 	private int[] dig;
 	private int digPos;
@@ -108,6 +112,8 @@ public class SRSHA{
 	 * @param b the bytes to digest
 	 */
 	public void update(byte[] b){
+		if(b == null)
+			return;
 		if(isFinal)
 			return;
 		
@@ -182,7 +188,7 @@ public class SRSHA{
 			}
 		}
 		
-		//Mix in mem.
+		//Mix in dig.
 		int c = (sum+mem[0]+dig[1]+mem[2])%dig.length;
 		if(c<0)c*=-1;
 		for (int i = 0; i < ret1.length; i++) {
@@ -340,70 +346,6 @@ public class SRSHA{
 	}
 	
 	/**
-	 * Paints the Current state
-	 * @param k Size per Pixel
-	 * @return {@link BufferedImage} the visualization of the current state
-	 */
-	public BufferedImage testPaint(int k, Color c){
-		if(q*k<140) k = 150/q;
-		BufferedImage ima = new BufferedImage(q*k+70, q*k+50, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = ima.getGraphics();
-		g.setColor(c);
-		for (int i = 0; i < q; i++) {
-			for (int j = 0; j < q; j++) {
-				if(array[i][j])
-					g.fillRect(i*k+1, j*k+1, k, k);
-			}
-		}
-		g.setColor(Color.cyan);
-		int x = (sum/q)%q;
-		int y = (sum)%q;
-		x*=k;
-		y*=k;
-		//Draw filled bits
-		g.drawLine(x+k/2, y+k/2, x+k*3, y+k*3);
-		g.setColor(Color.blue);
-		//DrawdigestingBits diagonal
-		for (int i = 0; i < 3; i++) {
-			x = (sum/q)%q;
-			y = (sum+(i*q/3))%q;
-			x*=k;
-			y*=k;
-			y+=k/2;
-			x+=k/2;
-			g.drawLine(x, y, x-k*3, y+k*3);
-		}
-		//DrawdigestingBits linear
-		for (int i = 0; i < 3; i++) {
-			y = (sum/q +(i*q/3))%q;
-			x = (sum)%q;
-			x*=k;
-			y*=k;
-			y+=k/2;
-			x+=k/2;
-			g.drawLine(x, y, x+30, y);
-		}
-		
-		g.drawRect(0, 0, q*k+1, q*k+1);
-		g.fillRect(memPos*20, q*k+20, 20, 15);
-		g.setColor(c);
-		for (int i = 0; i < mem.length; i++) {
-			g.drawString(""+mem[i], i*20, q*k+32);
-		}
-		g.drawString(sum+"   "+cycleCounter+"   "+countTrue(), 20, q*k+46);
-		if(conwayWasPlayed)
-			g.drawString("C", 120, q*k+46);
-		else
-			g.drawString("N", 130, q*k+46);
-		
-		for (int i = 0; i < dig.length; i++) {
-			g.drawString(""+(byte)(dig[i]&0xff), q*k+10, i*10);
-			g.drawString(""+(byte)(dig[i]>>8), q*k+40, i*10);
-		}
-		return ima;
-	}
-	
-	/**
 	 * @return true: <b>digest()</b> had been called, Hash can't be changed anymore
 	 */
 	public boolean isFinal(){
@@ -420,37 +362,26 @@ public class SRSHA{
 			return getState();
 		
 		//Mix the Memory into the field
-		mixInMemory();
+		//mixInDigest();
 		
-		//Now its almost done, Conways Original GameOfLife is now played one last cycle,
-		//to destroy reversability completly.
+		//Now its almost done, the Playing-Ground is now shuffled a few last times,
+		//to destroy reversebility completely.
 		playOneRound(true);
 		cycleCounter = CONWAY_Start+1;
 		playOneRound(doConway());
 		playOneRound(false);
 		playOneRound(false);
 		
-		//We are almost there, destroy dig[] by adding mem[]
-		int m = 0;
-		for (int i = 0; i < dig.length; i++) {
-			int b1 = mem[m];
-			m++;
-			if(m>=mem.length)m = 0;
-			int b2 = mem[m];
-			m++;
-			if(m>=mem.length)m = 0;
-			dig[i] = (dig[i] ^ ((b2<<8)|b1));
-		}
-		
+		//Now we are free to call it DONE :D
 		isFinal = true;
 		return getState();
 	}
 	
 	/**
-	 * As soon as digest is called, this Method XORs the mem-Array with the boolean field.
+	 * As soon as digest is called, this Method XORs the dig-Array with the boolean field.
 	 * This is an important part, now the whole "History" is needed to be correct.
 	 */
-	private void mixInMemory(){
+	private void mixInDigest(){
 		byte[] ret1 = new byte[size/8];
 		int c = 0;
 		for (int i = 0; i < ret1.length; i++) {
@@ -611,5 +542,69 @@ public class SRSHA{
 			k+=countLine(i);
 		}
 		return k;
+	}
+	
+	/**
+	 * Paints the Current state
+	 * @param k Size per Pixel
+	 * @return {@link BufferedImage} the visualization of the current state
+	 */
+	public BufferedImage testPaint(int k, Color c){
+		if(q*k<140) k = 150/q;
+		BufferedImage ima = new BufferedImage(q*k+70, q*k+50, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = ima.getGraphics();
+		g.setColor(c);
+		for (int i = 0; i < q; i++) {
+			for (int j = 0; j < q; j++) {
+				if(array[i][j])
+					g.fillRect(i*k+1, j*k+1, k, k);
+			}
+		}
+		g.setColor(Color.cyan);
+		int x = (sum/q)%q;
+		int y = (sum)%q;
+		x*=k;
+		y*=k;
+		//Draw filled bits
+		g.drawLine(x+k/2, y+k/2, x+k*3, y+k*3);
+		g.setColor(Color.blue);
+		//DrawdigestingBits diagonal
+		for (int i = 0; i < 3; i++) {
+			x = (sum/q)%q;
+			y = (sum+(i*q/3))%q;
+			x*=k;
+			y*=k;
+			y+=k/2;
+			x+=k/2;
+			g.drawLine(x, y, x-k*3, y+k*3);
+		}
+		//DrawdigestingBits linear
+		for (int i = 0; i < 3; i++) {
+			y = (sum/q +(i*q/3))%q;
+			x = (sum)%q;
+			x*=k;
+			y*=k;
+			y+=k/2;
+			x+=k/2;
+			g.drawLine(x, y, x+30, y);
+		}
+		
+		g.drawRect(0, 0, q*k+1, q*k+1);
+		g.fillRect(memPos*20, q*k+20, 20, 15);
+		g.setColor(c);
+		for (int i = 0; i < mem.length; i++) {
+			g.drawString(""+mem[i], i*20, q*k+32);
+		}
+		g.drawString(sum+"   "+cycleCounter+"   "+countTrue(), 20, q*k+46);
+		if(conwayWasPlayed)
+			g.drawString("C", 120, q*k+46);
+		else
+			g.drawString("N", 130, q*k+46);
+		
+		for (int i = 0; i < dig.length; i++) {
+			g.drawString(""+(byte)(dig[i]&0xff), q*k+10, i*10);
+			g.drawString(""+(byte)(dig[i]>>8), q*k+40, i*10);
+		}
+		return ima;
 	}
 }

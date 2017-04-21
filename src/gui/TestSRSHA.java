@@ -69,9 +69,11 @@ public class TestSRSHA extends AbstractMenu{
 				//cl = new network.TCPclient("localhost", 1234);
 				hash1 = new SRSHA(ed);
 				hash1.update(tef.getText().getBytes());
+				hash1.digest();
 				debug.Debug.println("Done1");
 				hash2 = new SRSHA(ed);
 				hash2.update(flipRandomBit(tef.getText().getBytes()));
+				hash2.digest();
 				debug.Debug.println("Done2");
 				needUpdate = true;
 			}
@@ -114,7 +116,7 @@ public class TestSRSHA extends AbstractMenu{
 		add(b3);
 		b3.setText("Do A Step");
 		
-		Button b5 = new Button(220,90,"res/ima/cli/Gs"){
+		Button b5 = new Button(20,130,"res/ima/cli/Gs"){
 			//network.TCPclient cl;
 			@Override
 			protected void isClicked() {
@@ -213,7 +215,7 @@ public class TestSRSHA extends AbstractMenu{
 			}else{
 				g.drawString(str, 0, 500);
 			}
-			g.drawString("High bits: "+countSetBits(b), 0, 520);
+			g.drawString("High bits: "+countSetBits(b)+ " of "+b.length*8, 0, 520);
 			
 		}
 		
@@ -227,7 +229,7 @@ public class TestSRSHA extends AbstractMenu{
 			}else{
 				g.drawString(str, 0, 530);
 			}
-			g.drawString("High bits: "+countSetBits(b), 0, 550);
+			g.drawString("High bits: "+countSetBits(b)+ " of "+b.length*8, 0, 550);
 		}
 	}
 
@@ -238,6 +240,7 @@ public class TestSRSHA extends AbstractMenu{
 	}
 	
 	private byte[] flipRandomBit(byte[] b){
+		if(b.length == 0)return b;
 		SecureRandom s = Random.generateSR();
 		int a = s.nextInt(b.length);
 		int c = s.nextInt(8);
@@ -246,31 +249,26 @@ public class TestSRSHA extends AbstractMenu{
 		
 		return b;
 	}
-	
-	//Cod frome stackoverflow.com by the user myborobudur just for debug...
 
 	public static int countSetBits(byte[] array) {
 	    int setBits = 0;
-
-	    if (array != null) {
-	        for (int byteIndex = 0; byteIndex < array.length; byteIndex++) {
-	            for (int bitIndex = 0; bitIndex < 7; bitIndex++) {
-	                if (getBit(bitIndex, array[byteIndex])) {
-	                    setBits++;
-	                }
-	            }
-	        }
-	    }
+	    for (int byteIndex = 0; byteIndex < array.length; byteIndex++) {
+            for (int bitIndex = 0; bitIndex < 8; bitIndex++) {
+                if (getBit(bitIndex, array[byteIndex])) {
+                    setBits++;
+                }
+            }
+        }
 	    return setBits;
 	}
 	
-	public static boolean getBit(int index, final byte b) {
-	    byte t = setBit(index, (byte) 0);
-	    return (b & t) > 0;
+	private static boolean getBit(int index, final byte b) {
+	    byte t = setBit(index);
+	    return (b & t) != 0;
 	}
 	
-	public static byte setBit(int index, final byte b) {
-	    return (byte) ((1 << index) | b);
+	private static byte setBit(int index) {
+	    return (byte)(1 << index);
 	}
 	
 }
