@@ -34,19 +34,19 @@ public class MessageAuthentication {
 	private boolean wasInitialised;
 	
 	/**
-	 * A Message Athentification System to create a Message Signatur, based on the SRSH-Algorithm by Sven T. Schneider.
-	 * To use this class proced as follows:<p>
+	 * A Message Athentification System to create a Message Signature, based on the SRSH-Algorithm by Sven T. Schneider.
+	 * To use this class proceed as follows:<p>
 	 * <u>Create a signature: (verify = false)</u><p>
 	 * -if a Key is used call <B>init(key)</B> with eighter an RSAsaveKEY or an (secret) byte[]<p>
 	 * -call <B>update(byte[])</B> and feed your Message<p>
 	 * -to end the operation call <B>doFinal()</B> and get the Signatur<p><p>
-	 * <u>Verify a Signatur: (verify = false)</u><p>
+	 * <u>Verify a Signature: (verify = false)</u><p>
 	 * -if a Key is used call <B>init(key)</B> with eighter an RSAsaveKEY or an (secret) byte[]<p>
 	 * -call <B>update(byte[])</B> and feed the original your Message<p>
-	 * -at the End call <B>verify(String)</B> with the Signatur<p>
+	 * -at the End call <B>verify(String)</B> with the Signature<p>
 	 * -if there was a Problem, you can use <B>report()</B> to get informations<p><p>
 	 * @param algorithm the Algorithm to use
-	 * @param verify <b>true</b>: Verifys a given String, <b>false</b>: Create a Signatur
+	 * @param verify <b>true</b>: Verify a given String, <b>false</b>: Create a Signature
 	 * @throws NoSuchAlgorithmException
 	 */
 	public MessageAuthentication(int algorithm, boolean verify) throws NoSuchAlgorithmException{
@@ -78,10 +78,10 @@ public class MessageAuthentication {
 	}
 	
 	/**
-	 * Initialise the Algorithm with a Key.<p>
+	 * Initialize the Algorithm with a Key.<p>
 	 * Only use with the Algorithms <b>SRSHA_[...]_WITH_SECRET_KEY</b>
 	 * @param key a secret Key to create/verify the Signature
-	 * @throws NoSuchAlgorithmException if the Algorithm dosn't suport byte[] as secretKey
+	 * @throws NoSuchAlgorithmException if the Algorithm dosn't support byte[] as secretKey
 	 */
 	public void init(byte[] key) throws NoSuchAlgorithmException{
 		if(algorithm != SRSHA_256_WITH_SECRET_KEY &&
@@ -120,10 +120,10 @@ public class MessageAuthentication {
 	}
 	
 	/**
-	 * Initialise the Algorithm with a Key.<p>
+	 * Initialize the Algorithm with a Key.<p>
 	 * Only use with the Algorithms <b>SRSHA_[...]_WITH_RSA</b>
 	 * @param key an RSAsaveKEY to create/verify the Signature
-	 * @throws NoSuchAlgorithmException if the Algorithm dosn't suport RSA-Keys
+	 * @throws NoSuchAlgorithmException if the Algorithm dosn't support RSA-Keys
 	 */
 	public void init(RSAsaveKEY key) throws NoSuchAlgorithmException{
 		if(algorithm != SRSHA_256_WITH_RSA &&
@@ -157,9 +157,9 @@ public class MessageAuthentication {
 	}
 	
 	/**
-	 * Finalises the Hash-Creation and returns the Signature
+	 * Finalizes the Hash-Creation and returns the Signature
 	 * @return The Signature (in Base64 notation)
-	 * @throws SecurityException if the Algorithm uses a Key and wasn't initialised
+	 * @throws SecurityException if the Algorithm uses a Key and wasn't initialized
 	 */
 	public String doFinal() throws SecurityException{
 		if(!wasInitialised)
@@ -179,18 +179,18 @@ public class MessageAuthentication {
 	}
 	
 	/**
-	 * @return Wether or not the Algorithm has expired
+	 * @return Weather or not the Algorithm has expired
 	 */
 	public boolean isFinal(){
 		return hash.isFinal();
 	}
 	
 	/**
-	 * Verifys Message to the given Signatur
-	 * @param signatur The Signatur to verify
+	 * Verify Message to the given Signature
+	 * @param signatur The Signature to verify
 	 * @return true if the Signature is Valid
 	 */
-	public boolean verify(String signatur){
+	public boolean verify(String signature){
 		byte[] b1 = hash.digest();
 		byte[] b2;
 		if(algorithm != SRSHA_256_WITH_RSA &&
@@ -198,13 +198,13 @@ public class MessageAuthentication {
 				algorithm != SRSHA_1024_WITH_RSA ){
 			
 			try {
-				b2 = RSAcrypto.decryptByte(signatur, rsaKey, true);
+				b2 = RSAcrypto.decryptByte(signature, rsaKey, true);
 			} catch (UnsupportedEncodingException | GeneralSecurityException e) {
 				//TODO
 				return false;
 			}
 		}else{
-			b2 = Base64.getDecoder().decode(signatur);
+			b2 = Base64.getDecoder().decode(signature);
 		}
 		
 		if(b1.length != b2.length){
