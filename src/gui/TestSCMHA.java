@@ -4,32 +4,38 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import crypto.SCMHA;
 import crypto.SRSHA;
 import cryptoUtility.Random;
+import main.PicLoader;
 import menu.AbstractMenu;
 import menu.Button;
 import menu.CheckBox;
 import menu.DropDownButton;
 import menu.DropDownMenu;
 
-public class TestSRSHA extends AbstractMenu{
+public class TestSCMHA extends AbstractMenu{
 
-	private SRSHA hash1;
-	private SRSHA hash2;
+	private SCMHA hash1;
+	private SCMHA hash2;
 	//private TextEnterButton teb;
-	private int ed = SRSHA.SRSHA_1024;
+	private int ed = SCMHA.SCMHA_512;
 	
 	private menu.DropDownMenu ddm;
 	private menu.CheckBox cbx;
 	private BufferedImage buf;
 	private boolean needUpdate;
 	
+	private BufferedImage ima;
 	
-	public TestSRSHA(int x, int y, final TextEnterField tef) {
+	public TestSCMHA(int x, int y, final TextEnterField tef) {
 		super(x, y, 600, 400);
+		
+		ima = PicLoader.pic.getImage("res/SCMHA_Layout.jpg");
 		
 		Button b1 = new Button(20,50,"res/ima/cli/b"){
 			@Override
@@ -40,14 +46,28 @@ public class TestSRSHA extends AbstractMenu{
 				GuiControle.setSuperMenu(new EnterPassword(sp, SeyprisMain.getKL(), true));
 				pc.setPassword(sp);*/
 				//new network.TCPserver(1234);
-				
-				hash1 = new SRSHA(ed);
-				hash1.noAutomaticLoop();
-				hash1.update(tef.getText().getBytes());
-				
-				hash2 = new SRSHA(ed);
-				hash2.noAutomaticLoop();
-				hash2.update(flipRandomBit(tef.getText().getBytes()));
+				new Thread(){
+					public void run() {
+						try {
+							hash1 = new SCMHA(ed);
+							hash1.doCircle(false);
+							hash1.update(tef.getText().getBytes());
+						} catch (NoSuchAlgorithmException e) {
+							e.printStackTrace();
+						}
+					}
+				}.start();
+				new Thread(){
+					public void run() {
+						try {
+							hash2 = new SCMHA(ed);
+							hash2.doCircle(false);
+							hash2.update(flipRandomBit(tef.getText().getBytes()));
+						} catch (NoSuchAlgorithmException e) {
+							e.printStackTrace();
+						}
+					}
+				}.start();
 				needUpdate = true;
 			}
 			@Override
@@ -68,15 +88,19 @@ public class TestSRSHA extends AbstractMenu{
 			@Override
 			protected void isClicked() {
 				//cl = new network.TCPclient("localhost", 1234);
-				hash1 = new SRSHA(ed);
-				hash1.update(tef.getText().getBytes());
-				hash1.digest();
-				debug.Debug.println("Done1");
-				hash2 = new SRSHA(ed);
-				hash2.update(flipRandomBit(tef.getText().getBytes()));
-				hash2.digest();
-				debug.Debug.println("Done2");
-				needUpdate = true;
+				try {
+					hash1 = new SCMHA(ed);
+					hash1.update(tef.getText().getBytes());
+					//hash1.digest();
+					debug.Debug.println("Done1");
+					hash2 = new SCMHA(ed);
+					hash2.update(flipRandomBit(tef.getText().getBytes()));
+					//hash2.digest();
+					debug.Debug.println("Done2");
+					needUpdate = true;
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
 			}
 			@Override
 			protected void isFocused() {
@@ -98,9 +122,9 @@ public class TestSRSHA extends AbstractMenu{
 			protected void isClicked() {
 				//cl = new network.TCPclient("localhost", 1234);
 				if(hash1 != null)
-					hash1.doLoop();
+					hash1.goOn();
 				if(hash2 != null)
-					hash2.doLoop();
+					hash2.goOn();
 				
 				needUpdate = true;
 			}
@@ -122,12 +146,12 @@ public class TestSRSHA extends AbstractMenu{
 			@Override
 			protected void isClicked() {
 				//cl = new network.TCPclient("localhost", 1234);
-				if(hash1 != null)
+				/*if(hash1 != null)
 					hash1.digest();
 				if(hash2 != null)
 					hash2.digest();
 				
-				needUpdate = true;
+				needUpdate = true;*/
 			}
 			@Override
 			protected void isFocused() {
@@ -147,15 +171,11 @@ public class TestSRSHA extends AbstractMenu{
 			protected void changed(int i) {
 				switch (i) {
 				case 0:
-					ed = SRSHA.SRSHA_64; break;
+					ed = SCMHA.SCMHA_1024; break;
 				case 1:
-					ed = SRSHA.SRSHA_128; break;
+					ed = SCMHA.SCMHA_768; break;
 				case 2:
-					ed = SRSHA.SRSHA_256; break;
-				case 3:
-					ed = SRSHA.SRSHA_512; break;
-				case 4:
-					ed = SRSHA.SRSHA_1024; break;
+					ed = SCMHA.SCMHA_512; break;
 
 				default:
 					break;
@@ -163,11 +183,9 @@ public class TestSRSHA extends AbstractMenu{
 			}
 		};
 		add(ddm);
-		ddm.addSubButton(new DropDownButton(100, 20, "SRSHA_64"), 0);
-		ddm.addSubButton(new DropDownButton(100, 20, "SRSHA_128"), 1);
-		ddm.addSubButton(new DropDownButton(100, 20, "SRSHA_256"), 2);
-		ddm.addSubButton(new DropDownButton(100, 20, "SRSHA_512"), 3);
-		ddm.addSubButton(new DropDownButton(100, 20, "SRSHA_1024"), 4);
+		ddm.addSubButton(new DropDownButton(100, 20, "SCMHA_1024"), 0);
+		ddm.addSubButton(new DropDownButton(100, 20, "SCMHA_768"), 1);
+		ddm.addSubButton(new DropDownButton(100, 20, "SCMHA_512"), 2);
 		ddm.setCurrentlyActiv(4);
 		
 		cbx = new CheckBox(420,30,"res/ima/cli/cbx/CB", 100) {
@@ -195,13 +213,13 @@ public class TestSRSHA extends AbstractMenu{
 			return;
 		needUpdate = false;
 		
-		buf = new BufferedImage(600, 600, BufferedImage.TYPE_INT_ARGB);
+		buf = new BufferedImage(800, 700, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = buf.getGraphics();
 		
 		if(hash1 != null)
-			g.drawImage(hash1.testPaint(9, new Color(150,0,250)), 0, 140, null);
+			g.drawImage(hash1.testPaint(5, new Color(150,0,250), ima), 0, 140, null);
 		if(hash2 != null && cbx.getState())
-			g.drawImage(hash2.testPaint(9, new Color(255,0,0,125)), 0, 140, null);
+			g.drawImage(hash2.testPaint(5, new Color(255,0,0,125), ima), 0, 140, null);
 		
 		String str = "";
 		
@@ -209,36 +227,38 @@ public class TestSRSHA extends AbstractMenu{
 		if(hash1 != null){
 			g.setColor(new Color(150,0,250));
 			byte[] b = hash1.getState();
+			b[0] = (byte)(b[0] | 0x40);
 			str = new BigInteger(b).toString(16);
 			if(str.length()> 128){
-				g.drawString(str.substring(0,64), 0, 500);
-				g.drawString(str.substring(64, 128), 0, 510);
-				g.drawString(str.substring(128), 0, 520);
+				g.drawString(str.substring(0,64), 0, 600);
+				g.drawString(str.substring(64, 128), 0, 610);
+				g.drawString(str.substring(128), 0, 620);
 			}else if(str.length()> 64){
-				g.drawString(str.substring(0,64), 0, 500);
-				g.drawString(str.substring(64), 0, 510);
+				g.drawString(str.substring(0,64), 0, 600);
+				g.drawString(str.substring(64), 0, 610);
 			}else{
-				g.drawString(str, 0, 500);
+				g.drawString(str, 0, 600);
 			}
-			g.drawString("High bits: "+countSetBits(b)+ " of "+b.length*8, 0, 530);
+			g.drawString("High bits: "+countSetBits(b)+ " of "+b.length*8, 0, 630);
 			
 		}
 		
 		if(hash2 != null && cbx.getState()){
 			g.setColor(Color.red);
 			byte[] b = hash2.getState();
+			b[0] = (byte)(b[0] | 0x40);
 			str = new BigInteger(b).toString(16);
 			if(str.length()> 128){
-				g.drawString(str.substring(0,64), 0, 540);
-				g.drawString(str.substring(64, 128), 0, 550);
-				g.drawString(str.substring(128), 0, 560);
+				g.drawString(str.substring(0,64), 0, 640);
+				g.drawString(str.substring(64, 128), 0, 650);
+				g.drawString(str.substring(128), 0, 660);
 			}else if(str.length()> 64){
-				g.drawString(str.substring(0,64), 0, 540);
-				g.drawString(str.substring(64), 0, 550);
+				g.drawString(str.substring(0,64), 0, 640);
+				g.drawString(str.substring(64), 0, 650);
 			}else{
-				g.drawString(str, 0, 540);
+				g.drawString(str, 0, 640);
 			}
-			g.drawString("High bits: "+countSetBits(b)+ " of "+b.length*8, 0, 570);
+			g.drawString("High bits: "+countSetBits(b)+ " of "+b.length*8, 0, 670);
 		}
 	}
 

@@ -210,3 +210,5 @@ res/ima/cli/spb/siw/D1000.png
 res/ima/cli/spb/siw/D1001.png
 res/ima/cli/spb/siw/D1002.png
 res/ima/cli/spb/siw/D1002.png
+res/SCMHA_Layout.jpg
+res/SCMHA_Layout.jpg
