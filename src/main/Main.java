@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.security.KeyException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.Random;
 
 import crypto.NumberEncrypter;
@@ -14,7 +15,7 @@ import crypto.RSAsaveKEY;
 import crypto.SRSHA;
 
 public class Main {
-
+	
 	public static void main(String[] args) throws Exception {
 		cryptoUtility.Random.enterEntropy(0);
 		for (int i = 0; i < 100; i++) {
@@ -23,7 +24,7 @@ public class Main {
 		//testKeyGen();
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
-		testSRSHA(100, 1024);
+		testSRSHA(10000, 64);
 		new SeyprisMain();
 	}
 	
@@ -75,24 +76,44 @@ public class Main {
 		int maxBits = 0;
 		int[] ammount = new int[256];
 		
+		String[][] ags = new String[a][2];
+		
 		SecureRandom rndm = cryptoUtility.Random.generateSR();
 		crypto.SRSHA srsha;
+		ags[0][0] = "*Null";
+		ags[0][1] = Base64.getEncoder().encodeToString(new byte[size]);
 		byte[] b;
-		for (int i = 0; i < a; i++) {
+		for (int i = 1; i < a; i++) {
 			srsha = new SRSHA(size);
-			srsha.update(cryptoUtility.Random.generateRandomString(rndm.nextInt(size/5)+2, rndm).getBytes());
+			ags[i][0] = cryptoUtility.Random.generateRandomString(rndm.nextInt(size)+2, rndm);
+			srsha.update(ags[i][0].getBytes());
 			b = srsha.digest();
 			for (int j = 0; j < b.length; j++) {
 				int q = b[j];
 				if(q<0)q+=256;
 				ammount[q]++;
 			}
-			System.out.println(b.length);
 			int q = gui.TestSRSHA.countSetBits(b);
 			if(q<minBits)minBits = q;
 			if(q>maxBits)maxBits = q;
 			trueBits+=q;
+			String k = Base64.getEncoder().encodeToString(b);
+			for (int j = 0; j < ags.length; j++) {
+				if(ags[j][1]==null)
+					break;
+				
+				if(k.compareTo(ags[j][1])==0){
+					if(ags[i][0].compareTo(ags[j][0]) != 0){
+						System.out.println(">>Collision<<"+ags[i][0]+" "+ags[j][0]+" "+k+"<<<<<<<<<");
+						return;
+					}
+					System.out.println(">>Collision<<"+ags[i][0]+" "+ags[j][0]+" "+k);
+					break;
+				}
+			}
+			ags[i][1] = k;
 			System.out.println(i);
+			//gdzomvw-upy tpopf4wzfq4f79usminx5yr+w-5-k7il
 		}
 		
 		tStart = System.currentTimeMillis()-tStart;

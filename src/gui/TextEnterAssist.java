@@ -7,7 +7,7 @@ import menu.AbstractMenu;
 
 public class TextEnterAssist extends AbstractMenu{
 
-	private static final int xS = 300;
+	private static final int xS = 340;
 	private static final int yS = 200;
 	
 	private TextEnterField jta;
@@ -25,15 +25,15 @@ public class TextEnterAssist extends AbstractMenu{
 	protected void uppdateIntern() {
 		if(xPos+yPos*1000 != cs){
 			cs = xPos+yPos*1000;
-			jta.setLocation(xPos, yPos+20);
+			jta.setLocation(xPos+40, yPos+20);
 		}
 	}
 
 	@Override
 	protected void paintIntern(Graphics g) {
-		g.translate(0, 20);
+		g.translate(40, 20);
 		jta.paintTheImage(g);
-		g.translate(0, -20);
+		g.translate(-40, -20);
 	}
 	
 	@Override

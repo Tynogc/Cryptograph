@@ -108,7 +108,7 @@ public class SRSHA{
 	}
 	
 	/**
-	 * Takes the byte Array and digests it into the hash (TODO)
+	 * Takes the byte Array and digests it into the hash
 	 * @param b the bytes to digest
 	 */
 	public void update(byte[] b){
@@ -189,7 +189,7 @@ public class SRSHA{
 		}
 		
 		//Mix in dig.
-		int c = (sum+mem[0]+dig[1]+mem[2])%dig.length;
+		int c = (sum+mem[0])%dig.length;
 		if(c<0)c*=-1;
 		for (int i = 0; i < ret1.length; i++) {
 			if(i%2==0){
@@ -367,10 +367,12 @@ public class SRSHA{
 		//Now its almost done, the Playing-Ground is now shuffled a few last times,
 		//to destroy reversebility completely.
 		playOneRound(true);
+		int c = cycleCounter;
 		cycleCounter = CONWAY_Start+1;
 		playOneRound(doConway());
 		playOneRound(false);
 		playOneRound(false);
+		cycleCounter = c;
 		
 		//Now we are free to call it DONE :D
 		isFinal = true;
@@ -399,6 +401,8 @@ public class SRSHA{
 		addToMainField(ret1);
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Counts the surrounding fields
@@ -474,6 +478,24 @@ public class SRSHA{
 		}
 		return r;
 	}
+	
+	//takes the int in the colum
+	private int bitColum(int x, int y){
+		int r = 0;
+		int t = 1;
+		for (int i = 0; i < 16; i++) {
+			if(array[x][y])
+				r+=t;
+			t*=2;
+			x++;
+			if(x>=q){
+				x = 0;
+				y++;
+				if(y>=q)y=0;
+			}
+		}
+		return r;
+	}	
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -602,8 +624,8 @@ public class SRSHA{
 			g.drawString("N", 130, q*k+46);
 		
 		for (int i = 0; i < dig.length; i++) {
-			g.drawString(""+(byte)(dig[i]&0xff), q*k+10, i*10);
-			g.drawString(""+(byte)(dig[i]>>8), q*k+40, i*10);
+			g.drawString(""+(byte)(dig[i]&0xff), q*k+10, i*10+10);
+			g.drawString(""+(byte)(dig[i]>>8), q*k+40, i*10+10);
 		}
 		return ima;
 	}
