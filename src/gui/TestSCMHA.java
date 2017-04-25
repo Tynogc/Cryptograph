@@ -186,7 +186,7 @@ public class TestSCMHA extends AbstractMenu{
 		ddm.addSubButton(new DropDownButton(100, 20, "SCMHA_1024"), 0);
 		ddm.addSubButton(new DropDownButton(100, 20, "SCMHA_768"), 1);
 		ddm.addSubButton(new DropDownButton(100, 20, "SCMHA_512"), 2);
-		ddm.setCurrentlyActiv(4);
+		ddm.setCurrentlyActiv(2);
 		
 		cbx = new CheckBox(420,30,"res/ima/cli/cbx/CB", 100) {
 			@Override

@@ -20,7 +20,7 @@ public class SCMHA {
 	 * 
 	 * The basic principle of destroying the Pre-Image is based on John Horton Conway's "Game of Life" 
 	 * @author Sven T. Schneider
-	 * @version 0.2.1
+	 * @version 0.3
 	 */
 	
 	public final int size;
@@ -48,10 +48,13 @@ public class SCMHA {
 	//Counts the times GameOfLife was called
 	private int count_gol;
 	
+	//How many times GOL is played per Round
+	private final int play_gol_per_round;
+	
 	
 	//The digesting array, XORed with the bit-Arrays to produce the hash
 	private byte[] digest;
-	private final int digestBlockSize;
+	private final int digestSize;
 	
 	//digest() was called, the hash is final
 	private boolean isFinal;
@@ -66,7 +69,7 @@ public class SCMHA {
 	 * The getState()-Method return the current state of the Hash
 	 * During operation you can call reset() to reset the Algorithm to the start!
 	 * To finish operation, call digest(). This runs the cycle one final time and adds the destructors.
-	 * After that is done, the final Hash is given to you (or can be retrived by calling getstate()).
+	 * After that is done, the final Hash is given to you (or can be retrieved by calling getstate()).
 	 * @param s Bit-length of the Hash, use the Provided Variables:
 	 * 		SCMHA_512, SCMHA_768, SCMHA_1024
 	 * @throws NoSuchAlgorithmException if the choosen bit-Size is not compatible
@@ -82,7 +85,9 @@ public class SCMHA {
 		}else{
 			throw new NoSuchAlgorithmException("This algorithm dosn't exist!");
 		}
-		digestBlockSize = size/24;
+		digestSize = size/8;
+		
+		play_gol_per_round = size/16;
 		
 		reset();
 	}
@@ -97,9 +102,7 @@ public class SCMHA {
 		
 		u = new boolean[q][q];
 		
-		addToMainField(Random.generateSeed(256, 10), e);
-		
-		digest = new byte[size/8];
+		digest = new byte[digestSize];
 	}
 	
 	/**
@@ -124,6 +127,8 @@ public class SCMHA {
 			
 			//Pad Message
 			bToUse = paddIncomingMessage(bToUse);
+			
+			addToMainField(bToUse, e);
 			
 			//Perform 10 Rounds
 			for (int i = 0; i < 10; i++) {
@@ -163,29 +168,35 @@ public class SCMHA {
 		doWait();
 		xOrArrays(e, a);
 		count_posInRound = 2;
-		//Play Game of Life 8.times
-		playGOLwithE(8);
+		//Play Game of Life
+		playGOLwithE(play_gol_per_round/4);
 		
 		//2nd Step: XOR E with B
 		count_posInRound = 3;
 		doWait();
 		xOrArrays(e, b);
 		count_posInRound = 4;
-		//Play Game of Life 8.times
-		playGOLwithE(8);
+		//Play Game of Life
+		playGOLwithE(play_gol_per_round/4);
 		
 		//3rd XOR current Digesting-Array-Part with B
 		count_posInRound = 5;
 		doWait();
-		//TODO
+		//Create an Array to add...
+		byte[] digRMA = new byte[q*q/8+1];
+		for (int i = 0; i < digRMA.length; i++) {
+			digRMA[i] = digest[position_digest(-i-2)];
+		}
+		//And add it to B
+		addToMainField(digRMA, b);
 		
 		//4th Step: XOR E with C
 		count_posInRound = 6;
 		doWait();
 		xOrArrays(e, c);
 		count_posInRound = 7;
-		//Play Game of Life 8.times
-		playGOLwithE(8);
+		//Play Game of Life
+		playGOLwithE(play_gol_per_round/4);
 		
 		//5th Step: generate U
 		count_posInRound = 8;
@@ -209,10 +220,18 @@ public class SCMHA {
 		doWait();
 		xOrArrays(e, u);
 		
-		//9th Step: Fill Digesting-Array with U ---TODO add to flowchat
+		//9th Step: Fill Digesting-Array with U
 		count_posInRound = 12;
-		doWait();
-		//TODO
+		//Same as playGOLwithE() but with u
+		for (int i = 0; i < play_gol_per_round/4; i++) {
+			doWait();
+			
+			u = playOneRound(canDoConway(u), u);
+			
+			addLineToDigest(u);
+			
+			count_gol++;
+		}
 		
 		//10th Step: Move Arrays
 		count_posInRound = 13;
@@ -235,11 +254,48 @@ public class SCMHA {
 			e = playOneRound(canDoConway(e), e);
 			
 			//Adds psudo random Line to Digesting-Array
-			//TODO
+			addLineToDigest(e);
 			
 			//Increment counter
 			count_gol++;
 		}
+	}
+	
+	/**
+	 * Takes a Line of the Array and adds it to the digesting array (mod 0xffff).
+	 * This is the "red +" operator in the Flowchart
+	 * @param b
+	 */
+	private void addLineToDigest(boolean[][] b){
+		int t = bitLine(position_ArrayToDigestX(), position_ArrayToDigestY(), b);
+		int u = ((digest[position_digest(0)] & 0xff) << 8) | ((digest[position_digest(1)] & 0xff));
+		
+		t = (t+u)%0xffff;
+		
+		digest[position_digest(0)] = (byte)(t & 0xff);
+		digest[position_digest(1)] = (byte)((t >> 8) & 0xff);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////
+	//Position Methods
+	////////////////////////////////////////////////////////////////////////////////////////////
+	
+	//Get the Current X-Position for the bitLine-Method in addToDigest
+	private int position_ArrayToDigestX(){
+		return sum%q;
+	}
+	
+	//Get the Current Y-Position for the bitLine-Method in addToDigest
+	private int position_ArrayToDigestY(){
+		return (count_gol + count_gol*q/3 + sum)%q;
+	}
+	
+	//Returns the current starting position in the Digesting-Array
+	private int position_digest(int add){
+		int r = count_gol*2+sum*count_roundsDone+add;
+		if(r<0)
+			r+=digestSize;
+		return r%digestSize;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -427,7 +483,7 @@ public class SCMHA {
 				if(x>=q){
 					y++;
 					x = 0;
-					if(y>=q)y = 0;
+					if(y>=q)return;
 				}
 			}
 		}
@@ -447,6 +503,24 @@ public class SCMHA {
 		}
 		return z;
 	}
+	
+	//takes the int in the line
+	private int bitLine(int x, int y, boolean[][] array){
+		int r = 0;
+		int t = 1;
+		for (int i = 0; i < 16; i++) {
+			if(array[x][y])
+				r+=t;
+			t*=2;
+			y++;
+			if(y>=q){
+				y = 0;
+				x++;
+				if(x>=q)x=0;
+			}
+		}
+		return r;
+	}	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//For Debug only:
@@ -491,7 +565,7 @@ public class SCMHA {
 	}
 	
 	/**
-	 * Paints a visualisation of the Algorithms current state
+	 * Paints a visualization of the Algorithms current state
 	 */
 	public BufferedImage testPaint(int k, Color c, BufferedImage i){
 		BufferedImage ima = new BufferedImage(q*k*6+70, q*k+400, BufferedImage.TYPE_INT_ARGB);
@@ -502,12 +576,25 @@ public class SCMHA {
 		drawArray(g, k*q*2, k, c, this.c);
 		drawArray(g, k*q*3, k, c, d);
 		drawArray(g, k*q*4, k, c, e);
-		drawArray(g, k*q*5+10, k, c, u);
+		drawArray(g, k*q*5+20, k, c, u);
 		
 		g.drawImage(i, 0, q*k+10, null);
 		g.setColor(Color.red);
 		g.drawRect(0, q*k+10+20*count_posInRound, 300, 20);
 		
+		if(conwayWasPlayed)
+			g.drawString("C", 250, q*k+25+20*count_posInRound);
+		else
+			g.drawString(" N", 250, q*k+25+20*count_posInRound);
+		
+		g.setColor(Color.white);
+		int x = position_ArrayToDigestX()*k;
+		int y = position_ArrayToDigestY()*k;
+		if(count_posInRound<8)
+			x+=4*q*k;
+		else
+			x+=5*q*k+20;
+		g.drawLine(x, y+k/2, x+30, y+k/2);
 		
 		return ima;
 	}
