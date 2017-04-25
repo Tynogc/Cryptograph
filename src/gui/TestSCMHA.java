@@ -91,11 +91,11 @@ public class TestSCMHA extends AbstractMenu{
 				try {
 					hash1 = new SCMHA(ed);
 					hash1.update(tef.getText().getBytes());
-					//hash1.digest();
+					hash1.digest();
 					debug.Debug.println("Done1");
 					hash2 = new SCMHA(ed);
 					hash2.update(flipRandomBit(tef.getText().getBytes()));
-					//hash2.digest();
+					hash2.digest();
 					debug.Debug.println("Done2");
 					needUpdate = true;
 				} catch (NoSuchAlgorithmException e) {
@@ -146,12 +146,12 @@ public class TestSCMHA extends AbstractMenu{
 			@Override
 			protected void isClicked() {
 				//cl = new network.TCPclient("localhost", 1234);
-				/*if(hash1 != null)
+				if(hash1 != null)
 					hash1.digest();
 				if(hash2 != null)
 					hash2.digest();
 				
-				needUpdate = true;*/
+				needUpdate = true;
 			}
 			@Override
 			protected void isFocused() {

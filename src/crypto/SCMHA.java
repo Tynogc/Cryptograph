@@ -6,8 +6,6 @@ import java.awt.image.BufferedImage;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Semaphore;
 
-import cryptoUtility.Random;
-
 public class SCMHA {
 	
 	/**
@@ -24,6 +22,8 @@ public class SCMHA {
 	 */
 	
 	public final int size;
+	//Size of one Unit of Message to be Processed
+	public final int wordSize;
 	
 	//Size of Array: sqrt(size) or sqrt(size)+1
 	private final int q;
@@ -64,6 +64,25 @@ public class SCMHA {
 	public static final int SCMHA_512 = 512;
 	
 	/**
+	 * Round Constants for B, C, D and E
+	 * A Dosn't need one, because it is the original bits of Message.
+	 * They are composed of the first Primes mod 256.
+	 * If a Playing-Ground can't fit all bits, the less significant ones are ignored. 
+	 */
+	//Prime 1-16
+	public static final byte[] INIT_B = 
+			new byte[]{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53};
+	//Prime 17-32
+	public static final byte[] INIT_C = 
+			new byte[]{59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, -125};
+	//Prime 33-48
+	public static final byte[] INIT_D = 
+			new byte[]{-119, -117, -107, -105, -99, -93, -89, -83, -77, -75, -65, -63, -59, -57, -45, -33};
+	//Prime 49-64
+	public static final byte[] INIT_E = 
+			new byte[]{-29, -27, -23, -17, -15, -5, 1, 7, 13, 15, 21, 25, 27, 37, 51, 55};
+	
+	/**
 	 * Generates a Hash by the SCMH-Algorithm ( (C) Sven T. Schneider)
 	 * Call the update(byte[])-Method to digest bytes into the Hash
 	 * The getState()-Method return the current state of the Hash
@@ -85,6 +104,9 @@ public class SCMHA {
 		}else{
 			throw new NoSuchAlgorithmException("This algorithm dosn't exist!");
 		}
+		
+		wordSize = size/16;
+		
 		digestSize = size/8;
 		
 		play_gol_per_round = size/16;
@@ -102,6 +124,12 @@ public class SCMHA {
 		
 		u = new boolean[q][q];
 		
+		//Fill with initialisation
+		addToMainField(INIT_B, b);
+		addToMainField(INIT_C, c);
+		addToMainField(INIT_D, d);
+		//addToMainField(INIT_E, e);
+		
 		digest = new byte[digestSize];
 	}
 	
@@ -118,7 +146,7 @@ public class SCMHA {
 		int pos = 0;
 		while(pos<b.length){
 			//Split incomming Message into easy to chew chunks
-			byte[] bToUse = new byte[size/8];
+			byte[] bToUse = new byte[wordSize];
 			for (int i = 0; i < bToUse.length; i++) {
 				bToUse[i] = b[pos];
 				pos++;
@@ -128,13 +156,53 @@ public class SCMHA {
 			//Pad Message
 			bToUse = paddIncomingMessage(bToUse);
 			
-			addToMainField(bToUse, e);
+			addToAllFields(bToUse);
 			
 			//Perform 10 Rounds
 			for (int i = 0; i < 10; i++) {
 				doRound();
 			}
 		}
+	}
+	
+	/**
+	 * Runns one last 
+	 * Form here on the Hash can't be changed!
+	 * @return
+	 */
+	public byte[] digest(){
+		if(isFinal)
+			return getState();
+		int x = 0;
+		int y = 0;
+		int f = 0;
+		boolean[][] array = a;
+		for (int i = 0; i < digest.length; i++) {
+			int t1 = 0;
+			int t2 = 1;
+			for (int j = 0; j < 8; j++) {
+				if(array[x][y])
+					t1+=t2;
+				t2*=2;
+				x++;
+				if(x>=q){
+					y++;
+					x = 0;
+					if(y>=q){
+						y = 0;
+						f++;
+						if(f==1)array = this.b;
+						if(f==2)array = this.c;
+						if(f==3)array = this.d;
+						if(f==4)array = this.e;
+					}
+				}
+			}
+			digest[i] = (byte)(digest[i] ^ (byte)t1);
+		}
+		
+		isFinal = true;
+		return getState();
 	}
 	
 	/**
@@ -431,18 +499,6 @@ public class SCMHA {
 	}
 	
 	/**
-	 * Inverts the Array b
-	 * @param b
-	 */
-	private void invertArray(boolean[][] b){
-		for (int i = 0; i < q; i++) {
-			for (int j = 0; j < q; j++) {
-				b[i][j] = !b[i][j];
-			}
-		}
-	}
-	
-	/**
 	 * Mixes the channels A, C and D in preparation for mixing with E
 	 * The pattern is: U = (A and D) xor (C and ~D);
 	 * Puts the values in the array u
@@ -461,7 +517,7 @@ public class SCMHA {
 	 * @return
 	 */
 	private byte[] paddIncomingMessage(byte[] b){
-		byte[] bNew = new byte[size/8];
+		byte[] bNew = new byte[wordSize*2+3];
 		for (int i = 0; i < b.length; i++) {
 			bNew[i] = b[i];
 			//Fill sum
@@ -469,15 +525,12 @@ public class SCMHA {
 			if(bi<0) bi += 256;
 			sum+=bi+1;
 		}
-		if(b.length>=bNew.length)
-			return bNew;
-		for (int i = b.length; i < bNew.length; i++) {
-			if(i == bNew.length-1){
-				bNew[i] = (byte)b.length;
-			}else{
-				bNew[i] = 0;
-			}
+		bNew[wordSize] = (byte)b.length;
+		for (int i = 0; i < b.length; i++) {
+			bNew[i+wordSize+1] = b[i];
 		}
+		bNew[wordSize*2+1] = (byte)b.length;
+		bNew[wordSize*2+2] = (byte)(b.length/3);
 		return bNew;
 	}
 	
@@ -497,6 +550,36 @@ public class SCMHA {
 					y++;
 					x = 0;
 					if(y>=q)return;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * XORs the byte-Array to all boolean-fields
+	 * @param b
+	 */
+	private void addToAllFields(byte[] b){
+		boolean[][] array = a;
+		int f = 0;
+		int x = 0;
+		int y = 0;
+		for (int i = 0; i < b.length; i++) {
+			//Fill array
+			for (int j = 0; j < 8; j++) {
+				array[x][y] = (array[x][y] ^ takeBit(b[i], j));
+				x++;
+				if(x>=q){
+					y++;
+					x = 0;
+					if(y>=q){
+						y = 0;
+						f++;
+						if(f==1)array = this.b;
+						if(f==2)array = this.c;
+						if(f==3)array = this.d;
+						if(f==4)array = this.e;
+					}
 				}
 			}
 		}
