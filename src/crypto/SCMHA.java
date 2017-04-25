@@ -213,7 +213,9 @@ public class SCMHA {
 		//7th Step: Rotate U and B
 		count_posInRound = 10;
 		doWait();
-		//TODO
+		//The amount of Rotation
+		u = rotateBy(u, q*q-position_Rotate());
+		b = rotateBy(b, position_Rotate());
 		
 		//8th Step: XOR E with U
 		count_posInRound = 11;
@@ -296,6 +298,17 @@ public class SCMHA {
 		if(r<0)
 			r+=digestSize;
 		return r%digestSize;
+	}
+	
+	//Returns the determined rotation Value
+	private int position_Rotate(){
+		int r = sum;
+		for (int i = 0; i < 5; i++) {
+			int b = digest[position_digest(-i-2)];
+			if(b<0)b+=256;
+			r+=b;
+		}
+		return r%(q*q);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -520,7 +533,28 @@ public class SCMHA {
 			}
 		}
 		return r;
-	}	
+	}
+	
+	/**
+	 * Performs an Rotate <<< Operator on the given array
+	 */
+	private boolean[][] rotateBy(boolean[][] b, int ammount){
+		boolean[][] bNew = new boolean[q][q];
+		
+		int t;
+		int x;
+		int y;
+		for (int i = 0; i < q; i++) {
+			for (int j = 0; j < q; j++) {
+				t = i+j*q+ammount;
+				x = t%q;
+				y = (t/q)%q;
+				bNew[x][y] = b[i][j];
+			}
+		}
+		
+		return bNew;
+	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//For Debug only:
@@ -576,21 +610,38 @@ public class SCMHA {
 		drawArray(g, k*q*2, k, c, this.c);
 		drawArray(g, k*q*3, k, c, d);
 		drawArray(g, k*q*4, k, c, e);
-		drawArray(g, k*q*5+20, k, c, u);
+		if(count_posInRound >8)
+			drawArray(g, k*q*5+20, k, c, u);
 		
 		g.drawImage(i, 0, q*k+10, null);
 		g.setColor(Color.red);
 		g.drawRect(0, q*k+10+20*count_posInRound, 300, 20);
 		
-		if(conwayWasPlayed)
-			g.drawString("C", 250, q*k+25+20*count_posInRound);
+		if(count_posInRound == 1)
+			g.drawString("E = E ^ A", 200, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 3)
+			g.drawString("E = E ^ B", 200, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 5)
+			g.drawString("B = B + Dig", 200, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 6)
+			g.drawString("E = E ^ C", 200, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 8)
+			g.drawString("U = (A & D)^(C & ~D)", 180, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 11)
+			g.drawString("E = E ^ U", 200, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 13)
+			g.drawString("Move > Arrays", 200, q*k+25+20*count_posInRound);
+		else if(count_posInRound == 10)
+			g.drawString("B<<<"+position_Rotate(), 200, q*k+25+20*count_posInRound);
+		else if(conwayWasPlayed)
+			g.drawString("Played Conway", 200, q*k+25+20*count_posInRound);
 		else
-			g.drawString(" N", 250, q*k+25+20*count_posInRound);
+			g.drawString("Played Mutation", 200, q*k+25+20*count_posInRound);
 		
 		g.setColor(Color.white);
 		int x = position_ArrayToDigestX()*k;
 		int y = position_ArrayToDigestY()*k;
-		if(count_posInRound<8)
+		if(count_posInRound<9)
 			x+=4*q*k;
 		else
 			x+=5*q*k+20;
