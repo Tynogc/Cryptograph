@@ -4,7 +4,7 @@ import crypto.RSAsaveKEY;
 
 public class NetEncryptionFrame {
 
-	private RSAsaveKEY key;
+	private RSAsaveKEY myKey;
 	
 	public boolean theOtherSideKnowsTheKey = false;
 	
@@ -12,11 +12,11 @@ public class NetEncryptionFrame {
 		
 	}
 
-	public RSAsaveKEY getKey() {
-		return key;
+	public RSAsaveKEY getMyKey() {
+		return myKey;
 	}
 
-	public void setKey(RSAsaveKEY key) {
-		this.key = key;
+	public void setMyKey(RSAsaveKEY key) {
+		myKey = key;
 	}
 }

@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.KeyException;
 import java.security.SecureRandom;
@@ -25,6 +26,7 @@ public class Main {
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
 		testSRSHA(10000, 64);
+		
 		new SeyprisMain();
 	}
 	
