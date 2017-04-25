@@ -210,7 +210,7 @@ public class RSAcrypto {
 		//generate Hash, TODO own Algorithm if necessary
 		MessageDigest messageDigest;
 		try {
-			messageDigest = MessageDigest.getInstance("SHA-512");
+			messageDigest = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
 			throw new SecurityException("Problem with hash algorithm: "+e.toString());
 		}
@@ -266,7 +266,7 @@ public class RSAcrypto {
 		//generate Hash, TODO own Algorithm if necessary
 		MessageDigest messageDigest;
 		try {
-			messageDigest = MessageDigest.getInstance("SHA-512");
+			messageDigest = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
 			throw new SecurityException("Problem with hash algorithm: "+e.toString());
 		}
