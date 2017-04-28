@@ -4,14 +4,14 @@ import cryptoUtility.NetEncryptionFrame;
 
 public abstract class CommunicationProcess {
 
-	protected final TCPlinker linker;
+	protected final Writable linker;
 	protected final NetEncryptionFrame key;
 	
 	private CommunicationProcess next;
 	
 	protected boolean terminated;
 	
-	public CommunicationProcess(TCPlinker l, NetEncryptionFrame n){
+	public CommunicationProcess(Writable l, NetEncryptionFrame n){
 		linker = l;
 		terminated = false;
 		key = n;

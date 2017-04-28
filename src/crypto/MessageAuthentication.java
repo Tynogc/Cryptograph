@@ -33,6 +33,8 @@ public class MessageAuthentication {
 	
 	private boolean wasInitialised;
 	
+	private String state;
+	
 	/**
 	 * A Message Athentification System to create a Message Signature, based on the SRSH-Algorithm by Sven T. Schneider.
 	 * To use this class proceed as follows:<p>
@@ -70,6 +72,8 @@ public class MessageAuthentication {
 		hash = new SRSHA(hashSize);
 		
 		wasInitialised = false;
+		
+		state = "Needs Init";
 		
 		if(algorithm != SRSHA_256 ||
 				algorithm != SRSHA_512 ||
@@ -117,6 +121,8 @@ public class MessageAuthentication {
 		secretKeyInnerHashed = s.digest();
 		
 		wasInitialised = true;
+		
+		state = "Processing";
 	}
 	
 	/**
@@ -129,7 +135,7 @@ public class MessageAuthentication {
 		if(algorithm != SRSHA_256_WITH_RSA &&
 				algorithm != SRSHA_512_WITH_RSA &&
 				algorithm != SRSHA_1024_WITH_RSA )
-			throw new NoSuchAlgorithmException("This Algorithm dosn't suport byte[] keys!");
+			throw new NoSuchAlgorithmException("This Algorithm dosn't suport RSA keys!");
 		
 		rsaKey = key;
 		wasInitialised = true;
@@ -168,6 +174,8 @@ public class MessageAuthentication {
 		//Digest the hash
 		byte[] b = hash.digest();
 		
+		state = "Final";
+		
 		if(algorithm != SRSHA_256_WITH_RSA &&
 				algorithm != SRSHA_512_WITH_RSA &&
 				algorithm != SRSHA_1024_WITH_RSA ){
@@ -200,7 +208,7 @@ public class MessageAuthentication {
 			try {
 				b2 = RSAcrypto.decryptByte(signature, rsaKey, true);
 			} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-				//TODO
+				state = "Decryption-Error Key dosn't match";
 				return false;
 			}
 		}else{
@@ -208,18 +216,22 @@ public class MessageAuthentication {
 		}
 		
 		if(b1.length != b2.length){
-			//TODO
+			state = "Hash lenght wrong!";
 			return false;
 		}
 		
 		for (int i = 0; i < b1.length; i++) {
-			if(b1 != b2){
-				//TODO
+			if(b1[i] != b2[i]){
+				state = "The Message had been tempered with!";
 				return false;
 			}
 		}
-		
+		state = "Valid!";
 		return true;
+	}
+	
+	public String getState(){
+		return state;
 	}
 	
 }

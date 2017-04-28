@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.KeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
@@ -19,13 +20,11 @@ public class Main {
 	
 	public static void main(String[] args) throws Exception {
 		cryptoUtility.Random.enterEntropy(0);
-		for (int i = 0; i < 100; i++) {
-			//testNumberEnc();
-		}
+		
 		//testKeyGen();
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
-		testSRSHA(10000, 64);
+		testSRSHA(100, 512);
 		
 		new SeyprisMain();
 	}
@@ -54,9 +53,9 @@ public class Main {
 	}
 	
 	protected static void testKeyGen() throws Exception{
-		crypto.RSAsaveKEY k = crypto.RSAsaveKEY.generateKey(2048*4, true, true, 10, null);
-		new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("user/key/test.key"), "abcdeTest");
-		new crypto.KeySaveLoad().saveKey(k, new File("user/key/testPublic.key"), true);
+		crypto.RSAsaveKEY k = crypto.RSAsaveKEY.generateKey(2048, true, true, 10, null);
+		//new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("user/key/test.key"), "abcdeTest");
+		//new crypto.KeySaveLoad().saveKey(k, new File("user/key/testPublic.key"), true);
 	}
 	
 	protected static void testKeyLoad() throws Exception{
@@ -71,7 +70,7 @@ public class Main {
 		System.out.println(i.toString(16));
 	}
 	
-	protected static void testSRSHA(int a, int size){
+	protected static void testSRSHA(int a, int size) throws NoSuchAlgorithmException{
 		long tStart = System.currentTimeMillis();
 		long trueBits = 0;
 		int minBits = 10000;
@@ -81,12 +80,12 @@ public class Main {
 		String[][] ags = new String[a][2];
 		
 		SecureRandom rndm = cryptoUtility.Random.generateSR();
-		crypto.SRSHA srsha;
+		crypto.SCMHA srsha;
 		ags[0][0] = "*Null";
 		ags[0][1] = Base64.getEncoder().encodeToString(new byte[size]);
 		byte[] b;
 		for (int i = 1; i < a; i++) {
-			srsha = new SRSHA(size);
+			srsha = new crypto.SCMHA(size);
 			ags[i][0] = cryptoUtility.Random.generateRandomString(rndm.nextInt(size)+2, rndm);
 			srsha.update(ags[i][0].getBytes());
 			b = srsha.digest();

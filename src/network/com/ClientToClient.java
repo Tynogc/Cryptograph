@@ -1,19 +1,68 @@
 package network.com;
 
+import crypto.RSAcrypto;
 import cryptoUtility.NetEncryptionFrame;
 import network.CommunicationProcess;
 import network.TCPlinker;
+import network.Writable;
 
-public class ClientToClient extends CommunicationProcess{
+public class ClientToClient extends CommunicationProcess implements Writable{
 
-	public ClientToClient(TCPlinker l, NetEncryptionFrame n) {
+	private CommunicationProcess subCom;
+	
+	/**
+	 * Connection Partner for this object, is layed in by the Response-Stream.
+	 * Follows Header-Notation: [user@server.com]
+	 */
+	public final String connectionTo;
+	
+	/**
+	 * Generates a connection to a Client, the other Client must have been previously accepted.
+	 * @param l Writable for the Response-Stream, must be on the Server for return connection.
+	 * @param n the Frame to carry the Session- and Super-Keys for this connection, key will be verified as soon
+	 * as this Object is created.
+	 * @param conTo The Server-Header to call for this connection, must follow Header-Notation
+	 */
+	public ClientToClient(Writable l, NetEncryptionFrame n, String conTo) {
 		super(l, n);
+		addToSubsets(new KeyExchange(this, key, true, null));
+		connectionTo = conTo;
 	}
 
 	@Override
 	protected boolean processIntern(String s) {
 		
 		return false;
+	}
+	
+	protected boolean useSubsets(String s){
+		if(subCom != null)
+			if(subCom.hasTerminated())
+				subCom = subCom.sort();
+		
+		if(subCom != null)
+			return subCom.processString(s);
+		
+		return false;
+	}
+	
+	public void addToSubsets(CommunicationProcess c){
+		if(subCom == null){
+			subCom = c;
+		}else{
+			subCom.add(c);
+		}
+	}
+
+	/**
+	 * All Methods further up should request the Write from this Object,
+	 * so the Message is encrypted for the other client.
+	 */
+	@Override
+	public void write(String s) {
+		s = RSAcrypto.encrypt(s, key.getMyKey(), false);
+		s = RSAcrypto.encrypt(s, key.getOtherKey(), true);
+		linker.write(connectionTo+COMCONSTANTS.DIV_HEADER+s);
 	}
 
 }
