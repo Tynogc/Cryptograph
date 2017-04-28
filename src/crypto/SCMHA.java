@@ -517,7 +517,7 @@ public class SCMHA {
 	 * @return
 	 */
 	private byte[] paddIncomingMessage(byte[] b){
-		byte[] bNew = new byte[wordSize*2+3];
+		byte[] bNew = new byte[wordSize*2+4];
 		for (int i = 0; i < b.length; i++) {
 			bNew[i] = b[i];
 			//Fill sum
@@ -526,11 +526,12 @@ public class SCMHA {
 			sum+=bi+1;
 		}
 		bNew[wordSize] = (byte)b.length;
+		bNew[wordSize+1] = (byte)(b.length/3);
 		for (int i = 0; i < b.length; i++) {
-			bNew[i+wordSize+1] = b[i];
+			bNew[i+wordSize+2] = b[i];
 		}
-		bNew[wordSize*2+1] = (byte)b.length;
-		bNew[wordSize*2+2] = (byte)(b.length/3);
+		bNew[wordSize*2+2] = (byte)b.length;
+		bNew[wordSize*2+3] = (byte)(b.length/3);
 		return bNew;
 	}
 	
@@ -693,7 +694,7 @@ public class SCMHA {
 		drawArray(g, k*q*2, k, c, this.c);
 		drawArray(g, k*q*3, k, c, d);
 		drawArray(g, k*q*4, k, c, e);
-		if(count_posInRound >8)
+		if(count_posInRound > 8 && count_posInRound < 13)
 			drawArray(g, k*q*5+20, k, c, u);
 		
 		g.drawImage(i, 0, q*k+10, null);
