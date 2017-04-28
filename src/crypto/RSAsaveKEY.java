@@ -30,6 +30,12 @@ public final class RSAsaveKEY implements Destroyable{
 	
 	public final int size;
 	
+	private static final String DIVIDER = "---";
+	
+	public RSAsaveKEY(String publicKeyString) throws InvalidKeySpecException, ArrayIndexOutOfBoundsException{
+		this(null, publicKeyString.split(DIVIDER)[0], publicKeyString.split(DIVIDER)[1]);
+	}
+	
 	public RSAsaveKEY(String priv, String publ, String mod) throws InvalidKeySpecException{
 		if(priv != null)privateExponent = new BigInteger(priv, 16);
 		if(publ != null)publicExponent = new BigInteger(publ, 16);
@@ -137,19 +143,21 @@ public final class RSAsaveKEY implements Destroyable{
 		//The KeySize should be mod 8 = 0
 		keySize -= keySize%8;
 		
-		/**
-		 * The following Lines of Code are from the stackoverflow.com Forum, published by the user 'albciff'
-		 * Thanks for the help! :D
-		 */
-		
-        // Choose two distinct prime numbers p and q.
-        BigInteger p = BigInteger.probablePrime(keySize/2,random);
+		System.out.println("Starting Key Generation...");
+        // Choose two prime numbers p and q.
+        BigInteger p = getPrime(keySize/2,random);
         if(showInfo)
         	System.out.println("1st Prime: "+p.toString().substring(0, 6)+"...");//FIXME delet this Line!!!
         
-        BigInteger q = BigInteger.probablePrime(keySize/2,random);
+        BigInteger q = getPrime(keySize/2,random);
         if(showInfo)
             System.out.println("2nd Prime: "+q.toString().substring(0, 6)+"...");//FIXME delet this Line!!!
+        
+        /**
+		 * The following Lines of Code are from the stackoverflow.com Forum, published by the user 'albciff'
+		 * Thanks for the help! :D
+		 */
+        
         // Compute n = pq (modulus)
         BigInteger modulus = p.multiply(q);
         // Compute O(n) = O(p)O(q) = (p - 1)(q - 1) = n - (p + q -1), where O is Euler's totient function.
@@ -197,6 +205,14 @@ public final class RSAsaveKEY implements Destroyable{
 			System.out.println(e);
 			return false;
 		}
+	}
+	
+	/**
+	 * Generates a String to exchange the PublicKey, can be used to generate a new RSAsaveKEY (Public) 
+	 * @return Publ.Exponent + "---" + Modulus
+	 */
+	public String getPublicKeyString(){
+		return publicExponent.toString(16) + DIVIDER + modulus.toString(16);
 	}
 	
 	private static void testEncryption(PublicKey publicKey, PrivateKey privateKey) throws Exception{
@@ -249,6 +265,32 @@ public final class RSAsaveKEY implements Destroyable{
             e = BigInteger.probablePrime(64,random);
         }
         return e;
+	}
+	
+	private static BigInteger getPrime(int size, SecureRandom rndm){
+		System.out.println(size + " "+ size/8);
+		size /= 8;
+		
+		//Get the seeding bytes...
+		byte[] b = new byte[size];
+		rndm.nextBytes(b);
+		
+		b[0] = (byte)(b[0] & 0x4f);
+		
+		b[0] = (byte)(b[0] | 1<<(rndm.nextInt(3)+4));
+		
+		System.out.println(b[0]);
+		
+		BigInteger i = new BigInteger(b);
+		
+		if(i.mod(new BigInteger("2")).compareTo(BigInteger.ONE) != 0)
+			i = i.add(BigInteger.ONE);
+		
+		while(!i.isProbablePrime(1000)){
+			i = i.add(new BigInteger("2"));
+		}
+		
+		return i;
 	}
 
 }
