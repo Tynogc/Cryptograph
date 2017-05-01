@@ -31,6 +31,9 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 
 	@Override
 	protected boolean processIntern(String s) {
+		String[] st = s.split(COMCONSTANTS.DIV_HEADER);
+		if(st.length<2)return false;
+		
 		
 		return false;
 	}

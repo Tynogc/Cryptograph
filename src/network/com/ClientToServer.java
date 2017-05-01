@@ -1,5 +1,6 @@
 package network.com;
 
+import user.FriendsControle;
 import cryptoUtility.NetEncryptionFrame;
 import network.CommunicationProcess;
 import network.TCPlinker;
@@ -25,6 +26,17 @@ public class ClientToServer extends CommunicationProcess{
 		//Key Validation
 		if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
 			add(new KeyExchange(linker, key, false, st[1]));
+			return true;
+		}
+		
+		
+		//Ask start of connection
+		if(st[0].compareTo(COMCONSTANTS.CONNECTION_ASK_START)==0){
+			try {
+				add(ConnectionBasics.connectionRequested(st, key.getMySuperKey()));
+			} catch (Exception e) {
+				debug.Debug.println("*Connection was Requested, but Failed: "+e.toString(), debug.Debug.WARN);
+			}
 			return true;
 		}
 		

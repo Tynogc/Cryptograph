@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.security.GeneralSecurityException;
 import java.security.spec.InvalidKeySpecException;
 
+import user.SideDisplay;
 import crypto.RSAcrypto;
 import crypto.RSAsaveKEY;
 import cryptoUtility.NetEncryptionFrame;
@@ -23,11 +24,13 @@ public class TCPclient implements Writable{
 	public final String ip;
 	public int port;
 	
-	private int timeToEstConn = 1000;
+	private int timeToEstConn = 6000;
 	
 	private UDPsystem udp;
+	private SideDisplay sideDisplay;
 	
 	private int trys;
+	private static final int numberOfTrys = 10;
 	private long lastTry;
 	private static final int timeForTry = 3000;
 	
@@ -39,8 +42,10 @@ public class TCPclient implements Writable{
 		ip = i;
 		port = p;
 		
-		//TODO load key
 		encryptionFrame = new NetEncryptionFrame("Server", true);
+		//TODO load super key
+		
+		//Generate Session Key
 		try {
 			encryptionFrame.setMyKey(RSAsaveKEY.generateKey(1024, true, true, 0, null));
 		} catch (Exception e1) {
@@ -48,39 +53,50 @@ public class TCPclient implements Writable{
 		}
 		
 		try {
-			udp = new UDPsystem(1245);
+			udp = new UDPsystem(port+256);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+		
+		sideDisplay = new SideDisplay();
+		sideDisplay.mainString = ip;
+		sideDisplay.status = SideDisplay.SERVER_CONNECTING;
 	}
 	
 	public void refresh(){
 		if(udp != null){
-			 if(udp.hasNext()){
-				 try {
-					 String[] s = udp.recive().str.split("_");
-					 port = Integer.parseInt(s[1]);
-					 connectFinal();
-					 if(linker.isConnected()){
-						 udp = null;
-						 debug.Debug.println("Connected to "+ip+":"+port, debug.Debug.MESSAGE);
-						 new Thread(){
-							 public void run(){
-								 loop();
-							 }
-						 }.start();
-					 }
+			if(udp.hasNext()){
+				try {
+					String[] s = udp.recive().str.split("_");
+					port = Integer.parseInt(s[1]);
+					connectFinal();
+					if(linker.isConnected()){
+						udp.close();
+						udp = null;
+						debug.Debug.println("Connected to "+ip+":"+port, debug.Debug.MESSAGE);
+						new Thread(){
+							public void run(){
+								loop();
+							}
+						}.start();
+					}
 				} catch (Exception e) {
 					debug.Debug.println("*Error opening TCP: "+e.toString(),
 							debug.Debug.ERROR);
 				}
-			 }
-			 if(System.currentTimeMillis()-lastTry>timeForTry){
-				 udp.send("This is a test...", new InetSocketAddress(ip, port));
-				 trys++;
-				 debug.Debug.println("Connecting... Try "+trys);
-				 lastTry = System.currentTimeMillis();
-			 }
+			}
+			if(System.currentTimeMillis()-lastTry>timeForTry){
+				trys++;
+				if(trys>numberOfTrys){
+					udp = null;
+					sideDisplay.status = SideDisplay.SERVER_NO_CONNECTION;
+					return;
+				}
+				//TODO
+				udp.send("This is a test...", new InetSocketAddress(ip, 1234));//TODO non-deafault port...
+				debug.Debug.println("Connecting... Try "+trys);
+				lastTry = System.currentTimeMillis();
+			}
 		}
 	}
 	
@@ -98,6 +114,7 @@ public class TCPclient implements Writable{
 			//Start Key-Validation for server's Session-Key
 			process.add(new KeyExchange(this, encryptionFrame, true, null));
 			
+			sideDisplay.status = SideDisplay.SERVER_ONLINE;//TODO
 		} catch (IOException e) {
 			debug.Debug.println("*Error conecting: "+e.getMessage(), debug.Debug.ERROR);
 		} catch (InterruptedException e) {
@@ -123,6 +140,7 @@ public class TCPclient implements Writable{
 				}
 			}
 		}
+		sideDisplay.status = SideDisplay.SERVER_NO_CONNECTION;
 	}
 	
 	@Override
@@ -169,5 +187,21 @@ public class TCPclient implements Writable{
 		else if(st[0].compareTo(COMCONSTANTS.KEY_SUPER) == 0)
 			encryptionFrame.setOtherSuperKey(k);
 		debug.Debug.println("Got Key: "+key);
+	}
+	
+	public SideDisplay getSideDispla(){
+		return sideDisplay;
+	}
+	
+	public void retryConnect(){
+		sideDisplay.status = SideDisplay.SERVER_CONNECTING;
+		if(udp == null){
+			try {
+				udp = new UDPsystem(port);
+			} catch (SocketException e) {
+				debug.Debug.println("*Error reconecting: "+e.toString(), debug.Debug.ERROR);
+			}
+		}
+		trys = 0;
 	}
 }

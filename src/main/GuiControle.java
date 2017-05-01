@@ -1,5 +1,7 @@
 package main;
 
+import gui.TopMenu;
+
 import java.awt.Graphics;
 
 import menu.AbstractMenu;
@@ -16,6 +18,8 @@ public class GuiControle {
 	private MenuControle textEnter;
 	private static MenuControle superMenu;
 	
+	public final TopMenu menuTopMenu;
+	
 	public GuiControle(main.MouseListener m, main.KeyListener k){
 		mouse = m;
 		topMenu = new MenuControle();
@@ -28,7 +32,8 @@ public class GuiControle {
 		textEnter = new MenuControle();
 		superMenu = new MenuControle();
 		
-		topMenu.setActivMenu(new gui.TopMenu());
+		menuTopMenu = new gui.TopMenu();
+		topMenu.setActivMenu(menuTopMenu);
 		frameMenu.setActivMenu(new gui.FrameMenu());
 	}
 	

@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import user.ClientControle;
 import debug.DebugFrame;
 import gui.EnterPassword;
 import gui.PicturSystem;
@@ -34,6 +35,8 @@ public class SeyprisMain extends JPanel{
 	private GuiControle gui;
 	
 	private TextEnterField text;
+	
+	private user.ClientControle clientControle;
 	
 	public SeyprisMain(){
 		
@@ -80,6 +83,9 @@ public class SeyprisMain extends JPanel{
 		GuiControle.addMenu(new gui.TestSCMHA(200, 30, text));
 		GuiControle.addMenu(new TextEnterAssist(300, 500, text));
 		//GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
+		
+		//Set ClientControel
+		clientControle = new ClientControle(gui.menuTopMenu);
 		
 		//Set Menus
 		if(st.startPicCrypto){
@@ -133,6 +139,8 @@ public class SeyprisMain extends JPanel{
 		
 		g.dispose();
 		strategy.show();
+		
+		clientControle.refresh();
 	}
 	
 	public static int sizeX(){

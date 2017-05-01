@@ -120,6 +120,18 @@ public class TopMenu extends AbstractMenu{
 		animCount = System.currentTimeMillis();
 	}
 	
+	public void setSideMenuServer(SideDisplay[] sd){
+		allCont[2].updateButtons(sd);
+	}
+	
+	public void setSideMenuFriends(SideDisplay[] sd){
+		allCont[0].updateButtons(sd);
+	}
+	
+	public void setSideMenuConversations(SideDisplay[] sd){
+		allCont[1].updateButtons(sd);
+	}
+	
 	private Button generateButton(final int i, String s){
 		Button b = new Button(1,i*32+DISTANCE,"res/ima/cli/spb/DOWN") {
 			@Override

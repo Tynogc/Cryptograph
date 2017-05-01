@@ -99,7 +99,8 @@ public class UDPsystem extends Thread{
 	}
 	
 	public void close(){
-		isRunning  =false;
+		isRunning = false;
+		socket.close();
 	}
 	
 }

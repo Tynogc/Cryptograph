@@ -14,6 +14,9 @@ public class COMCONSTANTS {
 	public static final String KEY_VERIFY = "KeyVerify";
 	public static final String KEY = "KEY";
 	public static final String KEY_SUPER = "SUPERKEY";
+	
 	public static final String PING = "PING";
 	public static final String PING_AN = "PING-AN";
+	
+	public static final String CONNECTION_ASK_START = "AskConnectionStart";
 }
