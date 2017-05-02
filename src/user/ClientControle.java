@@ -13,8 +13,10 @@ public class ClientControle {
 	public ClientControle(TopMenu t){
 		topMenu = t;
 		
-		add(new TCPclient("192.168.178.20", 8001));
-		add(new TCPclient("localhost", 8002));
+		String myName = "Test1234";
+		
+		add(new TCPclient("192.168.178.20", 8001, myName));
+		add(new TCPclient("localhost", 8002, myName));
 		topMenu.setSideMenuServer(new SideDisplay[]{list.client.getSideDisplay(), list.next.client.getSideDisplay()});
 	}
 	

@@ -20,8 +20,8 @@ public class KeyExchange extends CommunicationProcess {
 	private static final String FAILED = "FAILED";
 	private static final String SUCCESS = "SUCCESS";
 	
-	public KeyExchange(Writable l, NetEncryptionFrame n, boolean started, String init) {
-		super(l, n);
+	public KeyExchange(Writable l, NetEncryptionFrame n, boolean started, String init, String ownName) {
+		super(l, n, ownName);
 		this.started = started;
 		
 		if(started){

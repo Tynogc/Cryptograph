@@ -52,14 +52,14 @@ public class TCPserver extends Thread implements Writable{
 	public void run() {
 		try {
 			Socket s = server.accept();
-			linker = new TCPlinker(s, true);
+			linker = new TCPlinker(s, true, "TestServer");//TODO
 			if(linker.hasConnected(5000)){
 				//Send the Public Key
 				linker.write(COMCONSTANTS.KEY + COMCONSTANTS.DIV_HEADER +
 						encryptionFrame.getMyKey().getPublicKeyString());
 				linker.write(COMCONSTANTS.KEY_SUPER + COMCONSTANTS.DIV_HEADER +
 						encryptionFrame.getMySuperKey().getPublicKeyString());
-				stc = new ServerToClient(this, encryptionFrame);
+				stc = new ServerToClient(this, encryptionFrame, "");
 				//Enter loop:
 				loop();
 			}
@@ -116,5 +116,11 @@ public class TCPserver extends Thread implements Writable{
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public String getConnectionName(){
+		if(linker == null)
+			return "";
+		return linker.name;
 	}
 }

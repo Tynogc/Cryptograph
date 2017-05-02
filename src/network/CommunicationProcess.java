@@ -11,10 +11,13 @@ public abstract class CommunicationProcess {
 	
 	protected boolean terminated;
 	
-	public CommunicationProcess(Writable l, NetEncryptionFrame n){
+	public final String clientName;
+	
+	public CommunicationProcess(Writable l, NetEncryptionFrame n, String name){
 		linker = l;
 		terminated = false;
 		key = n;
+		clientName = name;
 	}
 	
 	/**

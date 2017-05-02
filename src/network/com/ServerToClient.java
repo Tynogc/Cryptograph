@@ -15,8 +15,8 @@ public class ServerToClient extends CommunicationProcess{
 	private static final int PINGTIME = 5000;
 	private int deadPings;
 	
-	public ServerToClient(Writable l, NetEncryptionFrame n) {
-		super(l, n);
+	public ServerToClient(Writable l, NetEncryptionFrame n, String ownName) {
+		super(l, n, ownName);
 	}
 	
 	public void refresh() throws IOException{
@@ -48,7 +48,7 @@ public class ServerToClient extends CommunicationProcess{
 		
 		//Key Validation
 		if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
-			add(new KeyExchange(linker, key, false, st[1]));
+			add(new KeyExchange(linker, key, false, st[1], clientName));
 			return true;
 		}
 		

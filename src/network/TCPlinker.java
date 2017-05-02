@@ -26,9 +26,10 @@ public class TCPlinker extends Thread{
 	private Semaphore sema;
 	
 	public String name;
+	public final String myName;
 	public String keyString;
 	
-	public TCPlinker(Socket sc, boolean server) throws IOException, InterruptedException{
+	public TCPlinker(Socket sc, boolean server, String myName) throws IOException, InterruptedException{
 		super("TCP linker to "+sc.getInetAddress().getHostAddress());
 		
 		socket = sc;
@@ -45,6 +46,8 @@ public class TCPlinker extends Thread{
 		sema.acquire();
 		
 		isAlive = true;
+		
+		this.myName = myName;
 		
 		start();
 	}

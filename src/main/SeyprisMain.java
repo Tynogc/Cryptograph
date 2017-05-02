@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import user.ClientControle;
 import debug.DebugFrame;
 import gui.EnterPassword;
 import gui.PicturSystem;
@@ -37,6 +36,7 @@ public class SeyprisMain extends JPanel{
 	private TextEnterField text;
 	
 	private user.ClientControle clientControle;
+	private user.FriendsControle friendsControle;
 	
 	public SeyprisMain(){
 		
@@ -85,7 +85,8 @@ public class SeyprisMain extends JPanel{
 		//GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
 		
 		//Set ClientControel
-		clientControle = new ClientControle(gui.menuTopMenu);
+		clientControle = new user.ClientControle(gui.menuTopMenu);
+		friendsControle = new user.FriendsControle(clientControle);
 		
 		//Set Menus
 		if(st.startPicCrypto){
@@ -141,6 +142,7 @@ public class SeyprisMain extends JPanel{
 		strategy.show();
 		
 		clientControle.refresh();
+		friendsControle.update();
 	}
 	
 	public static int sizeX(){

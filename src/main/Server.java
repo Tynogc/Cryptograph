@@ -3,17 +3,18 @@ package main;
 import java.net.SocketException;
 
 import crypto.RSAsaveKEY;
-import cryptoUtility.NetEncryptionFrame;
 import network.FiElement;
 import network.TCPserver;
 import network.UDPsystem;
+import network.com.COMCONSTANTS;
+import network.com.ConnectionBasics;
 
 public class Server {
 
 	private boolean serverIsRunning;
 	
 	private UDPsystem udp;
-	private TCPserver tcp;
+	private ClientList tcp;
 	
 	private RSAsaveKEY myKey;
 	
@@ -38,7 +39,9 @@ public class Server {
 			try {
 				if(udp.hasNext()){
 					int k = (int)(Math.random()*100)+8000;
-					tcp = new TCPserver(k, myKey);
+					if(tcp == null)
+						tcp = new ClientList(new TCPserver(k, myKey));
+					else tcp.add(new TCPserver(k, myKey));
 					FiElement n = udp.recive();
 					udp.send("Hello_"+k+"_Port", n.adress);
 				}else{
@@ -49,5 +52,35 @@ public class Server {
 				debug.Debug.printExeption(e);
 			}
 		}
+	}
+	
+	public synchronized void send(String message) throws Exception{
+		String to = message.split(COMCONSTANTS.DIV_HEADER)[0];
+		to = ConnectionBasics.divideHeader(to)[0];
+		ClientList cl = tcp;
+		while (cl != null) {
+			if(to.compareTo(cl.client.getConnectionName()) == 0){
+				cl.client.write(message);
+				return;
+			}
+			cl = cl.next;
+		}
+	}
+}
+class ClientList{
+	
+	public final TCPserver client;
+	
+	public ClientList next;
+	
+	public ClientList(TCPserver c){
+		client = c;
+	}
+	
+	public void add(TCPserver c){
+		if(next == null)
+			next = new ClientList(c);
+		else
+			next.add(c);
 	}
 }

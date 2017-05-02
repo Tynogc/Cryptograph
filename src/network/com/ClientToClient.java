@@ -27,9 +27,9 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	 * as this Object is created.
 	 * @param conTo The Server-Header to call for this connection, must follow Header-Notation
 	 */
-	public ClientToClient(Writable l, NetEncryptionFrame n, String conTo) {
-		super(l, n);
-		addToSubsets(new KeyExchange(this, key, true, null));
+	public ClientToClient(Writable l, NetEncryptionFrame n, String conTo, String ownName) {
+		super(l, n, ownName);
+		addToSubsets(new KeyExchange(this, key, true, null, ownName));
 		connectionTo = conTo;
 	}
 
@@ -69,7 +69,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	public void write(String s) {
 		s = RSAcrypto.encrypt(s, key.getMyKey(), false);
 		s = RSAcrypto.encrypt(s, key.getOtherKey(), true);
-		linker.write(connectionTo+COMCONSTANTS.DIV_HEADER+s);
+		linker.write(ConnectionBasics.generateHeader(clientName, connectionTo) + COMCONSTANTS.DIV_HEADER + s);
 	}
 
 }

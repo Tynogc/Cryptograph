@@ -8,8 +8,8 @@ import network.Writable;
 
 public class ClientToServer extends CommunicationProcess{
 
-	public ClientToServer(Writable l, NetEncryptionFrame n) {
-		super(l, n);
+	public ClientToServer(Writable l, NetEncryptionFrame n, String ownName) {
+		super(l, n, ownName);
 	}
 
 	@Override
@@ -25,13 +25,13 @@ public class ClientToServer extends CommunicationProcess{
 		
 		//Key Validation
 		if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
-			add(new KeyExchange(linker, key, false, st[1]));
+			add(new KeyExchange(linker, key, false, st[1], clientName));
 			return true;
 		}
 		
 		
 		//Ask start of connection
-		if(st[0].compareTo(COMCONSTANTS.CONNECTION_ASK_START)==0){
+		if(st[1].compareTo(COMCONSTANTS.CONNECTION_ASK_START)==0){
 			try {
 				add(ConnectionBasics.connectionRequested(st, key.getMySuperKey()));
 			} catch (Exception e) {

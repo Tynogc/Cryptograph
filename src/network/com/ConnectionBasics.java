@@ -27,7 +27,7 @@ public class ConnectionBasics {
 	 */
 	public static ClientToClient connectionRequested(String[] st, RSAsaveKEY mySuperKey) 
 			throws ArrayIndexOutOfBoundsException, InvalidKeySpecException {
-		String friend = st[1];
+		String friend = divideHeader(st[0])[1];
 		debug.Debug.println("*Connection is Requested by: "+friend, debug.Debug.MESSAGE);
 		try{
 			FriendsControle.friends.getClientByName(friend);
@@ -37,6 +37,7 @@ public class ConnectionBasics {
 		}
 		String key = st[2];
 		String superKey = key.split(COMCONSTANTS.DIV)[0];
+		String certifikat = key.split(COMCONSTANTS.DIV)[2];
 		key = key.split(COMCONSTANTS.DIV)[1];
 		
 		//TODO check friend (+friend's superKey) in database
@@ -74,8 +75,64 @@ public class ConnectionBasics {
 		//TODO check server certificate (Time sensitiv!)
 		debug.Debug.println("-Certificate checked!");
 		
-		return new ClientToClient(server, nef, friend);
+		return new ClientToClient(server, nef, friend, server.myName);
 	}
 	
+	public static ClientToClient askConnection(String friend, TCPclient responseChannel, Writable sendChannel){
+		String s = generateHeader(responseChannel.myName, friend);
+		NetEncryptionFrame nef = new NetEncryptionFrame(friend, false);
+		RSAsaveKEY myKey = null;
+		do{
+			try {
+				myKey = RSAsaveKEY.generateKey(2048, true, false, 3, null);
+			} catch (Exception e) {
+				debug.Debug.printExeption(e);
+			}
+		}while(myKey == null);
+		nef.setMyKey(myKey);
+		nef.setMySuperKey(responseChannel.getNef().getMySuperKey());
+		
+		s+=COMCONSTANTS.DIV_HEADER+nef.getMySuperKey().getPublicKeyString();
+		s+=COMCONSTANTS.DIV+nef.getMyKey().getPublicKeyString();
+		s+=COMCONSTANTS.DIV+"Certificate";
+		
+		return new ClientToClient(responseChannel, nef, friend, responseChannel.myName);
+	}
 	
+	private static final String FROM = "[FROM: ";
+	private static final String TO = "[TO: ";
+	
+	/**
+	 * Divides the Header-String into Two parts: From and To
+	 * @param header
+	 * @return [To][Frome], null if the Header is wrong
+	 */
+	public static String[] divideHeader(String header){
+		String[] s = header.split("]");
+		
+		String from = "";
+		String to = "";
+		
+		for (int i = 0; i < s.length; i++) {
+			if(s[i].startsWith(FROM)){
+				from = s[i].substring(FROM.length());
+			}
+			if(s[i].startsWith(TO)){
+				to = s[i].substring(TO.length());
+			}
+		}
+		
+		System.out.println("-"+from+"-"+to);
+		return new String[]{to, from};
+	}
+	
+	/**
+	 * Generates standard-Header-Notation of the sender and reciver
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public static String generateHeader(String from, String to){
+		return new String(TO+to+"]"+FROM+from+"]");
+	}
 }

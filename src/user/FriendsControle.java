@@ -4,6 +4,7 @@ import crypto.RSAsaveKEY;
 import network.TCPclient;
 import network.com.COMCONSTANTS;
 import network.com.ClientToClient;
+import network.com.ConnectionBasics;
 
 public class FriendsControle {
 
@@ -56,6 +57,8 @@ public class FriendsControle {
 		while (fl != null) {
 			if(fl.com.connectionTo.compareTo(name) == 0)
 				return fl.com;
+			
+			fl = fl.next;
 		}
 		throw new Exception("Element not found!");
 	}
@@ -76,6 +79,11 @@ public class FriendsControle {
 	public boolean checkKeyMatch(RSAsaveKEY key, String friend){
 		
 		return true; //TODO
+	}
+	
+	public void test(){
+		TCPclient t = clients.getServerByName("192.168.178.20");
+		ConnectionBasics.askConnection("Test1234@192.168.178.20", t, t);
 	}
 }
 

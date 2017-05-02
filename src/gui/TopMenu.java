@@ -51,10 +51,10 @@ public class TopMenu extends AbstractMenu{
 		b1.setText("TEST");
 		
 		Button b2 = new Button(220,50,"res/ima/cli/b"){
-			network.TCPclient cl;
+			
 			@Override
 			protected void isClicked() {
-				cl = new network.TCPclient("localhost", 1234);
+				user.FriendsControle.friends.test();
 			}
 			@Override
 			protected void isFocused() {
@@ -62,8 +62,7 @@ public class TopMenu extends AbstractMenu{
 			}
 			@Override
 			protected void uppdate() {
-				if(cl != null)
-					cl.refresh();
+				
 			}
 		};
 		add(b2);

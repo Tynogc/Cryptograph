@@ -38,7 +38,9 @@ public class TCPclient implements Writable{
 	
 	private CommunicationProcess process;
 	
-	public TCPclient(String i, int p){
+	public final String myName;
+	
+	public TCPclient(String i, int p, String myName){
 		ip = i;
 		port = p;
 		
@@ -73,6 +75,8 @@ public class TCPclient implements Writable{
 		sideDisplay.mainString = ip;
 		sideDisplay.status = SideDisplay.SERVER_CONNECTING;
 		sideDisplay.update();
+		
+		this.myName = myName+"@"+ip;
 	}
 	
 	public void refresh(){
@@ -117,15 +121,15 @@ public class TCPclient implements Writable{
 		try {
 			socket = new Socket();
 			socket.connect(new InetSocketAddress(ip, port), timeToEstConn);
-			linker = new TCPlinker(socket, false);
+			linker = new TCPlinker(socket, false, myName);
 			
 			//Listen for Server Keys
 			listenForKey();
 			listenForKey();
-			process = new ClientToServer(this, encryptionFrame);
+			process = new ClientToServer(this, encryptionFrame, myName);
 			
 			//Start Key-Validation for server's Session-Key
-			process.add(new KeyExchange(this, encryptionFrame, true, null));
+			process.add(new KeyExchange(this, encryptionFrame, true, null, myName));
 			
 			sideDisplay.status = SideDisplay.SERVER_ONLINE;//TODO
 			sideDisplay.update();
@@ -174,6 +178,7 @@ public class TCPclient implements Writable{
 		String s = e.str;
 		try {
 			s = RSAcrypto.decrypt(s, encryptionFrame.getOtherKey(), true);
+			System.out.println("RECIVER --> "+s);
 			process.processString(s);
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
@@ -208,6 +213,10 @@ public class TCPclient implements Writable{
 	
 	public SideDisplay getSideDisplay(){
 		return sideDisplay;
+	}
+	
+	public NetEncryptionFrame getNef(){
+		return encryptionFrame;
 	}
 	
 	public void retryConnect(){
