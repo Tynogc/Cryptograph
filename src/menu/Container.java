@@ -142,5 +142,10 @@ public class Container implements ButtonInterface{
 		content = content.add(b);
 	}
 	
-	protected void paintIntern(Graphics g){};
+	protected void paintIntern(Graphics g){}
+
+	@Override
+	public void rightReleased(int x, int y) {
+		next.rightReleased(x, y);
+	}
 }

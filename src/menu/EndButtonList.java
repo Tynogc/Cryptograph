@@ -45,4 +45,7 @@ public class EndButtonList implements ButtonInterface{
 	@Override
 	public void setNext(ButtonInterface b) {}
 
+	@Override
+	public void rightReleased(int x, int y) {}
+
 }

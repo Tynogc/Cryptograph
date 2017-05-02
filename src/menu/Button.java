@@ -422,5 +422,15 @@ public abstract class Button implements ButtonInterface {
 	public boolean isVisible(){
 		return visible;
 	}
+	
+	@Override
+	public void rightReleased(int x, int y) {
+		if(isMouseHere(x, y))
+			rightClickAction();
+		
+		next.rightReleased(x, y);
+	}
+	
+	public void rightClickAction(){};
 
 }

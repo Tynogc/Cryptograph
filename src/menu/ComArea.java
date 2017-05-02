@@ -99,6 +99,11 @@ public class ComArea implements ButtonInterface{
 		next = b;		
 	}
 
+	@Override
+	public void rightReleased(int x, int y) {
+		next.rightReleased(x, y);
+	}
+
 
 	
 
