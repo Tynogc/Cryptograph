@@ -38,6 +38,8 @@ public class SideDisplay {
 	public String mainString;
 	public String secondLine;
 	
+	public gui.sub.SideContainer sideContainer;
+	
 	public SideDisplay(){};
 	public SideDisplay(String s){
 		mainString  =s;
@@ -84,5 +86,18 @@ public class SideDisplay {
 			if(iconNumbers[i] == a)return icons[i];
 		}
 		return icons[0];
+	}
+	
+	public void wasClicked(){
+		
+	}
+	
+	public void wasRightClicked(){
+		
+	}
+	
+	public void update(){
+		if(sideContainer != null)
+			sideContainer.updateGrouping();
 	}
 }

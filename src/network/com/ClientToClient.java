@@ -3,12 +3,16 @@ package network.com;
 import crypto.RSAcrypto;
 import cryptoUtility.NetEncryptionFrame;
 import network.CommunicationProcess;
-import network.TCPlinker;
 import network.Writable;
 
 public class ClientToClient extends CommunicationProcess implements Writable{
 
 	private CommunicationProcess subCom;
+	
+	/**
+	 * Hasn't send response
+	 */
+	public boolean needsConnection;
 	
 	/**
 	 * Connection Partner for this object, is layed in by the Response-Stream.

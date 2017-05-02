@@ -45,6 +45,10 @@ public class SideContainer extends Container{
 	}
 	
 	public void updateButtons(SideDisplay[] d){
+		for (int i = 0; i < d.length; i++) {
+			d[i].sideContainer = this;
+		}
+		
 		if(scr != null)removeIntern(scr);
 		if(buttons != null)
 		for (int i = 0; i < buttons.length; i++) {
@@ -61,6 +65,10 @@ public class SideContainer extends Container{
 		scr = new ScrollBar(251, 0, ySize-20,10,50);
 		addInContainer(scr);
 		scr.setScrollBy(4);
+	}
+	
+	public void updateGrouping(){
+		updateGrouping(group);
 	}
 	
 	public void updateGrouping(boolean g){
@@ -173,12 +181,17 @@ class ClickButton extends Button{
 
 	@Override
 	protected void isClicked() {
-		
+		sd.wasClicked();
 	}
 	@Override
 	protected void isFocused() {}
 	@Override
 	protected void uppdate() {}
+	
+	@Override
+	public void rightClickAction() {
+		sd.wasRightClicked();
+	}
 }
 
 abstract class GroupButton extends Button{

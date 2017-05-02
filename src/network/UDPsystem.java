@@ -92,9 +92,12 @@ public class UDPsystem extends Thread{
 			    socket.send(packet);
 			
 			sema.release();
-		} catch (InterruptedException | IOException e) {
+		} catch (IOException e) {
 			debug.Debug.println("*Problem sending Message (UDP): "+e.getMessage(),
 					debug.Debug.WARN);
+			sema.release();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 	

@@ -89,7 +89,7 @@ public class RSAcrypto {
 		
 		BigInteger b = new BigInteger(by);
 		
-		System.out.println(b.bitLength()+"-"+key.size);
+		//System.out.println(b.bitLength()+"-"+key.size);
 		
 		b = encryptBlock(b, key, pub);
 		by = b.toByteArray();

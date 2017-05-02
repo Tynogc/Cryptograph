@@ -58,9 +58,21 @@ public class TCPclient implements Writable{
 			e.printStackTrace();
 		}
 		
-		sideDisplay = new SideDisplay();
+		sideDisplay = new SideDisplay(){
+			@Override
+			public void wasClicked() {
+				if(linker == null){
+					retryConnect();
+				}else if(!linker.isConnected()){
+					retryConnect();
+				}else{
+					//TODO
+				}
+			}
+		};
 		sideDisplay.mainString = ip;
 		sideDisplay.status = SideDisplay.SERVER_CONNECTING;
+		sideDisplay.update();
 	}
 	
 	public void refresh(){
@@ -90,6 +102,7 @@ public class TCPclient implements Writable{
 				if(trys>numberOfTrys){
 					udp = null;
 					sideDisplay.status = SideDisplay.SERVER_NO_CONNECTION;
+					sideDisplay.update();
 					return;
 				}
 				//TODO
@@ -115,6 +128,7 @@ public class TCPclient implements Writable{
 			process.add(new KeyExchange(this, encryptionFrame, true, null));
 			
 			sideDisplay.status = SideDisplay.SERVER_ONLINE;//TODO
+			sideDisplay.update();
 		} catch (IOException e) {
 			debug.Debug.println("*Error conecting: "+e.getMessage(), debug.Debug.ERROR);
 		} catch (InterruptedException e) {
@@ -141,16 +155,19 @@ public class TCPclient implements Writable{
 			}
 		}
 		sideDisplay.status = SideDisplay.SERVER_NO_CONNECTION;
+		sideDisplay.update();
 	}
 	
 	@Override
 	public void write(String s){
+		System.out.println(s);
 		try {
 			s = RSAcrypto.encrypt(s, encryptionFrame.getOtherKey(), true);
 		} catch (Exception e) {
 			debug.Debug.println("* ERROR Encrypting: "+e.toString(), debug.Debug.ERROR);
 		}
 		linker.write(s);
+		System.out.println("$$$");
 	}
 	
 	private void recive(FiElement e){
@@ -189,12 +206,13 @@ public class TCPclient implements Writable{
 		debug.Debug.println("Got Key: "+key);
 	}
 	
-	public SideDisplay getSideDispla(){
+	public SideDisplay getSideDisplay(){
 		return sideDisplay;
 	}
 	
 	public void retryConnect(){
 		sideDisplay.status = SideDisplay.SERVER_CONNECTING;
+		sideDisplay.update();
 		if(udp == null){
 			try {
 				udp = new UDPsystem(port);
@@ -203,5 +221,11 @@ public class TCPclient implements Writable{
 			}
 		}
 		trys = 0;
+	}
+	
+	public boolean isConnected(){
+		if(linker == null)
+			return false;
+		return linker.isConnected();
 	}
 }

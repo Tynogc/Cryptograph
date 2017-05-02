@@ -14,7 +14,8 @@ public class ClientControle {
 		topMenu = t;
 		
 		add(new TCPclient("192.168.178.20", 8001));
-		topMenu.setSideMenuServer(new SideDisplay[]{list.client.getSideDispla()});
+		add(new TCPclient("localhost", 8002));
+		topMenu.setSideMenuServer(new SideDisplay[]{list.client.getSideDisplay(), list.next.client.getSideDisplay()});
 	}
 	
 	public void refresh(){
