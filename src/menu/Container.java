@@ -146,6 +146,7 @@ public class Container implements ButtonInterface{
 
 	@Override
 	public void rightReleased(int x, int y) {
+		content.rightReleased(x-xPos, y-yPos);
 		next.rightReleased(x, y);
 	}
 }

@@ -46,7 +46,7 @@ public class MenuControle {
 		if(menus == null)return false;
 		
 		boolean lPress = !lef && left;
-		boolean rPress = !rig && right;
+		boolean rPress = rig && !right;
 		boolean lReleas = lef && !left;
 		lef = left;
 		rig = right;
@@ -104,6 +104,7 @@ public class MenuControle {
 			menus.leftClick(x, y);
 		menus.getActivButtons().checkMouse(x, y);
 		if(lPress && inside)menus.getActivButtons().leftClicked(x, y);
+		if(rPress && inside)menus.getActivButtons().rightReleased(x, y);
 		if(lReleas)menus.getActivButtons().leftReleased(x, y);
 		if(menus == null)
 			return inside;
