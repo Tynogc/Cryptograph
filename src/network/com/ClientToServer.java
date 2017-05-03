@@ -33,7 +33,7 @@ public class ClientToServer extends CommunicationProcess{
 		//Ask start of connection
 		if(st[1].compareTo(COMCONSTANTS.CONNECTION_ASK_START)==0){
 			try {
-				add(ConnectionBasics.connectionRequested(st, key.getMySuperKey()));
+				add(ConnectionBasics.connectionRequested(st, key.getMySuperKey(), clientName));
 			} catch (Exception e) {
 				debug.Debug.println("*Connection was Requested, but Failed: "+e.toString(), debug.Debug.WARN);
 			}

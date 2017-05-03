@@ -25,10 +25,11 @@ public class ConnectionBasics {
 	 * @param st
 	 * @return
 	 */
-	public static ClientToClient connectionRequested(String[] st, RSAsaveKEY mySuperKey) 
+	public static ClientToClient connectionRequested(String[] st, RSAsaveKEY mySuperKey, String currentServer) 
 			throws ArrayIndexOutOfBoundsException, InvalidKeySpecException {
 		String friend = divideHeader(st[0])[1];
 		debug.Debug.println("*Connection is Requested by: "+friend, debug.Debug.MESSAGE);
+		debug.Debug.println("  "+st[0], debug.Debug.MESSAGE);
 		try{
 			FriendsControle.friends.getClientByName(friend);
 			debug.Debug.println("-Howerver, your already connected!", debug.Debug.ERROR);
@@ -62,7 +63,13 @@ public class ConnectionBasics {
 		nef.setOtherSuperKey(rsaSuperKey);
 		nef.setOtherKey(rsaKey);
 		
-		TCPclient server = FriendsControle.friends.openFriendChannel(friend);
+		String friendIntern = friend;
+		if(friend.split("@")[1].compareTo(COMCONSTANTS.SERVER_SAMESERVER) == 0){
+			friendIntern = friend.split("@")[0] + "@" + currentServer.split("@")[1];
+			debug.Debug.println("-Connections was asked on server$Same$; Is treated as: "+friendIntern);
+		}
+		
+		TCPclient server = FriendsControle.friends.openFriendChannel(friendIntern);
 		if(server == null){
 			debug.Debug.println("-Server name has no match!", debug.Debug.ERROR);
 			return null;
@@ -75,11 +82,47 @@ public class ConnectionBasics {
 		//TODO check server certificate (Time sensitiv!)
 		debug.Debug.println("-Certificate checked!");
 		
-		return new ClientToClient(server, nef, friend, server.myName);
+		////////////////////////////////////////////////////////////////////
+		//Send response
+		String response = generateHeader(divideHeader(st[0])[0], friend);
+		response += COMCONSTANTS.DIV_HEADER+COMCONSTANTS.CONNECTION_RESPONSE;
+		response += COMCONSTANTS.DIV_HEADER+nef.getMySuperKey().getPublicKeyString();
+		response += COMCONSTANTS.DIV+nef.getMyKey().getPublicKeyString();
+		server.write(response);
+		
+		ClientToClient cl = new ClientToClient(server, nef, friend, divideHeader(st[0])[0]);
+		debug.Debug.println("-Response send: Channel open!", debug.Debug.MESSAGE);
+		debug.Debug.println("  "+response.split(COMCONSTANTS.DIV_HEADER)[0], debug.Debug.MESSAGE);
+		cl.addToSubsets(new KeyExchange(cl, nef, true, null, cl.clientName));
+		return cl;
 	}
 	
+	public static void processResponse(ClientToClient cl, String[] st)
+			throws ArrayIndexOutOfBoundsException, InvalidKeySpecException{
+		debug.Debug.println("*Got response for connection request to "+cl.connectionTo);
+		String keys = st[2];
+		NetEncryptionFrame nef = cl.getNef();
+		
+		if(nef.getOtherKey() != null)
+			debug.Debug.println("This channel seamse already open!", debug.Debug.ERROR);//TODO
+		
+		nef.setOtherSuperKey(new RSAsaveKEY(keys.split(COMCONSTANTS.DIV)[0]));
+		//TODO check superkey vs. Database
+		nef.setOtherKey(new RSAsaveKEY(keys.split(COMCONSTANTS.DIV)[1]));
+		debug.Debug.println("Conected!", debug.Debug.MESSAGE);
+		debug.Debug.println("  "+generateHeader(cl.clientName, cl.connectionTo), debug.Debug.MESSAGE);
+		cl.addToSubsets(new KeyExchange(cl, nef, true, null, cl.clientName));
+	}
+
 	public static ClientToClient askConnection(String friend, TCPclient responseChannel, Writable sendChannel){
-		String s = generateHeader(responseChannel.myName, friend);
+		String s;
+		if(friend.endsWith(COMCONSTANTS.SERVER_SAMESERVER)){
+			String mn = responseChannel.myName;
+			mn = mn.split("@")[0]+"@"+COMCONSTANTS.SERVER_SAMESERVER;
+			s = generateHeader(mn, friend);
+		}else{
+			s = generateHeader(responseChannel.myName, friend);
+		}
 		NetEncryptionFrame nef = new NetEncryptionFrame(friend, false);
 		RSAsaveKEY myKey = null;
 		do{
@@ -92,9 +135,14 @@ public class ConnectionBasics {
 		nef.setMyKey(myKey);
 		nef.setMySuperKey(responseChannel.getNef().getMySuperKey());
 		
+		s+=COMCONSTANTS.DIV_HEADER+COMCONSTANTS.CONNECTION_ASK_START;
 		s+=COMCONSTANTS.DIV_HEADER+nef.getMySuperKey().getPublicKeyString();
 		s+=COMCONSTANTS.DIV+nef.getMyKey().getPublicKeyString();
 		s+=COMCONSTANTS.DIV+"Certificate";
+		
+		sendChannel.write(s);
+		
+		debug.Debug.println("* Asking connection: "+s.split(COMCONSTANTS.DIV_HEADER)[0], debug.Debug.COM);
 		
 		return new ClientToClient(responseChannel, nef, friend, responseChannel.myName);
 	}
@@ -105,7 +153,7 @@ public class ConnectionBasics {
 	/**
 	 * Divides the Header-String into Two parts: From and To
 	 * @param header
-	 * @return [To][Frome], null if the Header is wrong
+	 * @return [To][From], null if the Header is wrong
 	 */
 	public static String[] divideHeader(String header){
 		String[] s = header.split("]");

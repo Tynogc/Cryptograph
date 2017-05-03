@@ -191,6 +191,7 @@ class ClickButton extends Button{
 	@Override
 	public void rightClickAction() {
 		sd.wasRightClicked();
+		System.out.println("RightClicked");
 	}
 }
 

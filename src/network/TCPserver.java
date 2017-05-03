@@ -10,6 +10,7 @@ import java.security.spec.InvalidKeySpecException;
 import crypto.RSAcrypto;
 import crypto.RSAsaveKEY;
 import cryptoUtility.NetEncryptionFrame;
+import main.Server;
 import network.com.COMCONSTANTS;
 import network.com.ServerToClient;
 
@@ -23,8 +24,11 @@ public class TCPserver extends Thread implements Writable{
 	
 	private NetEncryptionFrame encryptionFrame;
 	
-	public TCPserver(int port, RSAsaveKEY serverKey){
+	private final Server serverControle;
+	
+	public TCPserver(int port, RSAsaveKEY serverKey, Server s){
 		debug.Debug.println("Starting TCP server on Port "+port);
+		serverControle = s;
 		try {
 			server = new ServerSocket(port, 1);
 			server.setSoTimeout(3000);
@@ -59,7 +63,7 @@ public class TCPserver extends Thread implements Writable{
 						encryptionFrame.getMyKey().getPublicKeyString());
 				linker.write(COMCONSTANTS.KEY_SUPER + COMCONSTANTS.DIV_HEADER +
 						encryptionFrame.getMySuperKey().getPublicKeyString());
-				stc = new ServerToClient(this, encryptionFrame, "");
+				stc = new ServerToClient(this, encryptionFrame, "", serverControle);
 				//Enter loop:
 				loop();
 			}
@@ -76,7 +80,9 @@ public class TCPserver extends Thread implements Writable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		//TODO close linker
+		serverControle.remove(this);
+		//TODO close 
+		debug.Debug.println("* Removed "+linker.name+ " from Que!", debug.Debug.SUBWARN);
 	}
 
 	/**
@@ -84,8 +90,10 @@ public class TCPserver extends Thread implements Writable{
 	 * @Override
 	 */
 	public void write(String s) {
+		System.out.println(s);
 		s = RSAcrypto.encrypt(s, encryptionFrame.getMyKey(), false);
 		linker.write(s);
+		System.out.println("$$$");
 	}
 	
 	private void loop(){

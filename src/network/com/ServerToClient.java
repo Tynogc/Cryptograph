@@ -3,6 +3,7 @@ package network.com;
 import java.io.IOException;
 
 import cryptoUtility.NetEncryptionFrame;
+import main.Server;
 import network.CommunicationProcess;
 import network.TCPlinker;
 import network.Writable;
@@ -15,8 +16,11 @@ public class ServerToClient extends CommunicationProcess{
 	private static final int PINGTIME = 5000;
 	private int deadPings;
 	
-	public ServerToClient(Writable l, NetEncryptionFrame n, String ownName) {
+	private final Server server;
+	
+	public ServerToClient(Writable l, NetEncryptionFrame n, String ownName, Server s) {
 		super(l, n, ownName);
+		server = s;
 	}
 	
 	public void refresh() throws IOException{
@@ -49,6 +53,15 @@ public class ServerToClient extends CommunicationProcess{
 		//Key Validation
 		if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
 			add(new KeyExchange(linker, key, false, st[1], clientName));
+			return true;
+		}
+		
+		if(s.startsWith("[")){
+			try {
+				server.send(s);
+			} catch (Exception e) {
+				debug.Debug.println("*Error forwarding Message: "+e.toString(), debug.Debug.WARN);
+			}
 			return true;
 		}
 		

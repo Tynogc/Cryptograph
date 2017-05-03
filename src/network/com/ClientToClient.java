@@ -1,5 +1,7 @@
 package network.com;
 
+import java.security.spec.InvalidKeySpecException;
+
 import crypto.RSAcrypto;
 import cryptoUtility.NetEncryptionFrame;
 import network.CommunicationProcess;
@@ -29,7 +31,6 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	 */
 	public ClientToClient(Writable l, NetEncryptionFrame n, String conTo, String ownName) {
 		super(l, n, ownName);
-		addToSubsets(new KeyExchange(this, key, true, null, ownName));
 		connectionTo = conTo;
 	}
 
@@ -38,6 +39,33 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 		String[] st = s.split(COMCONSTANTS.DIV_HEADER);
 		if(st.length<2)return false;
 		
+		if(s.startsWith("[")){
+			if(ConnectionBasics.divideHeader(st[0])[0].compareTo(connectionTo) == 0){
+				//This is for you :)
+				if(st[1].compareTo(COMCONSTANTS.CONNECTION_RESPONSE) == 0){
+					try {
+						ConnectionBasics.processResponse(this, st);
+					} catch (ArrayIndexOutOfBoundsException | InvalidKeySpecException e) {
+						debug.Debug.println("*Error reciving connection response: "+e.toString(), debug.Debug.ERROR);
+					}
+					return true;
+				}
+				
+				String sdc = s;
+				if(key.getOtherKey() == null)
+					return false;
+				
+				try {
+					sdc = RSAcrypto.decrypt(sdc, key.getMyKey(), false);
+					sdc = RSAcrypto.decrypt(sdc, key.getMyKey(), false);
+				} catch (Exception e) {
+					debug.Debug.println("*ERROR decrypting incomming Message: "+e.toString(), debug.Debug.ERROR);
+					return false;
+				}
+				
+				return useSubsets(sdc);
+			}
+		}
 		
 		return false;
 	}
@@ -67,9 +95,18 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	 */
 	@Override
 	public void write(String s) {
+		System.out.println(s);
+		if(key.getOtherKey() == null){
+			debug.Debug.println(s+", should be send, however ther is no key to do so...", debug.Debug.WARN);
+			return;
+		}
 		s = RSAcrypto.encrypt(s, key.getMyKey(), false);
 		s = RSAcrypto.encrypt(s, key.getOtherKey(), true);
 		linker.write(ConnectionBasics.generateHeader(clientName, connectionTo) + COMCONSTANTS.DIV_HEADER + s);
+	}
+	
+	public NetEncryptionFrame getNef(){
+		return key;
 	}
 
 }

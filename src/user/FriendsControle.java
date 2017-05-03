@@ -82,8 +82,8 @@ public class FriendsControle {
 	}
 	
 	public void test(){
-		TCPclient t = clients.getServerByName("192.168.178.20");
-		ConnectionBasics.askConnection("Test1234@192.168.178.20", t, t);
+		TCPclient t = clients.getServerByName("localhost");
+		t.addToYourComProcess(ConnectionBasics.askConnection("Test1234@"+COMCONSTANTS.SERVER_SAMESERVER, t, t));
 	}
 }
 

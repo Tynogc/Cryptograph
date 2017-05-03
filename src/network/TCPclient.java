@@ -46,6 +46,13 @@ public class TCPclient implements Writable{
 		
 		encryptionFrame = new NetEncryptionFrame("Server", true);
 		//TODO load super key
+		try {
+			encryptionFrame.setMySuperKey(RSAsaveKEY.generateKey(1024, true, true, 0, null));
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		System.out.println("Fingerprint: "+
+		cryptoUtility.RSAkeyFingerprint.getFingerprint(encryptionFrame.getMySuperKey()));
 		
 		//Generate Session Key
 		try {
@@ -121,7 +128,7 @@ public class TCPclient implements Writable{
 		try {
 			socket = new Socket();
 			socket.connect(new InetSocketAddress(ip, port), timeToEstConn);
-			linker = new TCPlinker(socket, false, myName);
+			linker = new TCPlinker(socket, false, myName.split("@")[0]);
 			
 			//Listen for Server Keys
 			listenForKey();
@@ -164,6 +171,8 @@ public class TCPclient implements Writable{
 	
 	@Override
 	public void write(String s){
+		if(linker == null)
+			return;
 		System.out.println(s);
 		try {
 			s = RSAcrypto.encrypt(s, encryptionFrame.getOtherKey(), true);
@@ -236,5 +245,9 @@ public class TCPclient implements Writable{
 		if(linker == null)
 			return false;
 		return linker.isConnected();
+	}
+	
+	public void addToYourComProcess(CommunicationProcess c){
+		process.add(c);
 	}
 }

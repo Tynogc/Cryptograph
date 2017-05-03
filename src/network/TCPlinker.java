@@ -59,7 +59,7 @@ public class TCPlinker extends Thread{
 			response = in.nextLine();
 			out.println("Hello");
 		}else{
-			out.println("hello");
+			out.println(myName);
 			response = in.nextLine();
 		}
 		name = response;

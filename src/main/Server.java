@@ -40,8 +40,8 @@ public class Server {
 				if(udp.hasNext()){
 					int k = (int)(Math.random()*100)+8000;
 					if(tcp == null)
-						tcp = new ClientList(new TCPserver(k, myKey));
-					else tcp.add(new TCPserver(k, myKey));
+						tcp = new ClientList(new TCPserver(k, myKey, this));
+					else tcp.add(new TCPserver(k, myKey, this));
 					FiElement n = udp.recive();
 					udp.send("Hello_"+k+"_Port", n.adress);
 				}else{
@@ -54,9 +54,15 @@ public class Server {
 		}
 	}
 	
+	public synchronized void remove(TCPserver s){
+		if(tcp != null)
+			tcp = tcp.remove(s);
+	}
+	
 	public synchronized void send(String message) throws Exception{
 		String to = message.split(COMCONSTANTS.DIV_HEADER)[0];
 		to = ConnectionBasics.divideHeader(to)[0];
+		to = to.split("@")[0];
 		ClientList cl = tcp;
 		while (cl != null) {
 			if(to.compareTo(cl.client.getConnectionName()) == 0){
@@ -65,6 +71,7 @@ public class Server {
 			}
 			cl = cl.next;
 		}
+		debug.Debug.println("Can't deploy Message: "+to, debug.Debug.WARN);
 	}
 }
 class ClientList{
@@ -82,5 +89,14 @@ class ClientList{
 			next = new ClientList(c);
 		else
 			next.add(c);
+	}
+	
+	public ClientList remove(TCPserver c){
+		if(c == client)
+			return next;
+		if(next != null){
+			next = next.remove(c);
+		}
+		return this;
 	}
 }

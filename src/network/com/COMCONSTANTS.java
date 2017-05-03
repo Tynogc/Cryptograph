@@ -19,4 +19,8 @@ public class COMCONSTANTS {
 	public static final String PING_AN = "PING-AN";
 	
 	public static final String CONNECTION_ASK_START = "AskConnectionStart";
+	public static final String CONNECTION_RESPONSE = "ConnectionStartResponse";
+	
+	//Respond on the same server as send, is used by one-Side local-Network-Connections
+	public static final String SERVER_SAMESERVER = "server$same$";
 }
