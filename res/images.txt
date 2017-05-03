@@ -212,3 +212,11 @@ res/ima/cli/spb/siw/D1002.png
 res/ima/cli/spb/siw/D1002.png
 res/SCMHA_Layout.jpg
 res/SCMHA_Layout.jpg
+res/ima/cli/spb/RCMB.png
+res/ima/cli/spb/RCMBn.png
+res/ima/cli/spb/RCMBc.png
+res/ima/cli/spb/RCMBf.png
+res/ima/cli/spb/RCMBd.png
+res/ima/cli/spb/RCMBd.png
+res/ima/men/LC07.png
+res/ima/men/LC07.png
