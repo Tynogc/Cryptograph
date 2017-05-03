@@ -116,8 +116,9 @@ public class ConnectionBasics {
 
 	public static ClientToClient askConnection(String friend, TCPclient responseChannel, Writable sendChannel){
 		String s;
+		String mn = responseChannel.myName;
 		if(friend.endsWith(COMCONSTANTS.SERVER_SAMESERVER)){
-			String mn = responseChannel.myName;
+			mn = responseChannel.myName;
 			mn = mn.split("@")[0]+"@"+COMCONSTANTS.SERVER_SAMESERVER;
 			s = generateHeader(mn, friend);
 		}else{
@@ -144,7 +145,7 @@ public class ConnectionBasics {
 		
 		debug.Debug.println("* Asking connection: "+s.split(COMCONSTANTS.DIV_HEADER)[0], debug.Debug.COM);
 		
-		return new ClientToClient(responseChannel, nef, friend, responseChannel.myName);
+		return new ClientToClient(responseChannel, nef, friend, mn);
 	}
 	
 	private static final String FROM = "[FROM: ";

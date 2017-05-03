@@ -32,6 +32,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	public ClientToClient(Writable l, NetEncryptionFrame n, String conTo, String ownName) {
 		super(l, n, ownName);
 		connectionTo = conTo;
+		debug.Debug.println(clientName+" "+connectionTo);
 	}
 
 	@Override
@@ -40,7 +41,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 		if(st.length<2)return false;
 		
 		if(s.startsWith("[")){
-			if(ConnectionBasics.divideHeader(st[0])[0].compareTo(connectionTo) == 0){
+			if(ConnectionBasics.divideHeader(st[0])[1].compareTo(connectionTo) == 0){
 				//This is for you :)
 				if(st[1].compareTo(COMCONSTANTS.CONNECTION_RESPONSE) == 0){
 					try {
@@ -51,16 +52,24 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 					return true;
 				}
 				
-				String sdc = s;
+				String sdc = s.substring(st[0].length()+3);
 				if(key.getOtherKey() == null)
 					return false;
 				
 				try {
 					sdc = RSAcrypto.decrypt(sdc, key.getMyKey(), false);
-					sdc = RSAcrypto.decrypt(sdc, key.getMyKey(), false);
+					sdc = RSAcrypto.decrypt(sdc, key.getOtherKey(), true);
 				} catch (Exception e) {
 					debug.Debug.println("*ERROR decrypting incomming Message: "+e.toString(), debug.Debug.ERROR);
 					return false;
+				}
+				
+				System.out.println(sdc);
+				st = sdc.split(COMCONSTANTS.DIV_HEADER);
+				if(st.length<2)return false;
+				if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
+					add(new KeyExchange(linker, key, false, st[1], clientName));
+					return true;
 				}
 				
 				return useSubsets(sdc);
