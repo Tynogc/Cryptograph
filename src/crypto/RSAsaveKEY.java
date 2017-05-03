@@ -275,13 +275,12 @@ public final class RSAsaveKEY implements Destroyable{
 		byte[] b = new byte[size];
 		rndm.nextBytes(b);
 		
-		b[0] = (byte)(b[0] & 0x4f);
-		
-		b[0] = (byte)(b[0] | 1<<(rndm.nextInt(3)+4));
+		b[0] = (byte)(b[0] | 0x80);
 		
 		System.out.println(b[0]);
 		
-		BigInteger i = new BigInteger(b);
+		BigInteger i1 = new BigInteger(b);
+		BigInteger i = i1.abs();
 		
 		if(i.mod(new BigInteger("2")).compareTo(BigInteger.ONE) != 0)
 			i = i.add(BigInteger.ONE);
@@ -289,6 +288,8 @@ public final class RSAsaveKEY implements Destroyable{
 		while(!i.isProbablePrime(1000)){
 			i = i.add(new BigInteger("2"));
 		}
+		
+		System.out.println(i.bitLength());
 		
 		return i;
 	}
