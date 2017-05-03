@@ -108,7 +108,7 @@ public class MenuControle {
 		if(lReleas)menus.getActivButtons().leftReleased(x, y);
 		if(menus == null)
 			return inside;
-		if(menus.closeOutside && lPress && !inside){
+		if(menus.closeOutside && (lPress || rPress) && !inside){
 			menus = null;
 		}
 		
