@@ -20,6 +20,9 @@ public class GuiControle {
 	
 	public final TopMenu menuTopMenu;
 	
+	public static int mouseX;
+	public static int mouseY;
+	
 	public GuiControle(main.MouseListener m, main.KeyListener k){
 		mouse = m;
 		topMenu = new MenuControle();
@@ -43,6 +46,9 @@ public class GuiControle {
 		boolean clicked = false;
 		
 		boolean leftForFocus = left;
+		
+		mouseX = mouse.x;
+		mouseY = mouse.y;
 		
 		if(superMenu.isActiv()){
 			if(superMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
