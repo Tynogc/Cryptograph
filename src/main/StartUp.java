@@ -21,7 +21,7 @@ public class StartUp {
 	}
 	
 	public void doStartUp(){
-		gte();
+		gtt();
 		debug.Debug.showExtendedBootInfo = advancedInfo;
 		//MainFrame.standartStartUp = standartStartUp;
 		//MainFrame.spectatorMode = spectator;
@@ -41,29 +41,14 @@ public class StartUp {
 	}
 	
 	private void gtt(){
-		debug.Debug.println("* Enter Password:");
-		pw(null);
-		debug.Debug.println("* Quick StartUp? [Y|n]");
-		if(question(true)) return;
-		debug.Debug.println("* Full Screen? [Y|n]");
-		fullScreen = question(true);
-		debug.Debug.println("* Spectator Mode? [y|N]");
-		spectator = question(false);
-		debug.Debug.println("* AdvancedOptions? [y|N]");
-		if(!question(false))return;
-		
-		debug.Debug.println("* Extended Information? [y|N]");
-		advancedInfo = question(false);
-		
-		debug.Debug.println("* Use standart Boot order? [Y|n]");
-		standartStartUp = question(true);
-		
-		debug.Debug.println("* Play Intro? [Y|n]");
-		playIntro = question(true);
-		
-		if(!playIntro){
-			debug.Debug.println("* Play simplyfied Version instead? [Y|n]");
-			playIntroSimple = question(true);
+		gte();
+		user.KeyHandler kh = new user.KeyHandler();
+		if(kh.isPrivateKeyEncrypted()){
+			debug.Debug.println("* Enter Password:");
+			debug.Debug.print("[Private Key]", debug.Debug.COM);//TODO user directory
+			SetPassword sp = new SetPassword();
+			pw(sp);
+			kh.decryptPrivateKey(sp);
 		}
 	}
 	
@@ -72,6 +57,7 @@ public class StartUp {
 		if(question(true)) return;
 		debug.Debug.println("* Start Server? [y|N]");
 		if(question(false)){
+			//TODO set user directory to Server!
 			server = true;
 			return;
 		}

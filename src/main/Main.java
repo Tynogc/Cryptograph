@@ -24,7 +24,7 @@ public class Main {
 		//testKeyGen();
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
-		testSRSHA(100, 512);
+		//testSRSHA(100, 512);
 		
 		new SeyprisMain();
 	}
@@ -53,9 +53,9 @@ public class Main {
 	}
 	
 	protected static void testKeyGen() throws Exception{
-		crypto.RSAsaveKEY k = crypto.RSAsaveKEY.generateKey(2048, true, true, 10, null);
-		//new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("user/key/test.key"), "abcdeTest");
-		//new crypto.KeySaveLoad().saveKey(k, new File("user/key/testPublic.key"), true);
+		crypto.RSAsaveKEY k = crypto.RSAsaveKEY.generateKey(2048*2, true, true, 10, null);
+		new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("data/user/default/Private.key"), "TestTest123");
+		new crypto.KeySaveLoad().saveKey(k, new File("data/user/default/Public.key"), true);
 	}
 	
 	protected static void testKeyLoad() throws Exception{
