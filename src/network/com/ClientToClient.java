@@ -68,7 +68,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 				st = sdc.split(COMCONSTANTS.DIV_HEADER);
 				if(st.length<2)return false;
 				if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
-					add(new KeyExchange(linker, key, false, st[1], clientName));
+					addToSubsets(new KeyExchange(linker, key, false, st[1], clientName));
 					return true;
 				}
 				
