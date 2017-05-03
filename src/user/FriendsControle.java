@@ -90,9 +90,11 @@ public class FriendsControle {
 class FriendsList{
 	public final ClientToClient com;
 	public FriendsList next;
+	public final SideDisplay sd;
 	
-	public FriendsList(ClientToClient c){
+	public FriendsList(ClientToClient c, SideDisplay s){
 		com = c;
+		sd = s;
 	}
 	
 	public void add(FriendsList l){

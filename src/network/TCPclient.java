@@ -40,6 +40,8 @@ public class TCPclient implements Writable{
 	
 	public final String myName;
 	
+	private final TCPclient me;
+	
 	public TCPclient(String i, int p, String myName){
 		ip = i;
 		port = p;
@@ -74,9 +76,11 @@ public class TCPclient implements Writable{
 					retryConnect();
 				}else if(!linker.isConnected()){
 					retryConnect();
-				}else{
-					//TODO
 				}
+			}
+			@Override
+			public void wasRightClicked() {
+				new gui.sub.RCM_Server(me);
 			}
 		};
 		sideDisplay.mainString = ip;
@@ -84,6 +88,8 @@ public class TCPclient implements Writable{
 		sideDisplay.update();
 		
 		this.myName = myName+"@"+ip;
+		
+		me = this;
 	}
 	
 	public void refresh(){
@@ -133,7 +139,7 @@ public class TCPclient implements Writable{
 			//Listen for Server Keys
 			listenForKey();
 			listenForKey();
-			process = new ClientToServer(this, encryptionFrame, myName);
+			process = new ClientToServer(this, encryptionFrame, myName, sideDisplay);
 			
 			//Start Key-Validation for server's Session-Key
 			process.add(new KeyExchange(this, encryptionFrame, true, null, myName));
@@ -249,5 +255,9 @@ public class TCPclient implements Writable{
 	
 	public void addToYourComProcess(CommunicationProcess c){
 		process.add(c);
+	}
+	
+	public TCPlinker getLinker(){
+		return linker;
 	}
 }

@@ -13,7 +13,7 @@ public class ClientControle {
 	public ClientControle(TopMenu t){
 		topMenu = t;
 		
-		String myName = "Test1234";
+		String myName = "Test5656";
 		
 		add(new TCPclient("192.168.178.20", 8001, myName));
 		add(new TCPclient("localhost", 8002, myName));

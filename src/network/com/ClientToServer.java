@@ -1,6 +1,7 @@
 package network.com;
 
 import user.FriendsControle;
+import user.SideDisplay;
 import cryptoUtility.NetEncryptionFrame;
 import network.CommunicationProcess;
 import network.TCPlinker;
@@ -8,13 +9,21 @@ import network.Writable;
 
 public class ClientToServer extends CommunicationProcess{
 
-	public ClientToServer(Writable l, NetEncryptionFrame n, String ownName) {
+	private final SideDisplay sideDisplay;
+	
+	public ClientToServer(Writable l, NetEncryptionFrame n, String ownName, SideDisplay d) {
 		super(l, n, ownName);
+		sideDisplay = d;
 	}
 
 	@Override
 	protected boolean processIntern(String s) {
-		if(s.compareTo(COMCONSTANTS.PING)==0){
+		if(s.startsWith(COMCONSTANTS.PING)){
+			try {
+				String k = s.substring(COMCONSTANTS.PING.length()+1);
+				int p = Integer.parseInt(k);
+				sideDisplay.secondLine = "Ping: "+p;
+			} catch (Exception e) {}
 			//Answer the Ping!
 			linker.write(COMCONSTANTS.PING_AN);
 			return true;

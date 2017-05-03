@@ -32,7 +32,7 @@ public class ServerToClient extends CommunicationProcess{
 				if(deadPings >= 3)
 					throw new IOException("Connection Dead: No Answer to Ping");
 			}
-			linker.write(COMCONSTANTS.PING);
+			linker.write(COMCONSTANTS.PING+"_"+pingTime);
 			lastPingAt = System.currentTimeMillis();
 			pingPending = true;
 		}
