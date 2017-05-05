@@ -60,7 +60,7 @@ public class ServerToClient extends CommunicationProcess{
 			try {
 				String r = s;
 				if(r.length()>50)
-					r = r.substring(49);
+					r = r.substring(0, 49);
 				debug.Debug.println(r);
 				server.send(s);
 			} catch (Exception e) {
