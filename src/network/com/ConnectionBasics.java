@@ -30,12 +30,20 @@ public class ConnectionBasics {
 		String friend = divideHeader(st[0])[1];
 		debug.Debug.println("*Connection is Requested by: "+friend, debug.Debug.MESSAGE);
 		debug.Debug.println("  "+st[0], debug.Debug.MESSAGE);
+		
+		String friendIntern = friend;
+		if(friend.split("@")[1].compareTo(COMCONSTANTS.SERVER_SAMESERVER) == 0){
+			friendIntern = friend.split("@")[0] + "@" + currentServer.split("@")[1];
+			debug.Debug.println("-Connections was asked on server$Same$; Is treated as: "+friendIntern);
+		}
+		
 		try{
-			FriendsControle.friends.getClientByName(friend);
+			FriendsControle.friends.getClientByName(friendIntern);
 			debug.Debug.println("-Howerver, your already connected!", debug.Debug.ERROR);
 		}catch (Exception e) {
 			//The Element dosn't exist, thats good
 		}
+		
 		String key = st[2];
 		String superKey = key.split(COMCONSTANTS.DIV)[0];
 		String certifikat = key.split(COMCONSTANTS.DIV)[2];
@@ -63,12 +71,6 @@ public class ConnectionBasics {
 		nef.setOtherSuperKey(rsaSuperKey);
 		nef.setOtherKey(rsaKey);
 		
-		String friendIntern = friend;
-		if(friend.split("@")[1].compareTo(COMCONSTANTS.SERVER_SAMESERVER) == 0){
-			friendIntern = friend.split("@")[0] + "@" + currentServer.split("@")[1];
-			debug.Debug.println("-Connections was asked on server$Same$; Is treated as: "+friendIntern);
-		}
-		
 		TCPclient server = FriendsControle.friends.openFriendChannel(friendIntern);
 		if(server == null){
 			debug.Debug.println("-Server name has no match!", debug.Debug.ERROR);
@@ -94,6 +96,12 @@ public class ConnectionBasics {
 		debug.Debug.println("-Response send: Channel open!", debug.Debug.MESSAGE);
 		debug.Debug.println("  "+response.split(COMCONSTANTS.DIV_HEADER)[0], debug.Debug.MESSAGE);
 		cl.addToSubsets(new KeyExchange(cl, nef, true, null, cl.clientName));
+		
+		if(!FriendsControle.friends.add(cl, friendIntern)){
+			debug.Debug.println("*ERROR FriendsControle: Connection was Requested,"
+					+ " but friend not found!", debug.Debug.ERROR);
+		}
+		
 		return cl;
 	}
 	

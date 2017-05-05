@@ -57,8 +57,11 @@ public class Container implements ButtonInterface{
 
 	@Override
 	public void leftClicked(int x, int y) {
-		if(!doClip||(x>=xPos&&x<xPos+boundaryX&&y>=yPos&&x<yPos+boundaryY))
-			content.leftClicked(x-xPos, y-yPos);
+		if(!doClip||(x>=xPos&&x<xPos+boundaryX&&y>=yPos&&x<yPos+boundaryY)){
+			if(isVisible()){
+				content.leftClicked(x-xPos, y-yPos);
+			}
+		}
 		next.leftClicked(x, y);
 	}
 

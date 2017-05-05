@@ -5,22 +5,24 @@ import java.io.File;
 import javax.security.auth.DestroyFailedException;
 
 import main.SetPassword;
+import main.UserManager;
 import crypto.KeySaveLoad;
 import crypto.RSAsaveKEY;
 
-public class KeyHandler {
+public final class KeyHandler {
 
 	public static KeyHandler key;
 	
 	private static final String version = "0.1";
 	
-	public final String privateKeyFile = "data/user/default/Private.key";
+	public final String privateKeyFile;
 	
 	private RSAsaveKEY privateKey;
 	
 	private final boolean isPrivateKeyEncr;
 	
 	public KeyHandler(){
+		privateKeyFile = UserManager.getUserDir()+"Private.key";
 		debug.Debug.println("Starting Key-Handling Agent v"+version);
 		
 		File f = new File(privateKeyFile);
@@ -36,13 +38,15 @@ public class KeyHandler {
 			debug.Debug.println("Encrypted Private-Key found!");
 		}
 		isPrivateKeyEncr = privateKey == null;
+		
+		key = this;
 	}
 	
 	public boolean isPrivateKeyEncrypted(){
 		return isPrivateKeyEncr;
 	}
 	
-	public void decryptPrivateKey(SetPassword p){
+	public final void decryptPrivateKey(SetPassword p){
 		try {
 			debug.Debug.println("*Loading Key...");
 			privateKey = new KeySaveLoad().loadEncrypted(new File(privateKeyFile), p.getPassword());
@@ -63,5 +67,14 @@ public class KeyHandler {
 			}
 			privateKey = null;
 		}
+	}
+	
+	public boolean isPrivateKeyOK(){
+		return privateKey != null;
+	}
+	
+	public RSAsaveKEY getPrivateKey(String couse){
+		//TODO checkCouse
+		return privateKey;
 	}
 }

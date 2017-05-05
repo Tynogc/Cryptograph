@@ -42,6 +42,7 @@ public class SeyprisMain extends JPanel{
 		
 		debFrame = new DebugFrame();
 		debFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		new Language(); //TODO load other language-Files
 		StartUp st = new StartUp(debFrame);
 		st.doStartUp();
 		if(st.server){
@@ -86,7 +87,7 @@ public class SeyprisMain extends JPanel{
 		
 		//Set ClientControel
 		clientControle = new user.ClientControle(gui.menuTopMenu);
-		friendsControle = new user.FriendsControle(clientControle);
+		friendsControle = new user.FriendsControle(clientControle, gui.menuTopMenu);
 		
 		//Set Menus
 		if(st.startPicCrypto){

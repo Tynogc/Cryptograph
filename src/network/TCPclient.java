@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.security.GeneralSecurityException;
 import java.security.spec.InvalidKeySpecException;
 
+import user.KeyHandler;
 import user.SideDisplay;
 import crypto.RSAcrypto;
 import crypto.RSAsaveKEY;
@@ -47,21 +48,9 @@ public class TCPclient implements Writable{
 		port = p;
 		
 		encryptionFrame = new NetEncryptionFrame("Server", true);
-		//TODO load super key
-		try {
-			encryptionFrame.setMySuperKey(RSAsaveKEY.generateKey(1024, true, true, 0, null));
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		encryptionFrame.setMySuperKey(KeyHandler.key.getPrivateKey("TCP-Client to "+i));
 		System.out.println("Fingerprint: "+
 		cryptoUtility.RSAkeyFingerprint.getFingerprint(encryptionFrame.getMySuperKey()));
-		
-		//Generate Session Key
-		try {
-			encryptionFrame.setMyKey(RSAsaveKEY.generateKey(1024, true, true, 0, null));
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
 		
 		try {
 			udp = new UDPsystem(port+256);
@@ -131,6 +120,13 @@ public class TCPclient implements Writable{
 	}
 	
 	private void connectFinal(){
+		//Generate Session Key
+		try {
+			encryptionFrame.setMyKey(RSAsaveKEY.generateKey(1024, true, true, 0, null));
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		try {
 			socket = new Socket();
 			socket.connect(new InetSocketAddress(ip, port), timeToEstConn);

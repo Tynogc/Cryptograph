@@ -25,6 +25,7 @@ public class DebugFrame extends JFrame{
 	private byte canState;
 	private boolean checkState;
 	private boolean pwState;
+	private boolean numState;
 	private String pwString = "";
 	private SetPassword toSet;
 	
@@ -126,6 +127,16 @@ public class DebugFrame extends JFrame{
 					panel.paint(panel.getGraphics());
 					
 					return;
+				}else if(numState){
+					if(c == '\n')
+						canState = 90;
+					if(c>='1' && c<='9'){
+						canState = (byte)(c-'1'+1);
+					}
+					if(c == '0'){
+						canState = 91;
+					}
+					return;
 				}
 				omtcPos = -1;
 				if(c == '\n'){
@@ -184,6 +195,7 @@ public class DebugFrame extends JFrame{
 	public void setCheckState(boolean state){
 		checkState = state;
 		pwState = false;
+		numState = false;
 		canState = 0;
 	}
 	
@@ -191,7 +203,15 @@ public class DebugFrame extends JFrame{
 		toSet = p;
 		checkState = false;
 		pwState = state;
+		numState = false;
 		pwString = "";
+		canState = 0;
+	}
+	
+	public void setNumState(boolean state){
+		checkState = false;
+		pwState = false;
+		numState = state;
 		canState = 0;
 	}
 	

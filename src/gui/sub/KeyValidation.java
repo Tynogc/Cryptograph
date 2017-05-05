@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import cryptoUtility.NetEncryptionFrame;
 import main.Fonts;
+import main.Language;
 import main.PicLoader;
 
 public class KeyValidation extends menu.MoveMenu{
@@ -20,7 +21,7 @@ public class KeyValidation extends menu.MoveMenu{
 	private final boolean server;
 	
 	public KeyValidation(int x, int y, String t, NetEncryptionFrame n, boolean s) {
-		super(x, y, PicLoader.pic.getImage("res/ima/mbe/m500x300.png"), "Key-Validation with: "+t);
+		super(x, y, PicLoader.pic.getImage("res/ima/mbe/m500x300.png"), Language.lang.text(10100)+t);
 		nef = n;
 		
 		yourFP = cryptoUtility.RSAkeyFingerprint.getFingerprint(nef.getMySuperKey());
@@ -40,16 +41,16 @@ public class KeyValidation extends menu.MoveMenu{
 		g.setFont(Fonts.font16);
 		
 		g.drawString(yourFP.substring(0,32), 30, 180);
-		g.drawString(yourFP.substring(33), 30, 192);
+		g.drawString(yourFP.substring(33), 30, 194);
 		g.drawString(friendsFP.substring(0,32), 30, 230);
-		g.drawString(friendsFP.substring(33), 30, 242);
+		g.drawString(friendsFP.substring(33), 30, 244);
 		
 		g.setColor(Color.lightGray);
-		g.drawString("Your Fingerprint:", 30, 165);
+		g.drawString(Language.lang.text(10103), 30, 165);
 		if(server)
-			g.drawString("Server's Fingerprint:", 30, 215);
+			g.drawString(Language.lang.text(10102), 30, 215);
 		else
-			g.drawString("Friend's Fingerprint:", 30, 215);
+			g.drawString(Language.lang.text(10101), 30, 215);
 	}
 
 	@Override

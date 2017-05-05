@@ -1,0 +1,10 @@
+1: Friends
+2: Conversations
+3: Servers
+//Key-Validation: 10100
+10100: Key Validation with: 
+10101: Friend's Fingerprint:
+10102: Servers's Fingerprint:
+10103: Your Fingerprint:
+10104: To Validate the Keys, Proceed as Follows:
+10107: This should be Done over a Secure Channel: Via Mail or Phone

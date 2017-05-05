@@ -1,6 +1,10 @@
 package user;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import crypto.RSAsaveKEY;
+import main.UserManager;
 import network.TCPclient;
 import network.com.COMCONSTANTS;
 import network.com.ClientToClient;
@@ -14,9 +18,61 @@ public class FriendsControle {
 	
 	public FriendsList connectedFriends;
 	
-	public FriendsControle(ClientControle c){
+	private final gui.TopMenu topMenu;
+	
+	public FriendsControle(ClientControle c, gui.TopMenu t){
 		clients = c;
 		friends = this;
+		
+		topMenu = t;
+		
+		//LOAD friends...
+		try {
+			FileReader fr = new FileReader(UserManager.getUserDir()+"Friends.set");
+			BufferedReader br = new BufferedReader(fr);
+			
+			String s = br.readLine();
+			while (s != null) {
+				if(!s.startsWith("//")){
+					String[] st = s.split(" ");
+					if(st.length>=2){
+						boolean sameS = st[1].compareTo(COMCONSTANTS.SERVER_SAMESERVER)==0;
+						String[] st2 = new String[st.length-1];
+						for (int i = 0; i < st2.length; i++) {
+							st2[i] = st[i];
+						}
+						UserFriendConnection ufc = new UserFriendConnection(st[0], st2, sameS);
+						if(connectedFriends == null)
+							connectedFriends = new FriendsList(ufc, this);
+						else
+							connectedFriends.add(new FriendsList(ufc, this));
+					}
+					
+				}
+				s = br.readLine();
+			}
+			br.close();
+		} catch (Exception e) {
+			debug.Debug.println("*ERROR loading Friends: "+e.getMessage(), debug.Debug.ERROR);
+		}
+		if(connectedFriends != null)
+			debug.Debug.println(connectedFriends.count()+" Friends loaded");
+		refreshSideDisplays();
+	}
+	
+	private void refreshSideDisplays(){
+		if(connectedFriends == null)return;
+		int i = connectedFriends.count();
+		SideDisplay[] sd = new SideDisplay[i];
+		i = 0;
+		FriendsList fl = connectedFriends;
+		while (fl != null) {
+			sd[i] = fl.sideDisplay;
+			i++;
+			fl = fl.next;
+		}
+		
+		topMenu.setSideMenuFriends(sd);
 	}
 	
 	/**
@@ -39,13 +95,11 @@ public class FriendsControle {
 	 * Adds a new friend with an connection to be started
 	 * @param f
 	 */
-	public void add(ClientToClient f){
-		FriendsList fl = new FriendsList(f);
-		if(connectedFriends == null){
-			connectedFriends = fl;
-		}else{
-			connectedFriends.add(fl);
-		}
+	public boolean add(ClientToClient f, String name){
+		if(connectedFriends == null)
+			return false;
+		
+		return connectedFriends.addC2C(f, name);
 	}
 	
 	/**
@@ -55,8 +109,9 @@ public class FriendsControle {
 	public ClientToClient getClientByName(String name) throws Exception{
 		FriendsList fl = connectedFriends;
 		while (fl != null) {
-			if(fl.com.connectionTo.compareTo(name) == 0)
-				return fl.com;
+			if(fl.connectionName.compareTo(name) == 0)
+				if(fl.client != null)
+					return fl.client;
 			
 			fl = fl.next;
 		}
@@ -81,37 +136,63 @@ public class FriendsControle {
 		return true; //TODO
 	}
 	
-	public void test(){
-		TCPclient t = clients.getServerByName("localhost");
-		t.addToYourComProcess(ConnectionBasics.askConnection("Test1234@"+COMCONSTANTS.SERVER_SAMESERVER, t, t));
-	}
-}
-
-class FriendsList{
-	public final ClientToClient com;
-	public FriendsList next;
-	public final SideDisplay sd;
-	
-	public FriendsList(ClientToClient c, SideDisplay s){
-		com = c;
-		sd = s;
-	}
-	
-	public void add(FriendsList l){
-		if(next == null){
-			next = l;
+	public void askConnection(String friendsName, TCPclient recivingEnd, boolean sameServer){
+		String friend = friendsName;
+		
+		TCPclient t = clients.getServerByName(friendsName);
+		if(t == null){
+			debug.Debug.println("* Can't open Connection to "+friendsName, debug.Debug.ERROR);
+			debug.Debug.println(" Friend's Server not available!", debug.Debug.SUBERR);
 			return;
 		}
-		next.add(l);
+		sameServer = sameServer | clients.isServerASameServer(friendsName);
+		if(sameServer){
+			recivingEnd = t;
+			friend = friendsName.split("@")[0]+"@"+COMCONSTANTS.SERVER_SAMESERVER;
+		}
+		ClientToClient cl = ConnectionBasics.askConnection(friend, recivingEnd, t);
+		
+		if(!add(cl, friendsName))
+			debug.Debug.println("*ERROR FriendsControle: Connection was Requested,"
+					+ " but friend not found!", debug.Debug.ERROR);
+		
+		recivingEnd.addToYourComProcess(cl);
 	}
 	
-	public void remove(ClientToClient l, FriendsList befor){
-		if(l == com){
-			befor.next = next;
-			this.next = null;
+	public void askConnection(UserFriendConnection conn){
+		if(conn.sameServer){
+			askConnection(conn.connectionName, null, true);
+			return;
 		}
-		if(next != null){
-			next.remove(l, this);
+		TCPclient c = null;
+		for (int i = 0; i < conn.yourServer.length; i++) {
+			c = clients.getServerByName(conn.yourServer[i]);
+			if(c != null)
+				break;
 		}
+		if(c == null){
+			debug.Debug.println("* Can't open Connection to "+conn.connectionName, debug.Debug.ERROR);
+			debug.Debug.println(" No Reciving Server available!", debug.Debug.SUBERR);
+			return;
+		}
+		askConnection(conn.connectionName, c, false);
+	}
+	
+	public void test(){
+		askConnection("Test1234@localhost", null, true);
+	}
+
+}
+
+class UserFriendConnection{
+	
+	public final String connectionName;
+	public String[] yourServer;
+	public final boolean sameServer;
+	
+	public UserFriendConnection(String name, String[] server, boolean same){
+		connectionName = name;
+		yourServer = server;
+		sameServer = same;
 	}
 }

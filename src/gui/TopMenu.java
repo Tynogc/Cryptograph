@@ -97,25 +97,6 @@ public class TopMenu extends AbstractMenu{
 			allCont[i].setVisible(false);
 		}
 		
-		//////////////////////////
-		SideDisplay[] sd = new SideDisplay[]{
-				new SideDisplay("Tynogc01", "tynogc01@tynogc.com",SideDisplay.FRIEND_ONLINE),
-				new SideDisplay("Ridel", "ridel@myleep.ru",SideDisplay.FRIEND_OFFLINE),
-				new SideDisplay("Pektor", "tynogc05@tynogc.com",SideDisplay.FRIEND_NOT_HERE),
-				new SideDisplay("Guenther", "guenther@google.com",SideDisplay.FRIEND_ONLINE),
-				new SideDisplay("Mr. No", "whoMightItBe@zimleassde.on",SideDisplay.FRIEND_BUSY)
-		};
-		allCont[0].updateButtons(sd);
-		
-		sd = new SideDisplay[]{
-				new SideDisplay("google.de", "Ping 50ms",SideDisplay.SERVER_ONLINE),
-				new SideDisplay("myleep.ru", "Ping 122ms",SideDisplay.SERVER_NO_CONNECTION),
-				new SideDisplay("zimleassde.on", "Ping 210ms",SideDisplay.SERVER_ONLINE),
-				new SideDisplay("localhost", "Ping 2ms",SideDisplay.SERVER_USER),
-				new SideDisplay("mirrow.edge.com", "Ping 10ms",SideDisplay.SERVER_MIRROW)
-		};
-		allCont[2].updateButtons(sd);
-		
 		animCount = System.currentTimeMillis();
 	}
 	

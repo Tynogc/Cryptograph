@@ -42,10 +42,13 @@ public class StartUp {
 	
 	private void gtt(){
 		gte();
+		
+		new UserManager(server, frame);
+		
 		user.KeyHandler kh = new user.KeyHandler();
 		if(kh.isPrivateKeyEncrypted()){
 			debug.Debug.println("* Enter Password:");
-			debug.Debug.print("[Private Key]", debug.Debug.COM);//TODO user directory
+			debug.Debug.print("[Private Key "+UserManager.getUserName()+"]", debug.Debug.COM);
 			SetPassword sp = new SetPassword();
 			pw(sp);
 			kh.decryptPrivateKey(sp);
