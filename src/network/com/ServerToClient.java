@@ -13,7 +13,7 @@ public class ServerToClient extends CommunicationProcess{
 	private long lastPingAt;
 	public int pingTime;
 	private boolean pingPending;
-	private static final int PINGTIME = 5000;
+	private static final int PINGTIME = 50000;
 	private int deadPings;
 	
 	private final Server server;
@@ -58,6 +58,10 @@ public class ServerToClient extends CommunicationProcess{
 		
 		if(s.startsWith("[")){
 			try {
+				String r = s;
+				if(r.length()>50)
+					r = r.substring(49);
+				debug.Debug.println(r);
 				server.send(s);
 			} catch (Exception e) {
 				debug.Debug.println("*Error forwarding Message: "+e.toString(), debug.Debug.WARN);
