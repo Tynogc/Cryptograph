@@ -153,7 +153,7 @@ public class ConnectionBasics {
 		
 		debug.Debug.println("* Asking connection: "+s.split(COMCONSTANTS.DIV_HEADER)[0], debug.Debug.COM);
 		
-		return new ClientToClient(responseChannel, nef, friend, mn);
+		return new ClientToClient(sendChannel, nef, friend, mn);
 	}
 	
 	private static final String FROM = "[FROM: ";
