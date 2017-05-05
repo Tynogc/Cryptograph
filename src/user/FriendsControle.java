@@ -38,8 +38,8 @@ public class FriendsControle {
 					if(st.length>=2){
 						boolean sameS = st[1].compareTo(COMCONSTANTS.SERVER_SAMESERVER)==0;
 						String[] st2 = new String[st.length-1];
-						for (int i = 0; i < st2.length; i++) {
-							st2[i] = st[i];
+						for (int i = 1; i < st.length; i++) {
+							st2[i-1] = st[i];
 						}
 						UserFriendConnection ufc = new UserFriendConnection(st[0], st2, sameS);
 						if(connectedFriends == null)
@@ -139,7 +139,7 @@ public class FriendsControle {
 	public void askConnection(String friendsName, TCPclient recivingEnd, boolean sameServer){
 		String friend = friendsName;
 		
-		TCPclient t = clients.getServerByName(friendsName);
+		TCPclient t = clients.getServerByName(friendsName.split("@")[1]);
 		if(t == null){
 			debug.Debug.println("* Can't open Connection to "+friendsName, debug.Debug.ERROR);
 			debug.Debug.println(" Friend's Server not available!", debug.Debug.SUBERR);
@@ -166,6 +166,7 @@ public class FriendsControle {
 		}
 		TCPclient c = null;
 		for (int i = 0; i < conn.yourServer.length; i++) {
+			debug.Debug.println("Probing server: "+conn.yourServer[i]);
 			c = clients.getServerByName(conn.yourServer[i]);
 			if(c != null)
 				break;
