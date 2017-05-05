@@ -59,8 +59,8 @@ public class ServerToClient extends CommunicationProcess{
 		if(s.startsWith("[")){
 			try {
 				String r = s;
-				if(r.length()>50)
-					r = r.substring(0, 49);
+				if(r.length()>100)
+					r = r.substring(0, 99);
 				debug.Debug.println(r);
 				server.send(s);
 			} catch (Exception e) {
