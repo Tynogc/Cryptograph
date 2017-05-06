@@ -56,6 +56,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 				if(key.getOtherKey() == null)
 					return false;
 				
+				System.out.println(sdc);
 				try {
 					sdc = RSAcrypto.decrypt(sdc, key.getMyKey(), false);
 					sdc = RSAcrypto.decrypt(sdc, key.getOtherKey(), true);

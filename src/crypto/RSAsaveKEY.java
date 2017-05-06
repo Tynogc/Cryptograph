@@ -145,11 +145,11 @@ public final class RSAsaveKEY implements Destroyable{
 		
 		System.out.println("Starting Key Generation...");
         // Choose two prime numbers p and q.
-        BigInteger p = getPrime(keySize/2,random);
+        BigInteger p = BigInteger.probablePrime(keySize/2,random);
         if(showInfo)
         	System.out.println("1st Prime: "+p.toString().substring(0, 6)+"...");//FIXME delet this Line!!!
         
-        BigInteger q = getPrime(keySize/2,random);
+        BigInteger q = BigInteger.probablePrime(keySize/2,random);
         if(showInfo)
             System.out.println("2nd Prime: "+q.toString().substring(0, 6)+"...");//FIXME delet this Line!!!
         
