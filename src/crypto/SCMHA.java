@@ -59,6 +59,10 @@ public class SCMHA {
 	//digest() was called, the hash is final
 	private boolean isFinal;
 	
+	/**
+	 * Big output: Returns 4096 bits when done, used for Round-Key Generation on the SRSEA
+	 */
+	public static final int SCMHA_1024_BIG_OUTPUT = 4096;
 	public static final int SCMHA_1024 = 1024;
 	public static final int SCMHA_768 = 768;
 	public static final int SCMHA_512 = 512;
@@ -94,7 +98,11 @@ public class SCMHA {
 	 * @throws NoSuchAlgorithmException if the choosen bit-Size is not compatible
 	 */
 	public SCMHA(int s) throws NoSuchAlgorithmException{
-		size = s;
+		if(s == SCMHA_1024_BIG_OUTPUT){
+			size = 1024;
+		}else{
+			size = s;
+		}
 		if(size == SCMHA_1024){
 			q = 15;
 		}else if(size == SCMHA_512){
@@ -107,7 +115,11 @@ public class SCMHA {
 		
 		wordSize = size/16;
 		
-		digestSize = size/8;
+		if(s == SCMHA_1024_BIG_OUTPUT){
+			digestSize = size/2;
+		}else{
+			digestSize = size/8;
+		}
 		
 		play_gol_per_round = size/16;
 		
@@ -191,6 +203,10 @@ public class SCMHA {
 					if(y>=q){
 						y = 0;
 						f++;
+						if(f>=5){
+							array = this.a;
+							f = 0;
+						}
 						if(f==1)array = this.b;
 						if(f==2)array = this.c;
 						if(f==3)array = this.d;

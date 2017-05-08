@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JTextArea;
 
+import network.Writable;
 import main.MouseListener;
 
 public class TextEnterField extends JTextArea{
@@ -22,6 +23,8 @@ public class TextEnterField extends JTextArea{
 	
 	private static final int xSize = 300;
 	private static final int ySize = 100;
+	
+	private Writable write;
 	
 	public TextEnterField(MouseListener m){
 		mouse = m;
@@ -49,6 +52,8 @@ public class TextEnterField extends JTextArea{
 						e.setModifiers(0);
 					}else{
 						System.out.println(getText()+" OK"); //TODO senden
+						if(write != null)
+							write.write(getText());
 						e.consume();
 						setText("");
 					}
@@ -113,5 +118,8 @@ public class TextEnterField extends JTextArea{
 		g.drawImage(ima, 0, 0, null);
 	}
 	
+	public void setWriteChannel(Writable w){
+		write = w;
+	}
 	
 }

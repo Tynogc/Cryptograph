@@ -30,14 +30,21 @@ public class NumberEncrypter {
 	 * @param pw The password
 	 */
 	public NumberEncrypter(String pw){
-		this(pw,16);
+		this(pw, 16);
+	}
+	
+	/**
+	 * @param pw The password
+	 */
+	public NumberEncrypter(String pw, int radix){
+		this(pw.getBytes(), radix);
 	}
 	
 	/**
 	 * @param pw The Password
 	 * @param radix Radix of the String to encrypt/decrypt 1-16
 	 */
-	public NumberEncrypter(String pw, int radix){
+	public NumberEncrypter(byte[] pw, int radix){
 		this.radix = radix;
 		MessageDigest messageDigest;
 		try {
@@ -46,7 +53,7 @@ public class NumberEncrypter {
 			e.printStackTrace();
 			return;
 		}
-		messageDigest.update(pw.getBytes());
+		messageDigest.update(pw);
 		bHash = messageDigest.digest();
 		
 		
@@ -151,6 +158,36 @@ public class NumberEncrypter {
 			longTermCount++;
 		}
 		destroy();
+		return r;
+	}
+	
+	public final byte[] decrypt(byte[] q){
+		byte[] r = new byte[q.length];
+		for (int i = 0; i < r.length; i++) {
+			int k = (q[i] & 0xff);
+			int d = k%16;
+			int b = k/16;
+			b = singleDecrypt(b);
+			longTermCount++;
+			d = singleDecrypt(d);
+			longTermCount++;
+			r[i] = (byte)(d+b*16);
+		}
+		return r;
+	}
+	
+	public final byte[] encrypt(byte[] q){
+		byte[] r = new byte[q.length];
+		for (int i = 0; i < r.length; i++) {
+			int k = (q[i] & 0xff);
+			int d = k%16;
+			int b = k/16;
+			b = singleEncrypt(b);
+			longTermCount++;
+			d = singleEncrypt(d);
+			longTermCount++;
+			r[i] = (byte)(d+b*16);
+		}
 		return r;
 	}
 	

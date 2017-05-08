@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import crypto.SRSEA;
+import network.Writable;
 import debug.DebugFrame;
 import gui.EnterPassword;
 import gui.PicturSystem;
@@ -84,6 +86,16 @@ public class SeyprisMain extends JPanel{
 		GuiControle.addMenu(new gui.TestSCMHA(200, 30, text));
 		GuiControle.addMenu(new TextEnterAssist(300, 500, text));
 		//GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
+		text.setWriteChannel(new Writable() {
+			@Override
+			public void write(String s) {
+				crypto.SecureNumberEncrypter st = new crypto.SecureNumberEncrypter (s.getBytes());
+				byte[] r = st.encryptAdvanced("The Quick Brown Fox Jumps Over The Lazy Dog! 1234567890".getBytes());
+				st = new crypto.SecureNumberEncrypter (s.getBytes());
+				r = st.decryptAdvanced(r);
+				System.out.println(new String(r));
+			}
+		});
 		
 		//Set ClientControel
 		clientControle = new user.ClientControle(gui.menuTopMenu);
