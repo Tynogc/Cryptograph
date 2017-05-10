@@ -89,11 +89,13 @@ public class SeyprisMain extends JPanel{
 		text.setWriteChannel(new Writable() {
 			@Override
 			public void write(String s) {
-				crypto.SecureNumberEncrypter st = new crypto.SecureNumberEncrypter (s.getBytes());
-				byte[] r = st.encryptAdvanced("The Quick Brown Fox Jumps Over The Lazy Dog! 1234567890".getBytes());
-				st = new crypto.SecureNumberEncrypter (s.getBytes());
+				debug.Debug.println("* Starting Encryption-Test");
+				crypto.SecureNumberEncrypter st = new crypto.SecureNumberEncrypter ("hello".getBytes());
+				byte[] r = st.encryptAdvanced(s.getBytes());
+				st = new crypto.SecureNumberEncrypter ("hello".getBytes());
 				r = st.decryptAdvanced(r);
 				System.out.println(new String(r));
+				debug.Debug.println(" DONE");
 			}
 		});
 		

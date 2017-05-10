@@ -18,6 +18,9 @@ public class ClientControle {
 		
 		int port = 8001;
 		
+		if(!KeyHandler.key.isPrivateKeyOK())//No Private-Key, no Servers!
+			return;
+		
 		try {
 			FileReader fr = new FileReader(UserManager.getUserDir()+"Servers.set");
 			BufferedReader br = new BufferedReader(fr);

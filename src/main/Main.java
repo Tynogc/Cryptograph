@@ -25,15 +25,6 @@ public class Main {
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
 		//testSRSHA(100, 512);
-		SecureRandom sr = new SecureRandom();
-		for (int i = 0; i < 1; i++) {
-			byte[] pw = "Hello you akda".getBytes();
-			byte[] b = new byte[]{-62, 90, -37, 77, -116, 60, -1, 116, -111, 53, 100, -83, -98, -113, -109, -108, 108, 103, -73, 103, -35, -53, -66, -79, 87, 80, 103, -96, 44, -126, 54, -60, 65, 51, -58, -94, -43, -21, -42, -46, -31, 32, 93, -12, 36, -117, 13, 79, 84, 26, -80, -128, 16, -90, 104, 115, 55, 82, -76, -100, 125, -44, -83, 37, -70, 78, -55, -95, 73, -25, -64, -78, 46, 48, 46, -115, 69, -78, -105, 108, -34, -10, 49, 9, -26, -120, 119, -51, -21, -47, 69, -44, 53, 32, -18, -93, 114, -109, -111, -52};
-			
-			numberEncryptionSuperLoop(pw, b);
-			
-			System.out.println(i);
-		}
 		
 		new SeyprisMain();
 	}
