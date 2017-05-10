@@ -5,6 +5,7 @@ import java.awt.Graphics;
 
 import cryptoUtility.Random;
 import gui.sub.SideContainer;
+import gui.utility.Emots;
 import main.GuiControle;
 import main.SetPassword;
 import main.SeyprisMain;
@@ -169,6 +170,10 @@ public class TopMenu extends AbstractMenu{
 	protected void paintIntern(Graphics g) {
 		//System.out.println(g.getFontMetrics().getStringBounds("abcdefg", g).getWidth());
 		//g.drawString("abcdefg", 100, 200);
+		Emots.emots.drawLoadingCircle(g, 400, 400);
+		Emots.emots.drawProcessingCircle(g, 440, 400);
+		Emots.emots.drawLoadingCircle(g, 480, 400);
+		Emots.emots.drawProcessingCircle(g, 480, 400);
 	}
 
 }

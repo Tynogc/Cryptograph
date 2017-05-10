@@ -18,6 +18,7 @@ import gui.EnterPassword;
 import gui.PicturSystem;
 import gui.TextEnterAssist;
 import gui.TextEnterField;
+import gui.utility.Emots;
 
 public class SeyprisMain extends JPanel{
 
@@ -89,19 +90,23 @@ public class SeyprisMain extends JPanel{
 		text.setWriteChannel(new Writable() {
 			@Override
 			public void write(String s) {
-				debug.Debug.println("* Starting Encryption-Test");
-				crypto.SecureNumberEncrypter st = new crypto.SecureNumberEncrypter ("hello".getBytes());
+				/*debug.Debug.println("* Starting Encryption-Test");
+				crypto.SecureNumberEncrypter st = new crypto.SecureNumberEncrypter ("hello".getBytes(), "jldasfhldhjflhdsjahf".getBytes());
 				byte[] r = st.encryptAdvanced(s.getBytes());
-				st = new crypto.SecureNumberEncrypter ("hello".getBytes());
+				st = new crypto.SecureNumberEncrypter ("hello".getBytes(), "jldasfhldhjflhdsjahf".getBytes());
 				r = st.decryptAdvanced(r);
+				System.out.println(new String(r));
+				debug.Debug.println(" DONE");*/
+				
+				debug.Debug.println("* Starting Encryption-Test");
+				byte[] r = crypto.LinearCrypto.encrypt(s.getBytes(), "hello".getBytes());
+				debug.Debug.println(" encryption done...");
+				System.out.println(new String(r));
+				r = crypto.LinearCrypto.decrypt(r, "hello".getBytes(), true);
 				System.out.println(new String(r));
 				debug.Debug.println(" DONE");
 			}
 		});
-		
-		//Set ClientControel
-		clientControle = new user.ClientControle(gui.menuTopMenu);
-		friendsControle = new user.FriendsControle(clientControle, gui.menuTopMenu);
 		
 		//Set Menus
 		if(st.startPicCrypto){
@@ -109,6 +114,7 @@ public class SeyprisMain extends JPanel{
 			picSy.setPassword(st.picPW);
 			GuiControle.addMenu(picSy);
 		}
+		new gui.utility.Emots();
 		
 		try {
 			Thread.sleep(50);
@@ -125,6 +131,10 @@ public class SeyprisMain extends JPanel{
 				mainThr.start();
 			}
 		});
+		
+		//Set ClientControel
+		clientControle = new user.ClientControle(gui.menuTopMenu);
+		friendsControle = new user.FriendsControle(clientControle, gui.menuTopMenu);
 	}
 	
 	public void loop(int fps, int sleep, int secFPS, int thirFPS){
@@ -156,8 +166,12 @@ public class SeyprisMain extends JPanel{
 		g.dispose();
 		strategy.show();
 		
-		clientControle.refresh();
-		friendsControle.update();
+		Emots.emots.update();
+		
+		if(clientControle != null)
+			clientControle.refresh();
+		if(friendsControle != null)
+			friendsControle.update();
 	}
 	
 	public static int sizeX(){

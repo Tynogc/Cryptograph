@@ -220,3 +220,5 @@ res/ima/cli/spb/RCMBd.png
 res/ima/cli/spb/RCMBd.png
 res/ima/men/LC07.png
 res/ima/men/LC07.png
+res/ima/smi/cir1.png
+res/ima/smi/cir1.png
