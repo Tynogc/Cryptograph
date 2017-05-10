@@ -5,6 +5,23 @@ import java.security.NoSuchAlgorithmException;
 
 public class NumberEncrypter {
 	
+	/**
+	 * This Key-Encryption-Algorithm was considered and created by Sven T. Schneider (Nuernberg, Germany)
+	 * 
+	 * The first Consideration was published on the 9. May 2017 on github.com/Tynogc.
+	 * The code is under the GNU-General-Public-License v3.0
+	 * Your free to use the code in your application, as long as the original Creator(s) is/are marked.
+	 * 
+	 * It uses the SCMH-Algorithm (Also by: Sven t. Schneider) for Session-Key-Generation.
+	 * Because it's based on this relativly slow Hashing-Algorithm it takes quite some time to decrypt a Key.
+	 * 
+	 * In a later version, there will be an option for higher Memory-Usage too.
+	 * 
+	 * The basic principle of destroying the Pre-Image is based on John Horton Conway's "Game of Life" 
+	 * @author Sven T. Schneider
+	 * @version 0.1
+	 */
+	
 	private int[][] rotor;
 	private int[] rPos;
 	
@@ -40,22 +57,29 @@ public class NumberEncrypter {
 		this(pw.getBytes(), radix);
 	}
 	
+	public NumberEncrypter(byte[] pw, int radix){
+		this(pw, radix, true);
+	}
+	
 	/**
 	 * @param pw The Password
 	 * @param radix Radix of the String to encrypt/decrypt 1-16
 	 */
-	public NumberEncrypter(byte[] pw, int radix){
+	protected NumberEncrypter(byte[] pw, int radix, boolean needToBeHashed){
 		this.radix = radix;
-		MessageDigest messageDigest;
-		try {
-			messageDigest = MessageDigest.getInstance("SHA-512");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			return;
+		if(needToBeHashed){
+			MessageDigest messageDigest;
+			try {
+				messageDigest = MessageDigest.getInstance("SHA-512");
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+				return;
+			}
+			messageDigest.update(pw);
+			bHash = messageDigest.digest();
+		}else{
+			bHash = pw.clone();
 		}
-		messageDigest.update(pw);
-		bHash = messageDigest.digest();
-		
 		
 		//Find the starting position
 		counterI = bHash[0];
