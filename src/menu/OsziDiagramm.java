@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 public class OsziDiagramm extends Button{
@@ -83,7 +84,7 @@ public class OsziDiagramm extends Button{
 	}
 	
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		if(next != null)next.paintYou(g);
 		g.setColor(Color.gray);
 		g.setFont(plainFont);

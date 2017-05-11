@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public abstract class DropDownMenu extends Button{
 
@@ -75,7 +76,7 @@ public abstract class DropDownMenu extends Button{
 	}
 	
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		subButton.paintYou(g);
 		super.paintYou(g);
 	}

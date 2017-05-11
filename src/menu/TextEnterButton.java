@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import javax.security.auth.Destroyable;
 
@@ -55,7 +56,7 @@ public abstract class TextEnterButton extends DataFiled implements Destroyable{
 	}
 	
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		if(text == null)
 			text = "";
 		

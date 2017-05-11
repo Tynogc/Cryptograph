@@ -1,6 +1,7 @@
 package menu;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import debug.Debug;
 
@@ -28,7 +29,7 @@ public class EndButtonList implements ButtonInterface{
 	}
 
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		
 	}
 

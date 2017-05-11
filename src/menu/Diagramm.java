@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 public class Diagramm extends ScrollBar{
@@ -51,7 +52,7 @@ public class Diagramm extends ScrollBar{
 		g.drawLine(0, 2, wi, 2);
 	}
 
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		super.paintYou(g);
 		if(image != null){
 			g.drawImage(image.getSubimage(0,getScrolled()*20, width, hight-20), xPos-width, actY+20, null);

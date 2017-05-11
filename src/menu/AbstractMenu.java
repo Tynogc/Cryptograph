@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public abstract class AbstractMenu {
 
@@ -30,7 +31,7 @@ public abstract class AbstractMenu {
 		ySize = ys;
 	}
 	
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		g.translate(xPos, yPos);
 		if(moveAble){
 			g.setColor(Color.red);

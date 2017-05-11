@@ -217,7 +217,7 @@ public class ScrollBar extends Button {
 			
 		}
 	}
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		if(isState3){
 			if(!icPaintSmoothImA(xPos, yPos, state3, g)){
 				g.setColor(Color.green);

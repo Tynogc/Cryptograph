@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 public class Oszi extends Button{
@@ -50,7 +51,7 @@ public class Oszi extends Button{
 		lastY = currY;
 	}
 	
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		super.paintYou(g);
 		g.drawImage(buffer, xPos, yPos-2-tHight, null);
 	}

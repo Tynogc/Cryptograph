@@ -64,7 +64,7 @@ public class BigTextBox extends Container{
 	}
 
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		if(scroll/scrollCap != scr.getScrolled())
 			scrolled(scr.getScrolled());
 		if(isVisible()){

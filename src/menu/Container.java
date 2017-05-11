@@ -1,6 +1,8 @@
 package menu;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public class Container implements ButtonInterface{
 
@@ -16,12 +18,16 @@ public class Container implements ButtonInterface{
 	private int boundaryY = -1;
 	private boolean doClip;
 	
+	private float fade;
+	
 	public Container(int x, int y) {
 		xPos = x;
 		yPos = y;
 		content = new EndButtonList();
 		visible = true;
 		doClip = false;
+		
+		fade = 3;
 	}
 	
 	public Container(int x, int y, int xS, int yS) {
@@ -29,6 +35,8 @@ public class Container implements ButtonInterface{
 		boundaryX = xS;
 		boundaryY = yS;
 		doClip = true;
+		
+		fade = 3;
 	}
 	
 	public int getBoundaryX() {
@@ -79,18 +87,26 @@ public class Container implements ButtonInterface{
 	}
 
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		if(visible){
 			if(doClip)
 				g.setClip(xPos, yPos, boundaryX, boundaryY);
+			if(fade<1)
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fade));
 			g.translate(xPos, yPos);
 			content.paintYou(g);
 			paintIntern(g);
 			g.translate(-xPos, -yPos);
+			if(fade<1)
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 			if(doClip)
 				g.setClip(null);
 		}
 		next.paintYou(g);
+	}
+	
+	public void setFade(float fade){
+		this.fade = fade;
 	}
 
 	@Override

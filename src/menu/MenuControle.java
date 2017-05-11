@@ -1,6 +1,7 @@
 package menu;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public class MenuControle {
 	
@@ -21,7 +22,7 @@ public class MenuControle {
 		lastLongTermUpdate = System.currentTimeMillis()/1000+(int)(Math.random()*1000);
 	}
 	
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		if(menus != null){
 			menus.paintYou(g);
 		}

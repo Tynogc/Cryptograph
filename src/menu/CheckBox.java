@@ -46,7 +46,7 @@ public abstract class CheckBox extends Button{
 	}
 	
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		if(state){
 			if(disabled){
 				g.drawImage(dots[3], xPos, yPos, null);

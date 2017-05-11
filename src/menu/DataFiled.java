@@ -3,6 +3,7 @@ package menu;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import javax.swing.JLabel;
 
@@ -38,7 +39,7 @@ public abstract class DataFiled extends Button{
 		
 	}
 	
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		if(!isVisible()){
 			next.paintYou(g);
 			return;

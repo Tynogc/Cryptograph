@@ -2,6 +2,7 @@ package menu;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import main.PicLoader;
@@ -105,7 +106,7 @@ public abstract class AlarmkButton extends Button{
 		}
 	}
 	
-	public void paintYou(Graphics g){
+	public void paintYou(Graphics2D g){
 		super.paintYou(g);
 		if(alarm){
 			int c = (int)(System.currentTimeMillis()-alarmStart);
