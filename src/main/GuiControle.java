@@ -2,7 +2,9 @@ package main;
 
 import gui.TopMenu;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import menu.AbstractMenu;
 import menu.MenuControle;
@@ -50,6 +52,12 @@ public class GuiControle {
 		mouseX = mouse.x;
 		mouseY = mouse.y;
 		
+		if(frameMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
+			left = false;
+			right = false;
+			clicked = true;
+		}
+		
 		if(superMenu.isActiv()){
 			if(superMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
 				clicked = true;
@@ -58,11 +66,6 @@ public class GuiControle {
 			right = false;
 		}
 		
-		if(frameMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
-			left = false;
-			right = false;
-			clicked = true;
-		}
 		if(leftForFocus)
 			frameMenu.leftClickForFocus(mouse.x, mouse.y);
 		
@@ -103,12 +106,19 @@ public class GuiControle {
 		return clicked;
 	}
 	
-	public void paint(Graphics g){
+	public void paint(Graphics2D g){
+		if(superMenu.isActiv()){
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
+		}
 		textEnter.paintYou(g);
 		topMenu.paintYou(g);
 		debugMenu.paintYou(g);
 		for (int i = 0; i < menus.length; i++) {
 			menus[i].paintYou(g);
+		}	
+		
+		if(superMenu.isActiv()){
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP));
 		}
 		frameMenu.paintYou(g);
 		superMenu.paintYou(g);

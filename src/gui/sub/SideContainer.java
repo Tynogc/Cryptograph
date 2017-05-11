@@ -150,7 +150,7 @@ class ClickButton extends Button{
 	}
 	
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		super.paintYou(g);
 		if(!isVisible())return;
 		Graphics2D g2d = (Graphics2D)g;

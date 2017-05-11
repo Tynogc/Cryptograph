@@ -11,10 +11,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Random;
 
+import javax.swing.JFrame;
+
 import crypto.NumberEncrypter;
 import crypto.RSAcrypto;
 import crypto.RSAsaveKEY;
 import crypto.SRSHA;
+import debug.DebugFrame;
 
 public class Main {
 	
@@ -26,7 +29,24 @@ public class Main {
 		//new StartUp(new debug.DebugFrame()).doStartUp();
 		//testSRSHA(100, 512);
 		
-		new SeyprisMain();
+		doStartUp(true);
+	}
+	
+	public static void doStartUp(boolean graphicStartUp){
+		debug.Debug.println("* Starting Seypris v0.3");
+		DebugFrame debFrame = new DebugFrame();
+		debFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		new Language(); //TODO load other language-Files
+		if(!graphicStartUp){
+			StartUp st = new StartUp(debFrame);
+			st.doStartUp();
+			if(st.server){
+				new Server().run();
+				return;
+			}
+		}
+		
+		new SeyprisMain(debFrame, graphicStartUp);
 	}
 	
 	protected static void numberEncryptionSuperLoop(byte[] s, byte[] b) throws Exception{

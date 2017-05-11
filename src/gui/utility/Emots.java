@@ -39,7 +39,7 @@ public class Emots {
 		BufferedImage b = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D)b.getGraphics();
 		g.translate(16, 16);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		double l = ((double)System.currentTimeMillis()/400)%(Math.PI*4)+Math.PI;
 		g.rotate(l);
 		g.drawImage(loadingCircleRaw, -16, -16, null);
@@ -56,7 +56,6 @@ public class Emots {
 		b = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
 		g = (Graphics2D)b.getGraphics();
 		g.translate(16, 16);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		l = ((double)System.currentTimeMillis()/1200-0.15)%(Math.PI);
 		l = Math.cos(l)*(Math.PI*4)+Math.PI;
 		g.rotate(-l);

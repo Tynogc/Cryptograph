@@ -9,7 +9,7 @@ public class LinearCrypto {
 		for (int i = 0; i < sk.length; i++) {
 			SecureNumberEncrypter sne = new SecureNumberEncrypter(key, sk[i]);
 			value = sne.decryptAdvanced(value);
-			
+			sne.destroy();
 			if(showInfo){
 				if(i!=0)
 					debug.Debug.remove(100);
@@ -26,6 +26,7 @@ public class LinearCrypto {
 		for (int i = sk.length-1; i >= 0; i--) {
 			SecureNumberEncrypter sne = new SecureNumberEncrypter(key, sk[i]);
 			value = sne.encryptAdvanced(value);
+			sne.destroy();
 		}
 		return value;
 	}

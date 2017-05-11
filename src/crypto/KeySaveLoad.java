@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.security.KeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 public class KeySaveLoad {
 
@@ -61,12 +62,11 @@ public class KeySaveLoad {
 	 */
 	public final void saveKeyEncrypted(RSAsaveKEY key, final File f, String enc){
 		subSave1(f);
-		NumberEncrypter nec = new NumberEncrypter(enc);
-		String privExp = nec.encrypt(key.getPrivateExponent().toString(16));
+		byte[] b = LinearCrypto.encrypt(key.getPrivateExponent().toByteArray(), enc.getBytes());
+		String privExp = Base64.getEncoder().encodeToString(b);
 		//Destroy the password
 		enc = "";
 		enc = null;
-		nec.destroy();
 		//Print
 		PrintWriter writer = null; 
 		try { 
@@ -159,11 +159,11 @@ public class KeySaveLoad {
 		}
 		RSAsaveKEY key;
 		if(wasEncr){
-			NumberEncrypter ne = new NumberEncrypter(pw); 
-			key = new RSAsaveKEY(ne.decrypt(pri), pub, mod);
-			ne.destroy();
-			ne = null;
+			byte[] bl = Base64.getDecoder().decode(pri);
+			BigInteger b = new BigInteger(LinearCrypto.decrypt(bl, pw.getBytes(), true));
+			key = new RSAsaveKEY(b, new BigInteger(pub, 16), new BigInteger(mod, 16));
 			pw = null;
+			bl = null;
 			Runtime.getRuntime().gc();
 		}else{
 			key = new RSAsaveKEY(pri, pub, mod);
@@ -174,6 +174,29 @@ public class KeySaveLoad {
 	
 	public final RSAsaveKEY load(File f) throws IOException, KeyException, InvalidKeySpecException{
 		return loadEncrypted(f, null);
+	}
+	
+	public static boolean isKeyEncrypted(File f) throws IOException{
+		FileReader fr = new FileReader(f);
+		BufferedReader br = new BufferedReader(fr);
+		String s;
+		do{
+			s = br.readLine();
+			if(s==null)break;
+			if(s.length()==0)break;
+			if(s.startsWith("-"))
+				continue;
+			String[] st = s.split(DEVIDER);
+			
+			if(st[0].compareTo(privateExp)==0){
+				return false;
+			}
+			if(st[0].compareTo(encryptedPrivate)==0){
+				return true;
+			}
+		}while (true); 
+		br.close();
+		return false;
 	}
 	
 }

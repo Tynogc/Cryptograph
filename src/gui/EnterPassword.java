@@ -52,7 +52,7 @@ public class EnterPassword extends OverswapMenu{
 				setPassword.setPW(teb.getText());
 				System.out.println(setPassword.getPassword());
 				teb.destroy();
-				closeYou();
+				closeIntern();
 			}
 		};
 		add(teb);
@@ -76,7 +76,7 @@ public class EnterPassword extends OverswapMenu{
 				setPassword.setPW(teb.getText());
 				System.out.println(setPassword.getPassword());
 				teb.destroy();
-				closeYou();
+				closeIntern();
 			}
 		};
 		add(ok);
@@ -90,7 +90,7 @@ public class EnterPassword extends OverswapMenu{
 			@Override
 			protected void isClicked() {
 				teb.destroy();
-				closeYou();
+				closeIntern();
 			}
 		};
 		add(close);
@@ -101,6 +101,7 @@ public class EnterPassword extends OverswapMenu{
 
 	@Override
 	protected void uppdateIntern() {
+		super.uppdateIntern();
 		if(!showAnalysis)return;
 		if(teb.getText().length()!=lastLength){
 			String s = teb.getText();

@@ -41,17 +41,8 @@ public class SeyprisMain extends JPanel{
 	private user.ClientControle clientControle;
 	private user.FriendsControle friendsControle;
 	
-	public SeyprisMain(){
-		
-		debFrame = new DebugFrame();
-		debFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		new Language(); //TODO load other language-Files
-		StartUp st = new StartUp(debFrame);
-		st.doStartUp();
-		if(st.server){
-			new Server().run();
-			return;
-		}
+	public SeyprisMain(DebugFrame f, boolean graphicalStartup){
+		debFrame = f;
 		
 		new PicLoader();
 		
@@ -109,10 +100,10 @@ public class SeyprisMain extends JPanel{
 		});
 		
 		//Set Menus
-		if(st.startPicCrypto){
-			PicturSystem picSy = new PicturSystem(20, 20);//TODO coordinats
-			picSy.setPassword(st.picPW);
-			GuiControle.addMenu(picSy);
+		if(!graphicalStartup){
+			startClientAndServerControle();
+		}else{
+			GuiControle.setSuperMenu(new gui.start.UserChoose(this));
 		}
 		new gui.utility.Emots();
 		
@@ -132,9 +123,6 @@ public class SeyprisMain extends JPanel{
 			}
 		});
 		
-		//Set ClientControel
-		clientControle = new user.ClientControle(gui.menuTopMenu);
-		friendsControle = new user.FriendsControle(clientControle, gui.menuTopMenu);
 	}
 	
 	public void loop(int fps, int sleep, int secFPS, int thirFPS){
@@ -172,6 +160,11 @@ public class SeyprisMain extends JPanel{
 			clientControle.refresh();
 		if(friendsControle != null)
 			friendsControle.update();
+	}
+	
+	public void startClientAndServerControle(){
+		clientControle = new user.ClientControle(gui.menuTopMenu);
+		friendsControle = new user.FriendsControle(clientControle, gui.menuTopMenu);
 	}
 	
 	public static int sizeX(){

@@ -2,6 +2,7 @@ package gui.sub;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import main.GuiControle;
@@ -79,7 +80,7 @@ class ButtonForRCM extends Button{
 	protected void uppdate() {}
 	
 	@Override
-	public void paintYou(Graphics g) {
+	public void paintYou(Graphics2D g) {
 		if(icon != null)
 			g.drawImage(icon, xPos+160, yPos, null);
 		super.paintYou(g);

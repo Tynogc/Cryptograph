@@ -222,3 +222,5 @@ res/ima/men/LC07.png
 res/ima/men/LC07.png
 res/ima/smi/cir1.png
 res/ima/smi/cir1.png
+res/ima/ote/pw2.png
+res/ima/ote/pw2.png

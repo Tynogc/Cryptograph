@@ -94,6 +94,8 @@ public class MenuControle {
 		x-=menus.xPos;
 		y-=menus.yPos;
 		menus.updateMenu();
+		if(menus == null)
+			return inside;
 		menus.maousAt(x, y);
 		if(canBeFocused)
 			menus.maousAtOnlyIfFocused(x, y);

@@ -21,8 +21,10 @@ public final class KeyHandler {
 	
 	private final boolean isPrivateKeyEncr;
 	
+	public static final String fileNamePrivate = "Private.key";
+	
 	public KeyHandler(){
-		privateKeyFile = UserManager.getUserDir()+"Private.key";
+		privateKeyFile = UserManager.getUserDir()+fileNamePrivate;
 		debug.Debug.println("Starting Key-Handling Agent v"+version);
 		
 		File f = new File(privateKeyFile);
@@ -56,7 +58,7 @@ public final class KeyHandler {
 		}
 		p.destroy();
 		
-		if(!(privateKey.runTest() && privateKey.runTest())){
+		if(!(privateKey.runTest())){
 			debug.Debug.println("Selftest FAILED!", debug.Debug.ERROR);
 			debug.Debug.println("The Password dosn't seam to be correct", debug.Debug.SUBERR);
 			debug.Debug.println("the Key is not Valid!", debug.Debug.SUBERR);
@@ -66,7 +68,9 @@ public final class KeyHandler {
 				debug.Debug.println("ERROR Destroying Key: "+e.toString(), debug.Debug.ERROR);
 			}
 			privateKey = null;
+			return;
 		}
+		debug.Debug.println(" DONE");
 	}
 	
 	public boolean isPrivateKeyOK(){

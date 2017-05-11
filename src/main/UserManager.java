@@ -17,6 +17,10 @@ public class UserManager {
 	private static String userDirectory = "";
 	private static String preDirectory = userPre;
 	
+	public static void setUserName(String dir){
+		userDirectory = dir+"/";
+	}
+	
 	public static String getUserDir(){
 		return preDirectory+userDirectory;
 	}
@@ -25,6 +29,10 @@ public class UserManager {
 		if(userDirectory.length()<1)
 			return "";
 		return userDirectory.substring(0, userDirectory.length()-1);
+	}
+	
+	public static String getPreDirectory(){
+		return preDirectory;
 	}
 	
 	public UserManager(boolean server, DebugFrame f){
