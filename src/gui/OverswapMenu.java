@@ -37,7 +37,9 @@ public abstract class OverswapMenu extends AbstractMenu{
 		if(closeAnim>0){
 			float fade = 1f-(float)closeAnim/100f;
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fade));
+			g.translate(-closeAnim*2, 0);
 			super.paintYou(g);
+			g.translate(closeAnim*2, 0);
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 		}else{
 			super.paintYou(g);
@@ -48,11 +50,11 @@ public abstract class OverswapMenu extends AbstractMenu{
 	protected void paintIntern(Graphics g) {
 		int u = (int)((System.currentTimeMillis()/100)%51);
 		for (int i = 0; i < xSize+54; i+=51) {
-			g.drawImage(imas[0], i-u, -closeAnim, null);
+			g.drawImage(imas[0], i-u+closeAnim*2, -closeAnim, null);
 		}
 		
 		for (int i = -51; i < xSize; i+=51) {
-			g.drawImage(imas[0], i+u, 170+closeAnim, null);
+			g.drawImage(imas[0], i+u+closeAnim*2, 170+closeAnim, null);
 		}
 	}
 

@@ -224,3 +224,10 @@ res/ima/smi/cir1.png
 res/ima/smi/cir1.png
 res/ima/ote/pw2.png
 res/ima/ote/pw2.png
+res/ima/cli/spb/STUn.png
+res/ima/cli/spb/STUc.png
+res/ima/cli/spb/STUf.png
+res/ima/cli/spb/STUd.png
+res/ima/cli/spb/STUd.png
+res/ima/mbe/m700x500.png
+res/ima/mbe/m700x500.png

@@ -10,6 +10,11 @@ public class SetPassword implements Destroyable{
 	
 	public SetPassword(){};
 	
+	public SetPassword(String s){
+		pw = s;
+		filled = true;
+	};
+	
 	public void setPassword(String p){
 		pw = p;
 		filled = true;

@@ -1,6 +1,8 @@
 1: Friends
 2: Conversations
 3: Servers
+4: OK
+5: Cancle
 //Key-Validation: 10100
 10100: Key Validation with: 
 10101: Friend's Fingerprint:
@@ -8,3 +10,13 @@
 10103: Your Fingerprint:
 10104: To Validate the Keys, Proceed as Follows:
 10107: This should be Done over a Secure Channel: Via Mail or Phone
+//StartUp: 10300
+10300: Welcome!
+10301: Log In
+10302: Key is Encrypted, please enter Password:
+10303: The Password isn't valid! Try again:
+10304: Direct login... (No Password)
+10305: Decrypting Key...
+10306: New...
+//New Account 20100
+20100: Create new Account 
