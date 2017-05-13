@@ -1,6 +1,9 @@
 package gui.start;
 
+import java.awt.image.BufferedImage;
+
 import main.GuiControle;
+import main.Language;
 import main.SeyprisMain;
 
 public class NewAccount{
@@ -14,7 +17,9 @@ public class NewAccount{
 	private int x;
 	private int y;
 	
-	public String name;
+	public String name = "";
+	public BufferedImage image;
+	public BufferedImage imageSmal;
 
 	public NewAccount() {
 		x = (SeyprisMain.sizeX()-700)/2;
@@ -38,6 +43,12 @@ public class NewAccount{
 		
 		if(currentStep == 0){
 			GuiControle.addMenu(new AccountSetup_Name(x, y, this));
+		}
+		if(currentStep == 1){
+			GuiControle.addMenu(new AccountSetup_Pictur(x, y, this, Language.lang.text(20200)));
+		}
+		if(currentStep == 2){
+			GuiControle.addMenu(new AccountSetup_KeyGen(x, y, this, Language.lang.text(20200)));
 		}
 	}
 

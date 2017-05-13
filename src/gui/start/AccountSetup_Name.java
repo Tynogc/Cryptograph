@@ -35,6 +35,7 @@ public class AccountSetup_Name extends MoveMenu{
 		};
 		teb.setTextColor(Color.white);
 		add(teb);
+		teb.setText(n.name);
 		
 		ok = new Button(530,450,"res/ima/cli/B") {
 			@Override

@@ -3,6 +3,9 @@
 3: Servers
 4: OK
 5: Cancle
+6: Back
+7: Load
+101: Load from File
 //Key-Validation: 10100
 10100: Key Validation with: 
 10101: Friend's Fingerprint:
@@ -27,3 +30,17 @@
 20205: For tecnical reasons, the Name has to be at least 3 characters long!
 20206: For tecnical reasons, only A-Z, a-z, 0-9 and Minus/Underscore are allowed!
 20207: This Account already Exists!
+20220: Choose your Profile-Pictur
+20221: This will be uploaded to your Servers
+20222: Create default
+20230: Create your RSA-Keys
+20231: Your RSA-Public-/Private-Key Pair provides secure Encryption
+20232: Your Private-Key needs to be kept secret!
+20233: Anyone who holds your (Un-Encrypted) Private-Key-File can read and forge your conversations!
+20234: Please note: Bigger Keys need more Computing-Time
+20235: Stor Private-Key Encrypted (Recomendet)
+20236: Encrypt your Trust-List (Recomendet)
+20237: Encrypt your Server- and Friends-List
+20238: Create Key
+20239: Key-Size
+20240: Recomendet Key-Size >= 4096 bit
