@@ -231,3 +231,7 @@ res/ima/cli/spb/STUd.png
 res/ima/cli/spb/STUd.png
 res/ima/mbe/m700x500.png
 res/ima/mbe/m700x500.png
+res/ima/smi/te2.png
+res/ima/smi/te2.png
+res/ima/smi/te1.png
+res/ima/smi/te1.png

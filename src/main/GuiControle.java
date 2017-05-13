@@ -1,5 +1,6 @@
 package main;
 
+import gui.Ping;
 import gui.TopMenu;
 
 import java.awt.AlphaComposite;
@@ -25,6 +26,8 @@ public class GuiControle {
 	public static int mouseX;
 	public static int mouseY;
 	
+	private Ping ping; 
+	
 	public GuiControle(main.MouseListener m, main.KeyListener k){
 		mouse = m;
 		topMenu = new MenuControle();
@@ -40,6 +43,9 @@ public class GuiControle {
 		menuTopMenu = new gui.TopMenu();
 		topMenu.setActivMenu(menuTopMenu);
 		frameMenu.setActivMenu(new gui.FrameMenu());
+		
+		ping = new Ping();
+		Ping.ping(200, 200, Ping.ALARM);
 	}
 	
 	public boolean loop(){
@@ -103,6 +109,8 @@ public class GuiControle {
 		if(leftForFocus)
 			topMenu.leftClickForFocus(mouse.x, mouse.y);
 		
+		ping.update();
+		
 		return clicked;
 	}
 	
@@ -122,6 +130,8 @@ public class GuiControle {
 		}
 		frameMenu.paintYou(g);
 		superMenu.paintYou(g);
+		
+		ping.paintPing(g);
 	}
 	
 	public static boolean addMenu(AbstractMenu  m){

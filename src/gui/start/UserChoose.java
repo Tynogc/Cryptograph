@@ -13,6 +13,7 @@ import java.util.concurrent.Semaphore;
 import javax.swing.ImageIcon;
 
 import crypto.KeySaveLoad;
+import main.EventCounter;
 import main.Fonts;
 import main.Language;
 import main.PicLoader;
@@ -48,13 +49,15 @@ public class UserChoose extends OverswapMenu{
 	private boolean wasRed;
 	private boolean red;
 	
+	private boolean check;
+	
 	private boolean encryptedKey;
 	
 	private final String[] text;
 	
 	public UserChoose(main.SeyprisMain m) {
 		imas = new BufferedImage[]{
-			PicLoader.pic.getImage("res/ima/ote/pw2.png")	
+			PicLoader.pic.getImage("res/ima/ote/pw2.png"),null,PicLoader.pic.getImage("res/ima/smi/te2.png")
 		};
 		main = m;
 		moveAble = false;
@@ -162,6 +165,7 @@ public class UserChoose extends OverswapMenu{
 		}
 		
 		if(lastActiv != activ){
+			EventCounter.event();
 			int o = (int)((System.currentTimeMillis()-animCount)/3);
 			boolean isDone = true;
 			int to = xSize/2-190;
@@ -255,6 +259,7 @@ public class UserChoose extends OverswapMenu{
 				if(kh.isPrivateKeyOK()){
 					red = false;
 					main.startClientAndServerControle();
+					check = true;
 					closeIntern();
 				}else{
 					red = true;
@@ -279,8 +284,10 @@ public class UserChoose extends OverswapMenu{
 		g.setFont(Fonts.fontSans14);
 		g.drawString(users[activ].name, cont.getxPos()+100, 75);
 		if(sema.availablePermits()<=0){
-			Emots.emots.drawProcessingCircle(g, cont.getxPos()+245, 96);
+			Emots.emots.drawProcessingCircle(g, cont.getxPos()+245, 94);
 			g.drawString(text[4], cont.getxPos()+90, 94);
+		}else if(check){
+			g.drawImage(imas[2], cont.getxPos()+245, 94, null);
 		}else if(red){
 			g.setColor(Color.red);
 			g.drawString(text[2], cont.getxPos()+90, 94);

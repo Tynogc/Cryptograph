@@ -170,10 +170,6 @@ public class TopMenu extends AbstractMenu{
 	protected void paintIntern(Graphics g) {
 		//System.out.println(g.getFontMetrics().getStringBounds("abcdefg", g).getWidth());
 		//g.drawString("abcdefg", 100, 200);
-		Emots.emots.drawLoadingCircle(g, 400, 400);
-		Emots.emots.drawProcessingCircle(g, 440, 400);
-		Emots.emots.drawLoadingCircle(g, 480, 400);
-		Emots.emots.drawProcessingCircle(g, 480, 400);
 	}
 
 }

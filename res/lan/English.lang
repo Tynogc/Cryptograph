@@ -18,5 +18,12 @@
 10304: Direct login... (No Password)
 10305: Decrypting Key...
 10306: New...
-//New Account 20100
-20100: Create new Account 
+//New Account 20200
+20200: Create new Account
+20201: Welcome! //TODO
+20202: Configure your new Account in 4 easy Steps:
+20203: Enter the Account-Name (The Name your Friends see)
+20204: This will also be your default Name on Servers
+20205: For tecnical reasons, the Name has to be at least 3 characters long!
+20206: For tecnical reasons, only A-Z, a-z, 0-9 and Minus/Underscore are allowed!
+20207: This Account already Exists!

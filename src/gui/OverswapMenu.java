@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import main.EventCounter;
 import main.SeyprisMain;
 import menu.AbstractMenu;
 
@@ -12,7 +13,7 @@ public abstract class OverswapMenu extends AbstractMenu{
 	
 	protected BufferedImage[] imas;
 	protected long closeCounter;
-	protected int closeAnim;
+	protected int closeAnim = 0;
 	
 	public OverswapMenu(){
 		super(0,(int)SeyprisMain.getFrame().getSize().getHeight()/2-100,
@@ -21,6 +22,7 @@ public abstract class OverswapMenu extends AbstractMenu{
 	
 	public void closeIntern(){
 		closeCounter = System.currentTimeMillis();
+		EventCounter.event();
 	}
 	
 	@Override
@@ -34,7 +36,7 @@ public abstract class OverswapMenu extends AbstractMenu{
 	
 	@Override
 	public void paintYou(Graphics2D g) {
-		if(closeAnim>0){
+		if(closeAnim>5){
 			float fade = 1f-(float)closeAnim/100f;
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fade));
 			g.translate(-closeAnim*2, 0);

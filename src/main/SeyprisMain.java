@@ -135,6 +135,7 @@ public class SeyprisMain extends JPanel{
 		}
 		
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		g.setColor(Color.black);
 		g.fillRect(0, 0, xPos, yPos);
 		g.setColor(Color.gray);

@@ -13,6 +13,8 @@ public class NewAccount{
 	
 	private int x;
 	private int y;
+	
+	public String name;
 
 	public NewAccount() {
 		x = (SeyprisMain.sizeX()-700)/2;
