@@ -17,6 +17,8 @@ import javax.crypto.Cipher;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
+import network.Writable;
+
 public final class RSAsaveKEY implements Destroyable{
 	
 	private BigInteger publicExponent;
@@ -135,7 +137,23 @@ public final class RSAsaveKEY implements Destroyable{
 	 * @throws Exception shouldn't happen in normal Operation
 	 */
 	public static RSAsaveKEY generateKey(int keySize, boolean defaultExponent, boolean showInfo, int runSelfTest,
-			SecureRandom random)
+			SecureRandom random) throws KeyException, Exception{
+		return generateKey(keySize, defaultExponent, showInfo, runSelfTest, random, null);
+	}
+	
+	/**
+	 * Key-Generation Method for secure RSA-Keys
+	 * @param keySize Bit size of the RSA-Key (recommended 4096 or higher)
+	 * @param defaultExponent true: uses 65537 (0x10001) as the publicExponent
+	 * @param showInfo Shows Debug-Info
+	 * @param runSelfTest number of Self-Test (recommended 1) to ensure Proper Functionality, set to 0 if unused
+	 * @param random Gives a pre-Seeded SecureRandom Object to generate Prime-Seeds, null if unused
+	 * @return An RSAsaveKey with the public and private Key
+	 * @throws KeyException Computing of the Keys produced an Error (self-test or Exponent) you can call the Method again  
+	 * @throws Exception shouldn't happen in normal Operation
+	 */
+	public static RSAsaveKEY generateKey(int keySize, boolean defaultExponent, boolean showInfo, int runSelfTest,
+			SecureRandom random, Writable info)
 			throws KeyException, Exception{
 		if(random == null)
 			random = new SecureRandom();
@@ -144,14 +162,26 @@ public final class RSAsaveKEY implements Destroyable{
 		keySize -= keySize%8;
 		
 		System.out.println("Starting Key Generation...");
+		//Divers the Primes: Variate length up to 3 bits
+		int add = random.nextInt(4);
         // Choose two prime numbers p and q.
-        BigInteger p = BigInteger.probablePrime(keySize/2,random);
-        if(showInfo)
-        	System.out.println("1st Prime: "+p.toString().substring(0, 6)+"...");//FIXME delet this Line!!!
+        BigInteger p = BigInteger.probablePrime(keySize/2-add,random);
+        if(showInfo){
+        	if(info != null){
+        		info.write("1st Prime: "+p.toString().substring(0, 4)+"...");
+        	}else{
+        		System.out.println("1st Prime: "+p.toString().substring(0, 4)+"...");
+        	}
+        }
         
-        BigInteger q = BigInteger.probablePrime(keySize/2,random);
-        if(showInfo)
-            System.out.println("2nd Prime: "+q.toString().substring(0, 6)+"...");//FIXME delet this Line!!!
+        BigInteger q = BigInteger.probablePrime(keySize/2+add,random);
+        if(showInfo){
+        	if(info != null){
+        		info.write("2nd Prime: "+q.toString().substring(0, 4)+"...");
+        	}else{
+        		System.out.println("2nd Prime: "+q.toString().substring(0, 4)+"...");
+        	}
+        }
         
         /**
 		 * The following Lines of Code are from the stackoverflow.com Forum, published by the user 'albciff'
@@ -174,21 +204,36 @@ public final class RSAsaveKEY implements Destroyable{
         m = new BigInteger("1");
         
         if(showInfo){
-        	System.out.println("Modulus  : "+modulus.toString().substring(0, 10)+"...");
-        	System.out.println("KeySize is "+modulus.bitLength());
+        	if(info != null){
+        		info.write("Modulus  : "+modulus.toString().substring(0, 10)+"...");
+            	info.write("KeySize is "+modulus.bitLength());
+        	}else{
+        		System.out.println("Modulus  : "+modulus.toString().substring(0, 10)+"...");
+            	System.out.println("KeySize is "+modulus.bitLength());
+        	}
         }
         
         RSAsaveKEY theKey = new RSAsaveKEY(privateExponent, publicExponent, modulus);
         
         for (int i = 0; i < runSelfTest; i++) {
-        	if(showInfo)
-				System.out.println("Selftest "+(i+1)+"/"+runSelfTest);
+        	if(showInfo){
+        		if(info != null){
+        			info.write("Selftest "+(i+1)+"/"+runSelfTest);
+        		}else{
+        			System.out.println("Selftest "+(i+1)+"/"+runSelfTest);
+        		}
+        	}
         	
 			testEncryption(theKey.getPublicKey(), theKey.getPrivateKey());
 		}
         
-        if(showInfo)
-        	System.out.println("DONE!");
+        if(showInfo){
+        	if(info != null){
+        		info.write("DONE!");
+        	}else{
+        		System.out.println("DONE!");
+        	}
+        }
         
         return theKey;
 	}

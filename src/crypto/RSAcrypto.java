@@ -59,21 +59,6 @@ public class RSAcrypto {
 		}
 		
 		return ret;
-		
-		//Non-Direct implementation, please ignore:
-		/*byte[] b = s.getBytes();
-		Cipher cipher = Cipher.getInstance("RSA");
-		if(pub)
-			cipher.init(Cipher.ENCRYPT_MODE, key.getPublicKey());
-		else
-			cipher.init(Cipher.ENCRYPT_MODE, key.getPrivateKey());
-		int blockSize = (key.size/8)-11;
-		
-		b = addPadding(b, blockSize);
-		
-		b = cipher.doFinal(b);
-		
-		return Base64.getEncoder().encodeToString(b);*/
 	}
 	
 	/**
@@ -149,7 +134,7 @@ public class RSAcrypto {
 		return by;
 	}
 	
-	public static final int MIN_PADDING_BYTE = 15; 
+	public static final int MIN_PADDING_BYTE = 16; 
 	/**
 	 * Adds Random Padding to the byte-Array, at least 15 byte
 	 * The Padding consist as follows:
@@ -178,9 +163,11 @@ public class RSAcrypto {
 		if(toFill>256)
 			higherPadding = asr.nextInt(241)+15;
 		else
-			higherPadding = asr.nextInt(toFill-9)+9;
+			higherPadding = asr.nextInt(toFill-10)+9;
 		
 		int lowerPadding = toFill-higherPadding;
+		
+		System.out.println(lowerPadding + " " + higherPadding);
 		
 		if(lowerPadding > 256*256)
 			throw new SecurityException("Padding can't be added! There is to mutch to add!");
