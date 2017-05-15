@@ -6,6 +6,7 @@
 6: Back
 7: Load
 101: Load from File
+102: Finish
 //Key-Validation: 10100
 10100: Key Validation with: 
 10101: Friend's Fingerprint:
@@ -21,6 +22,7 @@
 10304: Direct login... (No Password)
 10305: Decrypting Key...
 10306: New...
+10310: Enter Password
 //New Account 20200
 20200: Create new Account
 20201: Welcome! //TODO
@@ -44,3 +46,13 @@
 20238: Create Key
 20239: Key-Size
 20240: Recomendet Key-Size >= 4096 bit
+20241: Privacy-Settings
+20242: Choose your User-Password and the Encryption-Settings
+20243: WARNING: Remember your Password!
+20244: If your Password is lost, there is NO WAY to restore it!
+20245: In this case, all encrypted Data will be lost!
+20246: If your Private Key is Encrypted, no one but you will be able to use it!
+20247: Never copy an Un-Encrypted Key to other Hardware,
+20248: Confirm Password
+20249: No Match! Please enter Password again!
+20250: Password Strenght:

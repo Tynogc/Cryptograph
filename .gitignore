@@ -21,7 +21,7 @@ $RECYCLE.BIN/
 bin/*
 *.key
 log/*
-data/user/default/*
+data/user/*
 
 # =========================
 # Operating System Files

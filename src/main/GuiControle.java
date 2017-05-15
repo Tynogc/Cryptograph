@@ -45,7 +45,6 @@ public class GuiControle {
 		frameMenu.setActivMenu(new gui.FrameMenu());
 		
 		ping = new Ping();
-		Ping.ping(200, 200, Ping.ALARM);
 	}
 	
 	public boolean loop(){

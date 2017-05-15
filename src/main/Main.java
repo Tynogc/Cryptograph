@@ -28,6 +28,7 @@ public class Main {
 		//testKeyLoad();
 		//new StartUp(new debug.DebugFrame()).doStartUp();
 		//testSRSHA(100, 512);
+		testNumberEnc();
 		
 		doStartUp(true);
 	}
@@ -78,14 +79,16 @@ public class Main {
 		String b2 = new String(b,"UTF-8");
 		System.out.println(b2);
 		System.out.println(b2.compareTo(b1));*/
-		String s1 = cryptoUtility.Random.generateRandomString((int)(Math.random()*100));
+		String s1 = cryptoUtility.Random.generateRandomString(112);
 		RSAsaveKEY key = RSAsaveKEY.generateKey(1024, true, false, 0, cryptoUtility.Random.generateSR());
+		System.out.println(key.size);
 		RSAsaveKEY key2 = RSAsaveKEY.generateKey(2048, true, false, 0, cryptoUtility.Random.generateSR());
 		System.out.println(s1+" "+s1.getBytes().length);
 		String s2 = RSAcrypto.encrypt(s1, key, true);
-		s2 = RSAcrypto.encrypt(s2, key2, true);
+		System.out.println("---");
+		s2 = RSAcrypto.encrypt(s2, key2, false);
 		System.out.println(s2);
-		s2 = RSAcrypto.decrypt(s2, key2, false);
+		s2 = RSAcrypto.decrypt(s2, key2, true);
 		s2 = RSAcrypto.decrypt(s2, key, false);
 		System.out.println(s2);
 		if(s1.compareTo(s2)!=0)

@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -50,6 +51,8 @@ public abstract class OverswapMenu extends AbstractMenu{
 
 	@Override
 	protected void paintIntern(Graphics g) {
+		g.setColor(Color.black);
+		g.fillRect(0, 0, xSize, ySize);
 		int u = (int)((System.currentTimeMillis()/100)%51);
 		for (int i = 0; i < xSize+54; i+=51) {
 			g.drawImage(imas[0], i-u+closeAnim*2, -closeAnim, null);

@@ -235,3 +235,5 @@ res/ima/smi/te2.png
 res/ima/smi/te2.png
 res/ima/smi/te1.png
 res/ima/smi/te1.png
+res/ima/smi/warnwin.png
+res/ima/smi/warnwin.png

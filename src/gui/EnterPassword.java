@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import main.Fonts;
 import main.KeyListener;
+import main.Language;
 import main.PicLoader;
 import main.SetPassword;
 import main.SeyprisMain;
@@ -25,10 +26,12 @@ public class EnterPassword extends OverswapMenu{
 	
 	private boolean repeading;
 	
-	private static final String[] analysisString = new String[]{
+	private String[] text;
+	
+	public static final String[] analysisString = new String[]{
 		"Too Short", "Very Weak", "Weak", "Medium", "Strong", "Very Strong", "Extreme", "Ridiculous", "Neeeerd!"
 	};
-	private static final Color[] analysisColor = new Color[]{
+	public static final Color[] analysisColor = new Color[]{
 		new Color(122,10,15), new Color(237,22,22), new Color(250,122,22),
 		new Color(250,210,30), new Color(91,252,22),  new Color(23,252,180),
 		new Color(19,225,252), new Color(218,10,255), new Color(0,120,255)
@@ -42,6 +45,10 @@ public class EnterPassword extends OverswapMenu{
 	private SetPassword setPassword;
 	
 	public EnterPassword(SetPassword spw, KeyListener k, boolean analysis) {
+		this(spw, k, analysis, Language.lang.text(10310));
+	}
+	
+	public EnterPassword(SetPassword spw, KeyListener k, boolean analysis, String t) {
 		
 		teb = new TextEnterButton(xSize/2-110, 80, 220, 20, Color.black, k) {
 			@Override
@@ -74,6 +81,8 @@ public class EnterPassword extends OverswapMenu{
 			@Override
 			protected void isClicked() {
 				setPassword.setPW(teb.getText());
+				if(showAnalysis)
+					setPassword.passwordStrength = EnterPassword.this.analysis;
 				System.out.println(setPassword.getPassword());
 				teb.destroy();
 				closeIntern();
@@ -97,6 +106,10 @@ public class EnterPassword extends OverswapMenu{
 		close.setText("Cancle");
 		
 		moveAble = false;
+		
+		text = new String[]{
+				t
+		};
 	}
 
 	@Override
@@ -145,11 +158,11 @@ public class EnterPassword extends OverswapMenu{
 	@Override
 	protected void paintIntern(Graphics g) {
 		super.paintIntern(g);
-		if(!showAnalysis)return;
 		int rop = xSize/2-100;
 		g.setColor(Color.white);
 		g.setFont(Fonts.fontBold18);
-		g.drawString("Enter Password:", rop, 60);
+		g.drawString(text[0], rop, 60);
+		if(!showAnalysis)return;
 		g.setFont(Fonts.fontSans14);
 		g.drawString("Password Strength: ", rop, 120);
 		g.setColor(analysisColor[analysis]);

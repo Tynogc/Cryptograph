@@ -8,6 +8,8 @@ public class SetPassword implements Destroyable{
 	private boolean destroyed = false;
 	private boolean filled = false;
 	
+	public int passwordStrength;
+	
 	public SetPassword(){};
 	
 	public SetPassword(String s){
@@ -38,5 +40,12 @@ public class SetPassword implements Destroyable{
 	
 	public boolean isFilled(){
 		return filled;
+	}
+	
+	public boolean chackMatch(SetPassword other){
+		if(other.pw.compareTo(pw) == 0){
+			return true;
+		}
+		return false;
 	}
 }
