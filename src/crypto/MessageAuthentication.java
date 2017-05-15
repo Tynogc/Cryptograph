@@ -180,7 +180,7 @@ public class MessageAuthentication {
 				algorithm != SRSHA_512_WITH_RSA &&
 				algorithm != SRSHA_1024_WITH_RSA ){
 			
-			return RSAcrypto.encryptByte(b, rsaKey, false);
+			return RSAcrypto.encrypt(b, rsaKey, false);
 		}
 		
 		return Base64.getEncoder().encodeToString(b);
@@ -207,7 +207,7 @@ public class MessageAuthentication {
 			
 			try {
 				b2 = RSAcrypto.decryptByte(signature, rsaKey, true);
-			} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			} catch (SecurityException e) {
 				state = "Decryption-Error Key dosn't match";
 				return false;
 			}

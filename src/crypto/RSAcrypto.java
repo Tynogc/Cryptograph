@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 
 import cryptoUtility.AdvancedSecureRandom;
@@ -12,7 +13,7 @@ import cryptoUtility.Random;
 
 public class RSAcrypto {
 
-	private static final String DIV = " ";
+	private static final byte DIV = Byte.MIN_VALUE;
 	
 	/**
 	 * This method is only save to use, if the message is Padded
@@ -39,26 +40,16 @@ public class RSAcrypto {
 	 */
 	public static String encrypt(String s, RSAsaveKEY key, boolean pub)
 			throws SecurityException{
-		if(s.length()<maxBlockSize(key.size)){ //Can be Encrypted directly
-			byte[] by = s.getBytes();
-			return encryptByte(by, key, pub);
-		}
-		//Needs to be Split
-		String ret = "";
-		//Position in String
-		int pos = 0;
-		final int maxBlock = maxBlockSize(key.size);
-		//Divide the String
-		while(pos<s.length()){
-			int lastPos = pos;
-			pos += maxBlock/2+Random.getInt(maxBlock/2);
-			if(pos>=s.length())pos = s.length();
-			String toEncrypt = s.substring(lastPos,pos);
-			byte[] by = toEncrypt.getBytes();
-			ret += encryptByte(by, key, pub)+DIV;
-		}
-		
-		return ret;
+		return encrypt(s.getBytes(), key, pub);
+	}
+	
+	public static String encrypt(byte[] by, RSAsaveKEY key, boolean pub){
+		by = encryptByte(by, key, pub);
+		return Base64.getEncoder().encodeToString(by);
+	}
+	
+	public static byte[] encryptByte(String s, RSAsaveKEY key, boolean pub){
+		return encryptByte(s.getBytes(), key, pub);
 	}
 	
 	/**
@@ -69,17 +60,56 @@ public class RSAcrypto {
 	 * @return
 	 * @throws SecurityException If the Block size is Problematic
 	 */
-	public static String encryptByte(byte[] by, RSAsaveKEY key, boolean pub) throws SecurityException{
-		by = addPadding(by, key.size-1);
+	public static byte[] encryptByte(byte[] by, RSAsaveKEY key, boolean pub) throws SecurityException{
+		int[] headerRaw = new int[100];
+		int pos = 0;
+		int k = 0;
+		while(true){
+			int v = Random.getInt(maxBlockSize(key.size)/2)+maxBlockSize(key.size)/2;
+			if(pos+v >= by.length){
+				break;
+			}
+			pos+=v;
+			headerRaw[k] = v;
+			k++;
+		}
 		
-		BigInteger b = new BigInteger(by);
+		byte[][] segments = new byte[k][0];
+		int divisions = k;
+		k = 0;
+		pos = 0;
+		int lastPos = 0;
+		do {
+			if(k<divisions)
+				pos = lastPos+headerRaw[k];
+			else
+				pos = by.length;
+			
+			System.out.println("E"+lastPos + " " + pos);
+			byte[] w = Arrays.copyOfRange(by, lastPos, pos);
+			////////ENCRYPTION
+			w = addPadding(w, key.size-1);
+			
+			BigInteger bigInt = new BigInteger(w);
+			bigInt = encryptBlock(bigInt, key, pub);
+			
+			w = bigInt.toByteArray();
+			///////END OF ENCRYPTION
+			segments[k] = w;
+			
+			System.out.println("D"+w.length+" "+w[0]+" "+w[1]+" "+w[w.length-2]+" "+w[w.length-1]);
+			
+			lastPos = pos;
+			
+			k++;
+		} while (k<divisions);
 		
-		//System.out.println(b.bitLength()+"-"+key.size);
-		
-		b = encryptBlock(b, key, pub);
-		by = b.toByteArray();
-		return Base64.getEncoder().encodeToString(by);
+		return mixTogether(segments);
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	/////D-E-C-R-Y-P-T-I-O-N
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * All in one Method, decrypts the String and removes Padding
@@ -92,49 +122,61 @@ public class RSAcrypto {
 	 */
 	public static String decrypt(String s, RSAsaveKEY key, boolean pub) 
 			throws GeneralSecurityException, UnsupportedEncodingException{
-		String ret = "";
-		String[] substrings = s.split(DIV);
-		for (int i = 0; i < substrings.length; i++) {
-			byte[] by = decryptByte(substrings[i], key, pub);
-			ret += new String(by, "UTF-8");
-		}
-		return ret;
-		
-		//Non-Direct implementation, please ignore:
-		/*byte[] b = Base64.getDecoder().decode(s);
-		Cipher cipher = Cipher.getInstance("RSA");
-		if(pub)
-			cipher.init(Cipher.DECRYPT_MODE, key.getPublicKey());
-		else
-			cipher.init(Cipher.DECRYPT_MODE, key.getPrivateKey());
-		b = cipher.doFinal(b);
-		
-		b = removePadding(b);
-		return new String(b, "UTF-8");*/
+		byte[] by = decryptByte(s, key, pub);
+		return new String(by, "UTF-8");
 	}
 	
-	/**
-	 * Same as decrypt() but returns the raw byte[]
-	 * @param s
-	 * @param key
-	 * @param pub
-	 * @return raw byte[] (decrypted and without Padding)
-	 * @throws GeneralSecurityException
-	 * @throws UnsupportedEncodingException
-	 */
-	public static byte[] decryptByte(String s, RSAsaveKEY key, boolean pub) 
-			throws GeneralSecurityException, UnsupportedEncodingException{
-		byte[] by = Base64.getDecoder().decode(s);
-		BigInteger b = new BigInteger(by);
-		
-		b = encryptBlock(b, key, pub);
-		
-		by = b.toByteArray();
-		by = removePadding(by);
-		return by;
+	public static String decrypt(byte[] by, RSAsaveKEY key, boolean pub) throws UnsupportedEncodingException, SecurityException{
+		by = decryptByte(by, key, pub);
+		return new String(by, "UTF-8");
 	}
+	
+	public static byte[] decryptByte(String s, RSAsaveKEY key, boolean pub) throws SecurityException{
+		byte[] by = Base64.getDecoder().decode(s);
+		return decryptByte(by, key, pub);
+	}
+	
+	public static byte[] decryptByte(byte[] by, RSAsaveKEY key, boolean pub) throws SecurityException{
+		int pos = 0;
+		int k = 0;
+		
+		int segmentLenght = (key.size-1)/8+1;
+		int numOfSegments = by.length/segmentLenght;
+		
+		byte[][] segments = new byte[numOfSegments][0];
+		int lastPos = 0;
+		do {
+			pos = lastPos+segmentLenght;
+			
+			System.out.println("E"+lastPos + " " + pos);
+			byte[] w = Arrays.copyOfRange(by, lastPos, pos);
+			////////DECRYPTION
+			
+			BigInteger bigInt = new BigInteger(w);
+			bigInt = bigInt.abs();
+			
+			bigInt = encryptBlock(bigInt, key, pub);
+			
+			w = bigInt.toByteArray();
+			
+			w = removePadding(w);
+			///////END OF DECRYPTION
+			segments[k] = w;
+			
+			lastPos = pos;
+			
+			k++;
+		} while (k<numOfSegments);
+		
+		return mixTogether(segments);
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	/////P-A-D-I-N-G
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	
 	public static final int MIN_PADDING_BYTE = 16; 
+	
 	/**
 	 * Adds Random Padding to the byte-Array, at least 15 byte
 	 * The Padding consist as follows:
@@ -167,7 +209,8 @@ public class RSAcrypto {
 		
 		int lowerPadding = toFill-higherPadding;
 		
-		System.out.println(lowerPadding + " " + higherPadding);
+		if(lowerPadding<2)
+			debug.Debug.println("Weak Padding: Lenght of Fill:"+higherPadding+" "+lowerPadding, debug.Debug.ERROR);
 		
 		if(lowerPadding > 256*256)
 			throw new SecurityException("Padding can't be added! There is to mutch to add!");
@@ -272,5 +315,67 @@ public class RSAcrypto {
 	
 	public static final int maxBlockSize(int keySize){
 		return (keySize/8)-MIN_PADDING_BYTE;
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	/////U-T-I-L-I-T-Y
+	//////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Traverses the given Header until 2 Zero-bytes are found.
+	 * Returns the length combination of all previous bytes
+	 * @param header
+	 * @return
+	 */
+	private static int[] processHeader(byte[] header){
+		int k = 0;
+		for (int i = 0; i < header.length; i+=2) {
+			if(header[i] == DIV && header[i+1] == DIV){
+				break;
+			}
+			k++;
+		}
+		System.out.println("Header Lenght="+k+" ");
+		int[] r = new int[k];
+		for (int i = 0; i < k; i++) {
+			r[i] = (int)(header[i*2] & 0xff)*256 + (int)(header[i*2+1] & 0xff);
+			System.out.print(r[i]+" ");
+		}
+		System.out.println();
+		return r;
+	}
+	
+	private static byte[] generateHeader(int[] sets){
+		int k = 0;
+		for (int i = 0; i < sets.length; i++) {
+			if(sets[i]<=0)break;
+			k++;
+			System.out.print(sets[i]+" ");
+		}
+		System.out.println();
+		byte[] ret = new byte[k*2+2];
+		for (int i = 0; i <= k; i+=2) {
+			ret[i] = (byte)(sets[i/2]/256);
+			ret[i+1] = (byte)(sets[i/2]%256);
+		}
+		ret[ret.length-2] = DIV;
+		ret[ret.length-1] = DIV;
+		return ret;
+	}
+	
+	private static byte[] mixTogether(byte[][] r){
+		int l = 0;
+		for (int i = 0; i < r.length; i++) {
+			l+=r[i].length;
+		}
+		byte[] ret = new byte[l];
+		l = 0;
+		for (int i = 0; i < r.length; i++) {
+			for (int j = 0; j < r[i].length; j++) {
+				ret[l] = r[i][j];
+				l++;
+			}
+		}
+		return ret;
 	}
 }
