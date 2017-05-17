@@ -57,7 +57,8 @@ public class EnterPassword extends OverswapMenu{
 			@Override
 			protected void textEnteredDirectly(String text) {
 				setPassword.setPW(teb.getText());
-				System.out.println(setPassword.getPassword());
+				if(showAnalysis)
+					setPassword.passwordStrength = EnterPassword.this.analysis;
 				teb.destroy();
 				closeIntern();
 			}
@@ -83,7 +84,6 @@ public class EnterPassword extends OverswapMenu{
 				setPassword.setPW(teb.getText());
 				if(showAnalysis)
 					setPassword.passwordStrength = EnterPassword.this.analysis;
-				System.out.println(setPassword.getPassword());
 				teb.destroy();
 				closeIntern();
 			}

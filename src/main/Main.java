@@ -26,7 +26,6 @@ public class Main {
 		
 		//testKeyGen();
 		//testKeyLoad();
-		//new StartUp(new debug.DebugFrame()).doStartUp();
 		//testSRSHA(100, 512);
 		testNumberEnc();
 		
@@ -79,7 +78,7 @@ public class Main {
 		String b2 = new String(b,"UTF-8");
 		System.out.println(b2);
 		System.out.println(b2.compareTo(b1));*/
-		String s1 = cryptoUtility.Random.generateRandomString(112);
+		String s1 = cryptoUtility.Random.generateRandomString(300);
 		RSAsaveKEY key = RSAsaveKEY.generateKey(1024, true, false, 0, cryptoUtility.Random.generateSR());
 		System.out.println(key.size);
 		RSAsaveKEY key2 = RSAsaveKEY.generateKey(2048, true, false, 0, cryptoUtility.Random.generateSR());
@@ -97,8 +96,11 @@ public class Main {
 	
 	protected static void testKeyGen() throws Exception{
 		crypto.RSAsaveKEY k = crypto.RSAsaveKEY.generateKey(2048*2, true, true, 10, null);
-		new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("data/user/default/Private.key"), "TestTest123");
-		new crypto.KeySaveLoad().saveKey(k, new File("data/user/default/Public.key"), true);
+		new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("data/user/def0/Private.key"), "A");
+		new crypto.KeySaveLoad().saveKey(k, new File("data/user/def0/Public.key"), true);
+		k = crypto.RSAsaveKEY.generateKey(2048, true, true, 10, null);
+		new crypto.KeySaveLoad().saveKeyEncrypted(k, new File("data/user/def1/Private.key"), "A");
+		new crypto.KeySaveLoad().saveKey(k, new File("data/user/def1/Public.key"), true);
 	}
 	
 	protected static void testKeyLoad() throws Exception{

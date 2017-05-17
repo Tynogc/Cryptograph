@@ -1,20 +1,32 @@
 package gui.start;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.util.concurrent.Semaphore;
 
 import gui.EnterPassword;
+import gui.utility.Emots;
+import main.Fonts;
 import main.GuiControle;
 import main.Language;
 import main.PicLoader;
 import main.SeyprisMain;
 import menu.Button;
 import menu.MoveMenu;
+import network.Writable;
 
-public class AccountSetup_Final extends MoveMenu{
+public class AccountSetup_Final extends MoveMenu implements Writable{
 	
 	private Button back;
 	private Button ok;
 	private NewAccount controle;
+	
+	private String[] info;
+	private Semaphore sema;
+	
+	private boolean isProcessing;
+	
+	private Writable ifft;
 	
 	public AccountSetup_Final(int x, int y, NewAccount n, String t) {
 		super(x, y, PicLoader.pic.getImage("res/ima/mbe/m700x500.png"), t);
@@ -26,7 +38,14 @@ public class AccountSetup_Final extends MoveMenu{
 			protected void isFocused() {}
 			@Override
 			protected void isClicked() {
-				controle.finish();
+				if(isProcessing)return;
+				isProcessing = true;
+				new Thread(){
+					public void run() {
+						controle.finish(ifft);
+						closeYou();
+					};
+				}.start();
 			}
 		};
 		ok.setText(Language.lang.text(102));
@@ -49,11 +68,37 @@ public class AccountSetup_Final extends MoveMenu{
 		add(back);
 		
 		controle = n;
+		
+		info = new String[12];
+		for (int i = 0; i < info.length; i++) {
+			info[i] = "";
+		}
+		
+		sema = new Semaphore(1);
+		ifft = this;
 	}
 
 	@Override
 	protected void paintSecond(Graphics g) {
 		
+		g.setFont(Fonts.fontSans12);
+		g.setColor(Color.black);
+		g.fillRect(35, 290, 300, 160);
+		g.setColor(Color.gray);
+		g.drawRect(35, 290, 300, 160);
+		g.setColor(Color.white);
+		try {
+			sema.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return;
+		}
+		for (int i = 0; i < info.length; i++) {
+			g.drawString(info[i], 40, 304+i*12);
+		}
+		if(isProcessing)
+			Emots.emots.drawLoadingCircle(g, 190, 450);
+		sema.release();
 	}
 
 	@Override
@@ -64,6 +109,29 @@ public class AccountSetup_Final extends MoveMenu{
 	@Override
 	protected void uppdateIntern() {
 		
+	}
+	
+	@Override
+	public void write(String s) {
+		debug.Debug.println(s, debug.Debug.SUBCOM);
+		try {
+			sema.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return;
+		}
+		for (int i = 0; i < info.length; i++) {
+			if(info[i].length()<1){
+				info[i] = s;
+				sema.release();
+				return;
+			}
+		}
+		for (int i = 0; i < info.length-1; i++) {
+			info[i] = info[i+1];
+		}
+		info[info.length-1] = s;
+		sema.release();
 	}
 
 }

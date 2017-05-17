@@ -12,6 +12,7 @@ import main.Language;
 import main.SetPassword;
 import main.SeyprisMain;
 import main.UserManager;
+import network.Writable;
 
 public class NewAccount{
 	
@@ -82,7 +83,8 @@ public class NewAccount{
 		}
 	}
 	
-	public void finish(){
+	public void finish(Writable info){
+		info.write("Creating directory...");
 		String dir = UserManager.getPreDirectory()+name;
 		if(new File(dir).exists()){
 			debug.Debug.println("ERROR: cleared path is now Obstructed! (NewAccount)", debug.Debug.ERROR);
@@ -91,6 +93,7 @@ public class NewAccount{
 		new File(dir).mkdirs();
 		dir+="/";
 		
+		info.write("Saving Profile-Picture");
 		File outputfile = new File(dir+"ima.png");
 		try {
 			ImageIO.write(imageSmal, "png", outputfile);
@@ -106,12 +109,17 @@ public class NewAccount{
 			debug.Debug.println(e.toString(), debug.Debug.COMERR);
 		}
 		
+		info.write("Saving Private-Key (This may take a few seconds...)");
+		
 		if(encrKey)
 			new crypto.KeySaveLoad().saveKeyEncrypted(key, new File(dir+"Private.key"), password.getPassword());
 		else
 			new crypto.KeySaveLoad().saveKey(key, new File(dir+"Private.key"), false);
 		
+		info.write("Saving Public-Key");
 		new crypto.KeySaveLoad().saveKey(key, new File(dir+"Public.key"), true);
+		
+		info.write("Creating Server-Lists");
 	}
 
 }

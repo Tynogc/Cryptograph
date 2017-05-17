@@ -58,6 +58,7 @@ public final class KeyHandler {
 		}
 		p.destroy();
 		
+		debug.Debug.println("Testing...");
 		if(!(privateKey.runTest())){
 			debug.Debug.println("Selftest FAILED!", debug.Debug.ERROR);
 			debug.Debug.println("The Password dosn't seam to be correct", debug.Debug.SUBERR);

@@ -90,7 +90,7 @@ public class SeyprisMain extends JPanel{
 				debug.Debug.println(" DONE");*/
 				
 				debug.Debug.println("* Starting Encryption-Test");
-				byte[] r = crypto.LinearCrypto.encrypt(s.getBytes(), "hello".getBytes());
+				byte[] r = crypto.LinearCrypto.encrypt(s.getBytes(), "hello".getBytes(), 6, 6);
 				debug.Debug.println(" encryption done...");
 				System.out.println(new String(r));
 				r = crypto.LinearCrypto.decrypt(r, "hello".getBytes(), true);
