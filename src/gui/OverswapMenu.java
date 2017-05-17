@@ -29,6 +29,7 @@ public abstract class OverswapMenu extends AbstractMenu{
 	@Override
 	protected void uppdateIntern() {
 		if(closeCounter != 0){
+			disabled = true;
 			closeAnim = (int)((System.currentTimeMillis()-closeCounter)/10);
 			if(closeAnim>=100)
 				closeYou();

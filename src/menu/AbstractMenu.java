@@ -22,6 +22,8 @@ public abstract class AbstractMenu {
 			
 	public boolean activ = true;
 	
+	protected boolean disabled = false;
+	
 	public AbstractMenu(int x, int y, int xs, int ys){
 		buttons = new EndButtonList();
 		xPos = x;
@@ -107,4 +109,8 @@ public abstract class AbstractMenu {
 	}
 	
 	public void longTermUpdate(){};
+	
+	public boolean isDisabled(){
+		return disabled;
+	}
 }
