@@ -74,7 +74,9 @@ public class RSAcrypto {
 			k++;
 		}
 		
-		byte[][] segments = new byte[k][0];
+		int segmentLenght = (key.size)/8+1;
+		
+		byte[][] segments = new byte[k+1][0];
 		int divisions = k;
 		k = 0;
 		pos = 0;
@@ -95,6 +97,16 @@ public class RSAcrypto {
 			
 			w = bigInt.toByteArray();
 			///////END OF ENCRYPTION
+			if(w.length<segmentLenght){
+				byte[] qw = new byte[segmentLenght];
+				int diff = segmentLenght-w.length;
+				System.out.println("Add "+diff);
+				for (int i = 0; i < w.length; i++) {
+					qw[i+diff] = w[i];
+				}
+				w = qw;
+			}
+			
 			segments[k] = w;
 			
 			System.out.println("D"+w.length+" "+w[0]+" "+w[1]+" "+w[w.length-2]+" "+w[w.length-1]);
@@ -102,7 +114,7 @@ public class RSAcrypto {
 			lastPos = pos;
 			
 			k++;
-		} while (k<divisions);
+		} while (k<=divisions);
 		
 		return mixTogether(segments);
 	}
@@ -140,11 +152,12 @@ public class RSAcrypto {
 		int pos = 0;
 		int k = 0;
 		
-		int segmentLenght = (key.size-1)/8+1;
+		int segmentLenght = (key.size)/8+1;
 		int numOfSegments = by.length/segmentLenght;
 		
 		byte[][] segments = new byte[numOfSegments][0];
 		int lastPos = 0;
+		System.out.println("D"+by.length);
 		do {
 			pos = lastPos+segmentLenght;
 			
@@ -153,7 +166,6 @@ public class RSAcrypto {
 			////////DECRYPTION
 			
 			BigInteger bigInt = new BigInteger(w);
-			bigInt = bigInt.abs();
 			
 			bigInt = encryptBlock(bigInt, key, pub);
 			

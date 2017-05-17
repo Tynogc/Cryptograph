@@ -11,6 +11,12 @@ public class SecureNumberEncrypter extends NumberEncrypter{
 	private SecureRandom rndm;
 	
 	/**
+	 * This value influences the processing Time A LOT
+	 */
+	private final int blockLenght;
+	private final int SRSHA_length;
+	
+	/**
 	 * This Key-Encryption-Algorithm was considered and created by Sven T. Schneider (Nuernberg, Germany)
 	 * 
 	 * The first Consideration was published on the 9. May 2017 on github.com/Tynogc.
@@ -20,14 +26,29 @@ public class SecureNumberEncrypter extends NumberEncrypter{
 	 * It uses the SCMH-Algorithm (Also by: Sven t. Schneider) for Session-Key-Generation.
 	 * Because it's based on this relativly slow Hashing-Algorithm it takes quite some time to decrypt a Key.
 	 * 
-	 * In a later version, there will be an option for higher Memory-Usage too.
+	 * This subsystem uses the SRSH-Algorithm too.
 	 * 
 	 * The basic principle of destroying the Pre-Image is based on John Horton Conway's "Game of Life" 
 	 * @author Sven T. Schneider
 	 * @version 0.1
+	 * 
+	 * @param pw the raw password (unmodified user input)
+	 * @param subkey the current Session-Key
+	 * @param blockSize the blockSize for this operation. The Processing-Time is ~blockSize*memoryUsage
+	 * @param memoryUsage bigger number -> more memoryUsage and processing-Time
 	 */
-	public SecureNumberEncrypter(byte[] pw, byte[] subKey) {
-		super(subKey, 16, true);
+	public SecureNumberEncrypter(byte[] pw, byte[] subKey, int blockSize, int memoryUsage) {
+		super(subKey, 16, false);
+		
+		if(blockSize<8)blockSize = 8;
+		blockLenght = blockSize;
+		if(memoryUsage*64<blockSize)
+			SRSHA_length = blockSize;
+		else
+			SRSHA_length = memoryUsage*64;
+		
+		System.out.println("BlockLength is: "+blockLenght+" MemoryUsage is: "+SRSHA_length);
+		
 		
 		byte[] opad = new byte[subKey.length];
 		byte[] ipad = new byte[subKey.length];
@@ -37,13 +58,13 @@ public class SecureNumberEncrypter extends NumberEncrypter{
 		}
 		
 		try {
-			SCMHA s = new SCMHA(SCMHA.SCMHA_1024_BIG_OUTPUT);
-			s.update(ipad);
-			firstSubKey = s.digest();
-			s = new SCMHA(SCMHA.SCMHA_1024_BIG_OUTPUT);
-			s.update(opad);
-			s.update(pw);
-			secondSubKey = s.digest();
+			SCMHA s1 = new SCMHA(SCMHA.SCMHA_1024_BIG_OUTPUT);
+			s1.update(ipad);
+			firstSubKey = s1.digest();
+			SRSHA s2 = new SRSHA(SRSHA_length);
+			s2.update(opad);
+			s2.update(pw);
+			secondSubKey = s2.digest();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -115,11 +136,6 @@ public class SecureNumberEncrypter extends NumberEncrypter{
 				xi = 0;
 		}
 	}
-	
-	/**
-	 * This value influences the processing Time A LOT
-	 */
-	private static final int blockLenght = 32;
 	
 	private void superXOr(byte[] b, byte[] key, boolean decrypt, int s){
 		byte[] word = new byte[blockLenght];
@@ -280,15 +296,10 @@ public class SecureNumberEncrypter extends NumberEncrypter{
 	}
 	
 	private byte[] nextKey(byte[] key, byte[] w){
-		try {
-			SCMHA s = new SCMHA(SCMHA.SCMHA_1024_BIG_OUTPUT);
-			s.update(key);
-			s.update(w);
-			return s.digest();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		return null;
+		SRSHA s = new SRSHA(SRSHA_length);
+		s.update(key);
+		s.update(w);
+		return s.digest();
 	}
 	
 	private int countCross(byte[] b, int step){
@@ -313,11 +324,11 @@ public class SecureNumberEncrypter extends NumberEncrypter{
 	}
 	
 	private void printCode(byte[] code){
-		System.out.println(new String(code));
+		//System.out.println(new String(code));
 		
-		for (int i = 0; i < code.length; i++) {
+		//for (int i = 0; i < code.length; i++) {
 			//System.out.print(code[i]+", ");
-		}
+		//}
 		//System.out.println(":"+code.length);
 	}
 

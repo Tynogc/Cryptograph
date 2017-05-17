@@ -62,7 +62,8 @@ public class KeySaveLoad {
 	 */
 	public final void saveKeyEncrypted(RSAsaveKEY key, final File f, String enc){
 		subSave1(f);
-		byte[] b = LinearCrypto.encrypt(key.getPrivateExponent().toByteArray(), enc.getBytes());
+		//TODO passability for higher/lower Security-Settings. Currently 6,6 is good!
+		byte[] b = LinearCrypto.encrypt(key.getPrivateExponent().toByteArray(), enc.getBytes(), 6, 6);
 		String privExp = Base64.getEncoder().encodeToString(b);
 		//Destroy the password
 		enc = "";
