@@ -60,4 +60,12 @@ public class FriendsList {
 		
 		return next.count()+1;
 	}
+	
+	public FriendsList getFriendByName(String name){
+		if(name.compareTo(connectionName) == 0)
+			return this;
+		if(next == null)
+			return null;
+		return next.getFriendByName(name);
+	}
 }

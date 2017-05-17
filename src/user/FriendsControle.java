@@ -20,6 +20,11 @@ public class FriendsControle {
 	
 	private final gui.TopMenu topMenu;
 	
+	/**
+	 * How to handle a friend in the List
+	 */
+	public InboundConnectionHandler handleKnownFriend;
+	
 	public FriendsControle(ClientControle c, gui.TopMenu t){
 		clients = c;
 		friends = this;
@@ -99,7 +104,12 @@ public class FriendsControle {
 		if(connectedFriends == null)
 			return false;
 		
-		return connectedFriends.addC2C(f, name);
+		if(connectedFriends.addC2C(f, name)){
+			if(handleKnownFriend != null)
+				handleKnownFriend.connectionInbound(connectedFriends.getFriendByName(name));
+			return true;
+		}
+		return false;
 	}
 	
 	/**
