@@ -8,81 +8,104 @@ import java.util.concurrent.Semaphore;
 import gui.TextEnterField;
 import main.Fonts;
 import menu.AbstractMenu;
+import menu.Button;
 import network.Writable;
 import user.FriendsList;
 
-public class ChatControle extends AbstractMenu implements Writable{
-
-	public FriendsList currentFriend;
+public class ChatControle extends AbstractMenu{
 	
 	private TextEnterField enter;
 	
-	private String[] text;
+	private static final int maxNumOfOpenChannels = 10;//TODO
+	
+	private ChatContainer[] containers;
+	private ChatButton[] contButton;
+	
+	private int currentlyActiv = -1;
 	
 	public ChatControle(int x, int y, TextEnterField t) {
 		super(x, y, 500, 400);
 		enter = t;
 		
-		text = new String[30];
-		for (int i = 0; i < text.length; i++) {
-			text[i] = "";
-		}
+		containers = new ChatContainer[maxNumOfOpenChannels];
+		contButton = new ChatButton[maxNumOfOpenChannels];
 	}
 
 	@Override
 	protected void uppdateIntern() {
-		if(currentFriend == null)
-			return;
-		if(currentFriend.client == null)
-			return;
-		
-		String s = currentFriend.client.getLastMsg();
-		if(s == null)
-			return;
-		
-		addString("[Friend] "+s);
-	}
-	
-	private void addString(String s){
-		for (int i = 0; i < text.length; i++) {
-			if(text[i].length()<1){
-				text[i] = s;
-				return;
-			}
+		for (int i = 0; i < containers.length; i++) {
+			if(containers[i] != null)
+				containers[i].check();
 		}
-		for (int i = 0; i < text.length-1; i++) {
-			text[i] = text[i+1];
-		}
-		text[text.length-1] = s;
 	}
 
 	@Override
 	protected void paintIntern(Graphics g) {
-		g.setColor(Color.white);
-		g.setFont(Fonts.font14);
-		for (int i = 0; i < text.length; i++) {
-			g.drawString(text[i], 20, 20+20*i);
+		
+	}
+	
+	public void openChannel(FriendsList f){
+		//Check if already there...
+		for (int i = 0; i < contButton.length; i++) {
+			if(containers[i] != null){
+				if(containers[i].comTo == f){
+					setActiv(i);
+					return;
+				}
+			}
 		}
+		
+		int i = 0;
+		for (; i < contButton.length; i++) {
+			if(containers[i] == null)
+				break;
+		}
+		containers[i] = new ChatContainer(40, 40, enter, f);
+		contButton[i] = new ChatButton(100*i, 0, i, f.connectionName) {
+			@Override
+			protected void isClicked() {
+				setActiv(pos);
+			}
+		};
+		add(containers[i]);
+		add(contButton[i]);
+		
+		if(currentlyActiv<0)
+			setActiv(i);
+	}
+	
+	private void setActiv(int pos){
+		currentlyActiv = pos;
+		
+		for (int j = 0; j < containers.length; j++) {
+			if(containers[j] == null)
+				continue;
+			if(j == pos){
+				containers[j].setActiv();
+			}else{
+				containers[j].setInActiv();
+			}
+		}
+	}
+
+}
+
+abstract class ChatButton extends Button{
+
+	public int pos;
+	
+	public ChatButton(int x, int y, int p, String t) {
+		super(x, y, "res/ima/cli/Gsk");
+		pos = p;
+		setText(t);
 	}
 
 	@Override
-	public void write(String s) {
-		if(currentFriend == null)
-			return;
-		addString("[You] "+s);
-		if(currentFriend.client == null){
-			addString("       However your friend isn't connected!");
-			return;
-		}
-		
-		currentFriend.client.writeChat(s);
-	}
-	
-	public void setCurrentChannel(FriendsList f){
-		currentFriend = f;
-		enter.setWriteChannel(this);
-		
-		addString("Started Conversation with: "+f.connectionName);
+	protected void isFocused() {
 	}
 
+	@Override
+	protected void uppdate() {
+	}
+	
 }

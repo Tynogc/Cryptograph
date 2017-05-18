@@ -22,6 +22,8 @@ bin/*
 *.key
 log/*
 data/user/*
+data/bot/*
+data/server/*
 
 # =========================
 # Operating System Files

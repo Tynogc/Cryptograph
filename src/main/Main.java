@@ -44,6 +44,10 @@ public class Main {
 				new Server().run();
 				return;
 			}
+			if(st.bot){
+				new bots.BotControle().run();
+				return;
+			}
 		}
 		
 		new SeyprisMain(debFrame, graphicStartUp);

@@ -5,6 +5,7 @@ import java.security.spec.InvalidKeySpecException;
 import crypto.RSAcrypto;
 import cryptoUtility.NetEncryptionFrame;
 import network.CommunicationProcess;
+import network.FiFo;
 import network.Writable;
 
 public class ClientToClient extends CommunicationProcess implements Writable{
@@ -23,7 +24,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	public final String connectionTo;
 	
 	//TODO only a test!
-	private String lastMSG;
+	private FiFo lastMSG;
 	
 	/**
 	 * Generates a connection to a Client, the other Client must have been previously accepted.
@@ -36,6 +37,8 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 		super(l, n, ownName);
 		connectionTo = conTo;
 		debug.Debug.println(clientName+" "+connectionTo);
+		
+		lastMSG = new FiFo();
 	}
 
 	@Override
@@ -76,7 +79,7 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 					return true;
 				}
 				if(st[0].compareTo(COMCONSTANTS.CHAT_MSG)==0){
-					lastMSG = st[1];
+					lastMSG.in(st[1]);
 					return true;
 				}
 				
@@ -132,9 +135,9 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	
 	//TODO only a test
 	public String getLastMsg(){
-		String r = lastMSG;
-		lastMSG = null;
-		return r;
+		if(!lastMSG.contains())
+			return null;
+		return lastMSG.out();
 	}
 
 }

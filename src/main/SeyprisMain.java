@@ -79,7 +79,7 @@ public class SeyprisMain extends JPanel{
 		text.setText("Hello \n is this the new Text");
 		
 		//GuiControle.addMenu(new gui.TestSRSHA(200, 30, text));
-		GuiControle.addMenu(new gui.TestSCMHA(200, 30, text));
+		//GuiControle.addMenu(new gui.TestSCMHA(200, 30, text));
 		GuiControle.addMenu(new TextEnterAssist(300, 500, text));
 		//GuiControle.addMenu(new EnterPassword(new SetPassword(), key, true));
 		text.setWriteChannel(new Writable() {
@@ -177,14 +177,14 @@ public class SeyprisMain extends JPanel{
 		friendsControle.handleKnownFriend = new InboundConnectionHandler() {
 			@Override
 			public void connectionInbound(FriendsList friend) {
-				chat.setCurrentChannel(friend);//TODO notification only!
+				chat.openChannel(friend);//TODO notification only!
 			}
 		};
 		
 		friendsControle.handleClickedFriend = new InboundConnectionHandler() {
 			@Override
 			public void connectionInbound(FriendsList friend) {
-				chat.setCurrentChannel(friend);
+				chat.openChannel(friend);
 			}
 		};
 	}

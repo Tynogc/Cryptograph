@@ -13,6 +13,7 @@ public class UserManager {
 
 	private static final String userPre = "data/user/";
 	private static final String serverPre = "data/server/";
+	private static final String botPre = "data/bot/";
 	
 	private static String userDirectory = "";
 	private static String preDirectory = userPre;
@@ -35,9 +36,12 @@ public class UserManager {
 		return preDirectory;
 	}
 	
-	public UserManager(boolean server, DebugFrame f){
+	public UserManager(boolean server, boolean bot, DebugFrame f){
 		if(server){
 			preDirectory = serverPre;
+		}
+		if(bot){
+			preDirectory = botPre;
 		}
 		File[] far = new File(preDirectory).listFiles(new FileFilter() {
 			@Override

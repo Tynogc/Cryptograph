@@ -100,6 +100,7 @@ public class ConnectionBasics {
 		if(!FriendsControle.friends.add(cl, friendIntern)){
 			debug.Debug.println("*ERROR FriendsControle: Connection was Requested,"
 					+ " but friend not found!", debug.Debug.ERROR);
+			//TODO abort!
 		}
 		
 		return cl;

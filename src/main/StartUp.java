@@ -9,8 +9,8 @@ public class StartUp {
 	private boolean standartStartUp = true;
 	private boolean playIntro = true;
 	private boolean playIntroSimple = true;
-	private boolean spectator = false;
 	
+	public boolean bot = false;
 	public boolean server = false;
 	
 	public boolean startPicCrypto = false;
@@ -43,7 +43,7 @@ public class StartUp {
 	private void gtt(){
 		gte();
 		
-		new UserManager(server, frame);
+		new UserManager(server, bot, frame);
 		
 		user.KeyHandler kh = new user.KeyHandler();
 		if(kh.isPrivateKeyEncrypted()){
@@ -60,8 +60,12 @@ public class StartUp {
 		if(question(true)) return;
 		debug.Debug.println("* Start Server? [y|N]");
 		if(question(false)){
-			//TODO set user directory to Server!
 			server = true;
+			return;
+		}
+		debug.Debug.println("* Start Bot? [y|N]");
+		if(question(false)){
+			bot = true;
 			return;
 		}
 		

@@ -75,20 +75,23 @@ public class Container implements ButtonInterface{
 
 	@Override
 	public void leftReleased(int x, int y) {
-		content.leftReleased(x-xPos, y-yPos);
+		if(isVisible())
+			content.leftReleased(x-xPos, y-yPos);
 		next.leftReleased(x, y);	
 	}
 
 	@Override
 	public void checkMouse(int x, int y) {
-		update();
-		content.checkMouse(x-xPos, y-yPos);
+		if(isVisible()){
+			update();
+			content.checkMouse(x-xPos, y-yPos);
+		}
 		next.checkMouse(x, y);
 	}
 
 	@Override
 	public void paintYou(Graphics2D g) {
-		if(visible){
+		if(isVisible()){
 			if(doClip)
 				g.setClip(xPos, yPos, boundaryX, boundaryY);
 			if(fade<1)
@@ -121,7 +124,8 @@ public class Container implements ButtonInterface{
 
 	@Override
 	public void longTermUpdate() {
-		content.longTermUpdate();
+		if(isVisible())
+			content.longTermUpdate();
 		next.longTermUpdate();
 	}
 	
