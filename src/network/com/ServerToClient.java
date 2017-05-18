@@ -13,7 +13,7 @@ public class ServerToClient extends CommunicationProcess{
 	private long lastPingAt;
 	public int pingTime;
 	private boolean pingPending;
-	private static final int PINGTIME = 50000;
+	private static final int PINGTIME = 5000;
 	private int deadPings;
 	
 	private final Server server;

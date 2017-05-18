@@ -13,11 +13,14 @@ import javax.swing.SwingUtilities;
 
 import crypto.SRSEA;
 import network.Writable;
+import user.FriendsList;
+import user.InboundConnectionHandler;
 import debug.DebugFrame;
 import gui.EnterPassword;
 import gui.PicturSystem;
 import gui.TextEnterAssist;
 import gui.TextEnterField;
+import gui.chat.ChatControle;
 import gui.utility.Emots;
 
 public class SeyprisMain extends JPanel{
@@ -37,6 +40,7 @@ public class SeyprisMain extends JPanel{
 	private GuiControle gui;
 	
 	private TextEnterField text;
+	private ChatControle chat;
 	
 	private user.ClientControle clientControle;
 	private user.FriendsControle friendsControle;
@@ -98,6 +102,9 @@ public class SeyprisMain extends JPanel{
 				debug.Debug.println(" DONE");
 			}
 		});
+		
+		chat = new ChatControle(300, 100, text);
+		gui.setChatMenu(chat);
 		
 		//Set Menus
 		if(!graphicalStartup){
@@ -166,6 +173,20 @@ public class SeyprisMain extends JPanel{
 	public void startClientAndServerControle(){
 		clientControle = new user.ClientControle(gui.menuTopMenu);
 		friendsControle = new user.FriendsControle(clientControle, gui.menuTopMenu);
+		
+		friendsControle.handleKnownFriend = new InboundConnectionHandler() {
+			@Override
+			public void connectionInbound(FriendsList friend) {
+				chat.setCurrentChannel(friend);//TODO notification only!
+			}
+		};
+		
+		friendsControle.handleClickedFriend = new InboundConnectionHandler() {
+			@Override
+			public void connectionInbound(FriendsList friend) {
+				chat.setCurrentChannel(friend);
+			}
+		};
 	}
 	
 	public static int sizeX(){

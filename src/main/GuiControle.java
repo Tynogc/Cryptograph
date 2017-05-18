@@ -19,6 +19,7 @@ public class GuiControle {
 	private static MenuControle[] menus;
 	private MenuControle frameMenu;
 	private MenuControle textEnter;
+	private MenuControle chatMenu;
 	private static MenuControle superMenu;
 	
 	public final TopMenu menuTopMenu;
@@ -32,6 +33,7 @@ public class GuiControle {
 		mouse = m;
 		topMenu = new MenuControle();
 		debugMenu = new MenuControle();
+		chatMenu = new MenuControle();
 		menus = new MenuControle[10];
 		for (int i = 0; i < menus.length; i++) {
 			menus[i] = new MenuControle();
@@ -89,6 +91,11 @@ public class GuiControle {
 			right = false;
 			clicked = true;
 		}
+		if(chatMenu.mouseState(mouse.x, mouse.y, left, right, !clicked)){
+			left = false;
+			right = false;
+			clicked = true;
+		}
 		if(leftForFocus)
 			textEnter.leftClickForFocus(mouse.x, mouse.y);
 		
@@ -117,6 +124,7 @@ public class GuiControle {
 		if(superMenu.isActiv()){
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
 		}
+		chatMenu.paintYou(g);
 		textEnter.paintYou(g);
 		topMenu.paintYou(g);
 		debugMenu.paintYou(g);
@@ -156,6 +164,10 @@ public class GuiControle {
 	
 	public void setdebugMenu(AbstractMenu m){
 		debugMenu.setActivMenu(m);
+	}
+	
+	public void setChatMenu(AbstractMenu m){
+		chatMenu.setActivMenu(m);
 	}
 	
 	public static void setSuperMenu(AbstractMenu m){

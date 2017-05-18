@@ -29,7 +29,7 @@ public class Main {
 		//testSRSHA(100, 512);
 		testNumberEnc();
 		
-		doStartUp(true);
+		doStartUp(!true);
 	}
 	
 	public static void doStartUp(boolean graphicStartUp){

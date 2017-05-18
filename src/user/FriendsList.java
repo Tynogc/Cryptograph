@@ -12,8 +12,11 @@ public class FriendsList {
 	public ClientToClient client;
 	
 	public FriendsList next;
+	private final FriendsList me;
 	
 	public FriendsList(UserFriendConnection u, FriendsControle c){
+		me = this;
+		
 		connectionName = u.connectionName;
 		userFriendConn = u;
 		
@@ -24,8 +27,9 @@ public class FriendsList {
 			public void wasClicked() {
 				if(client == null){
 					controle.askConnection(userFriendConn);
+					controle.handleClickedFriend.connectionInbound(me);//TODO maybe remove
 				}else{
-					//TODO open chat
+					controle.handleClickedFriend.connectionInbound(me);
 				}
 			}
 			

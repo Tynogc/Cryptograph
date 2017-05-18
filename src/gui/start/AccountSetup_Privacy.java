@@ -116,6 +116,7 @@ public class AccountSetup_Privacy extends MoveMenu{
 					setTextColor(Color.white);
 				}else{
 					setTextColor(Color.red);
+					encrLists.setState(false);
 				}
 				encrKeyHandler.setDisabled(!b);
 				encrKeyHandler.setState(b);

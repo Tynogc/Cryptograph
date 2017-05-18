@@ -25,6 +25,11 @@ public class FriendsControle {
 	 */
 	public InboundConnectionHandler handleKnownFriend;
 	
+	/**
+	 * How to handle a manually started connection
+	 */
+	public InboundConnectionHandler handleClickedFriend;
+	
 	public FriendsControle(ClientControle c, gui.TopMenu t){
 		clients = c;
 		friends = this;
@@ -153,6 +158,11 @@ public class FriendsControle {
 		if(t == null){
 			debug.Debug.println("* Can't open Connection to "+friendsName, debug.Debug.ERROR);
 			debug.Debug.println(" Friend's Server not available!", debug.Debug.SUBERR);
+			return;
+		}
+		if(!recivingEnd.isConnected()){
+			debug.Debug.println("* Can't open Connection to "+friendsName, debug.Debug.ERROR);
+			debug.Debug.println(" Server is not connected!", debug.Debug.SUBERR);
 			return;
 		}
 		sameServer = sameServer | clients.isServerASameServer(friendsName);

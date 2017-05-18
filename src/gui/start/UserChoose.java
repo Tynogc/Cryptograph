@@ -5,9 +5,13 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.ImageIcon;
@@ -71,6 +75,17 @@ public class UserChoose extends OverswapMenu{
 			}
 		});
 		
+		String lastUser = null;
+		try {
+			FileReader fr = new FileReader(UserManager.getPreDirectory()+"default.set");
+			BufferedReader br = new BufferedReader(fr);
+			
+			lastUser = br.readLine();
+			br.close();
+		} catch (Exception e) {
+			debug.Debug.println("*ERROR loading User-Pref: "+e.getMessage(), debug.Debug.ERROR);
+		}
+		
 		users = new UserB[far.length];
 		for (int i = 0; i < users.length; i++) {
 			final int k = i;
@@ -90,7 +105,9 @@ public class UserChoose extends OverswapMenu{
 				}
 			};
 			add(users[i]);
-			users[i].setText(""+k);
+			
+			if(far[i].getName().compareTo(lastUser)==0)
+				activ = i;
 		}
 		animCount = System.currentTimeMillis();
 		
@@ -260,6 +277,19 @@ public class UserChoose extends OverswapMenu{
 					red = false;
 					main.startClientAndServerControle();
 					check = true;
+					
+					//Save Pref
+					PrintWriter writer = null; 
+					try { 
+						writer = new PrintWriter(new FileWriter(UserManager.getPreDirectory()+"default.set")); 
+						writer.println(path);
+						
+						writer.flush();
+						writer.close();
+					}catch(Exception e){
+						debug.Debug.println("*ERROR saving User-Pref: "+e.getMessage(), debug.Debug.ERROR);
+					}
+					
 					closeIntern();
 				}else{
 					red = true;

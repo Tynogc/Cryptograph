@@ -2,15 +2,13 @@ package gui.start;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.concurrent.Semaphore;
 
-import gui.EnterPassword;
 import gui.utility.Emots;
 import main.Fonts;
-import main.GuiControle;
 import main.Language;
 import main.PicLoader;
-import main.SeyprisMain;
 import menu.Button;
 import menu.MoveMenu;
 import network.Writable;
@@ -40,12 +38,20 @@ public class AccountSetup_Final extends MoveMenu implements Writable{
 			protected void isClicked() {
 				if(isProcessing)return;
 				isProcessing = true;
+				setDisabled(true);
 				new Thread(){
 					public void run() {
 						controle.finish(ifft);
 						closeYou();
 					};
 				}.start();
+			}
+			
+			@Override
+			public void paintYou(Graphics2D g) {
+				super.paintYou(g);
+				if(isProcessing)
+					Emots.emots.drawLoadingCircle(g, xPos+115, yPos);
 			}
 		};
 		ok.setText(Language.lang.text(102));
@@ -80,6 +86,7 @@ public class AccountSetup_Final extends MoveMenu implements Writable{
 
 	@Override
 	protected void paintSecond(Graphics g) {
+		g.drawImage(controle.imageSmal, 50, 50, null);
 		
 		g.setFont(Fonts.fontSans12);
 		g.setColor(Color.black);
@@ -96,14 +103,12 @@ public class AccountSetup_Final extends MoveMenu implements Writable{
 		for (int i = 0; i < info.length; i++) {
 			g.drawString(info[i], 40, 304+i*12);
 		}
-		if(isProcessing)
-			Emots.emots.drawLoadingCircle(g, 190, 450);
 		sema.release();
 	}
 
 	@Override
 	protected boolean close() {
-		return false;
+		return true;//TODO ask
 	}
 
 	@Override

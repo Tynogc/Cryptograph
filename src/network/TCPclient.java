@@ -189,7 +189,8 @@ public class TCPclient implements Writable{
 		String s = e.str;
 		try {
 			s = RSAcrypto.decrypt(s, encryptionFrame.getOtherKey(), true);
-			System.out.println("RECIVER --> "+s);
+			if(!s.startsWith(COMCONSTANTS.PING))
+				System.out.println("RECIVER --> "+s);
 			process.processString(s);
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block

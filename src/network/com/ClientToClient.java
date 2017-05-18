@@ -22,6 +22,9 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 	 */
 	public final String connectionTo;
 	
+	//TODO only a test!
+	private String lastMSG;
+	
 	/**
 	 * Generates a connection to a Client, the other Client must have been previously accepted.
 	 * @param l Writable for the Response-Stream, must be on the Server for return connection.
@@ -58,8 +61,8 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 				
 				System.out.println(sdc);
 				try {
-					sdc = RSAcrypto.decrypt(sdc, key.getMyKey(), false);
-					sdc = RSAcrypto.decrypt(sdc, key.getOtherKey(), true);
+					byte[] b = RSAcrypto.decryptByte(sdc, key.getMyKey(), false);
+					sdc = RSAcrypto.decrypt(b, key.getOtherKey(), true);
 				} catch (Exception e) {
 					debug.Debug.println("*ERROR decrypting incomming Message: "+e.toString(), debug.Debug.ERROR);
 					return false;
@@ -70,6 +73,10 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 				if(st.length<2)return false;
 				if(st[0].compareTo(COMCONSTANTS.KEY_EXCHANGE_START)==0){
 					addToSubsets(new KeyExchange(this, key, false, st[1], clientName));
+					return true;
+				}
+				if(st[0].compareTo(COMCONSTANTS.CHAT_MSG)==0){
+					lastMSG = st[1];
 					return true;
 				}
 				
@@ -110,13 +117,24 @@ public class ClientToClient extends CommunicationProcess implements Writable{
 			debug.Debug.println(s+", should be send, however ther is no key to do so...", debug.Debug.WARN);
 			return;
 		}
-		s = RSAcrypto.encrypt(s, key.getMyKey(), false);
-		s = RSAcrypto.encrypt(s, key.getOtherKey(), true);
+		byte[] b = RSAcrypto.encryptByte(s, key.getMyKey(), false);
+		s = RSAcrypto.encrypt(b, key.getOtherKey(), true);
 		linker.write(ConnectionBasics.generateHeader(clientName, connectionTo) + COMCONSTANTS.DIV_HEADER + s);
 	}
 	
 	public NetEncryptionFrame getNef(){
 		return key;
+	}
+	
+	public void writeChat(String s){
+		write(COMCONSTANTS.CHAT_MSG + COMCONSTANTS.DIV_HEADER + s);
+	}
+	
+	//TODO only a test
+	public String getLastMsg(){
+		String r = lastMSG;
+		lastMSG = null;
+		return r;
 	}
 
 }

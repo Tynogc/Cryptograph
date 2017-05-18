@@ -23,4 +23,6 @@ public class COMCONSTANTS {
 	
 	//Respond on the same server as send, is used by one-Side local-Network-Connections
 	public static final String SERVER_SAMESERVER = "server$same$";
+	
+	public static final String CHAT_MSG = "chatMessage";
 }
