@@ -17,7 +17,7 @@ public class BotControle extends Thread{
 	public user.FriendsControle friends;
 	public user.ClientControle servers;
 	
-	public String[] initialStatement;
+	public static String[] initialStatement;
 	
 	public BotControle(){
 		
@@ -60,9 +60,8 @@ public class BotControle extends Thread{
 			public void connectionInbound(FriendsList friend) {
 				if(friend.client == null)
 					return;
-				for (int j = 0; j < initialStatement.length; j++) {
-					friend.client.writeChat(initialStatement[j]);
-				}
+				
+				new BotHandler(friend).start();
 			}
 		};
 	}
@@ -81,7 +80,7 @@ public class BotControle extends Thread{
 	
 	public void loop(){
 		try {
-			sleep(50);
+			sleep(100);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

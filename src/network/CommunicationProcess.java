@@ -72,4 +72,10 @@ public abstract class CommunicationProcess {
 		return terminated;
 	}
 	
+	public boolean isKeyVerified(){
+		if(key == null)
+			return false;
+		return key.isSuperKeyVerifyed();
+	}
+	
 }

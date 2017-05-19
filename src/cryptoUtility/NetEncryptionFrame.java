@@ -56,6 +56,7 @@ public class NetEncryptionFrame {
 
 	public void setOtherSuperKey(RSAsaveKEY key) {
 		userSuperKey = key;
+		superKeyVerifyed = false;
 	}
 	
 	public boolean isSuperKeyVerifyed(){
