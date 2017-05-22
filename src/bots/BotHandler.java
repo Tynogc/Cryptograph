@@ -11,7 +11,7 @@ public class BotHandler extends Thread{
 	public BotHandler(FriendsList f){
 		super(f.connectionName);
 		friend = f;
-		needInit = false;
+		needInit = true;
 	}
 	
 	@Override

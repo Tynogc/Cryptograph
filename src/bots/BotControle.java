@@ -1,6 +1,7 @@
 package bots;
 
 import gui.TopMenu;
+import gui.chat.ChatSite;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -19,29 +20,53 @@ public class BotControle extends Thread{
 	
 	public static String[] initialStatement;
 	
+	public static final String bot = "#BOT# ";
+	public static final String windowStart = "WIN_START";
+	public static final String windowEnd = "WIN_END";
+	
 	public BotControle(){
+		this(null, null);
+	}
+	
+	public BotControle(String dir, ChatSite test){
 		
 		String s;
 		int i = 0;
+		if(dir == null)
+			dir = UserManager.getUserDir()+"init.txt";
 		try {
-			FileReader fr = new FileReader(UserManager.getUserDir()+"init.txt");
+			FileReader fr = new FileReader(dir);
 			BufferedReader br = new BufferedReader(fr);
 			
 			s = br.readLine();
 			while (s != null) {
-				i++;
+				if(!s.startsWith(windowStart) && !s.startsWith(windowEnd) && !s.startsWith("//"))
+					i++;
 				s = br.readLine();
 			}
 			
-			fr = new FileReader(UserManager.getUserDir()+"init.txt");
+			fr = new FileReader(dir);
 			br = new BufferedReader(fr);
 			
 			s = br.readLine();
 			initialStatement = new String[i];
 			i = 0;
+			boolean win = false;
 			while (s != null) {
-				initialStatement[i] = s;
-				i++;
+				if(s.startsWith(windowStart)){
+					win = true;
+				}else if(s.startsWith(windowEnd)){
+					win = false;
+				}else if(s.startsWith("//")){
+					
+				}else{
+					if(win)
+						initialStatement[i] = bot+s;
+					else
+						initialStatement[i] = s;
+					
+					i++;
+				}
 				s = br.readLine();
 			}
 			br.close();
@@ -50,6 +75,15 @@ public class BotControle extends Thread{
 			return;
 		}
 		debug.Debug.println("-Bot loaded: " + initialStatement.length + " Lines of initial Statement!");
+		
+		if(test != null){
+			for (int j = 0; j < initialStatement.length; j++) {
+				if(initialStatement[j].startsWith(bot))
+					test.command(initialStatement[j].substring(bot.length()));
+			}
+			return;
+		}
+		
 		new PicLoader();
 		TopMenu t = new TopMenu();
 		servers = new ClientControle(t);

@@ -237,3 +237,5 @@ res/ima/smi/te1.png
 res/ima/smi/te1.png
 res/ima/smi/warnwin.png
 res/ima/smi/warnwin.png
+res/ima/mbe/m800x600.png
+res/ima/mbe/m800x600.png

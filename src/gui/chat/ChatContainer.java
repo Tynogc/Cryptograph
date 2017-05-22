@@ -18,8 +18,6 @@ public class ChatContainer extends Container implements Writable{
 	
 	private ChatSite chatSite;
 	
-	private BufferedImage[] bubbles;
-	
 	private String[] text;
 	
 	public ChatContainer(int x, int y, TextEnterField t, FriendsList c) {
@@ -53,6 +51,13 @@ public class ChatContainer extends Container implements Writable{
 		String s = comTo.client.getLastMsg();
 		if(s == null)
 			return;
+		
+		if(s.startsWith(bots.BotControle.bot)){
+			if(chatSite == null)
+				chatSite = new ChatSite(getxPos(), getyPos(), "Comand-Window");
+			
+			chatSite.command(s.substring(bots.BotControle.bot.length()));
+		}
 		
 		addString("["+comTo.connectionName+"]: "+s);
 	}

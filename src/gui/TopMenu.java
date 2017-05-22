@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import cryptoUtility.Random;
+import gui.chat.ChatSite;
 import gui.sub.SideContainer;
 import gui.utility.Emots;
 import main.GuiControle;
@@ -32,12 +33,14 @@ public class TopMenu extends AbstractMenu{
 		Button b1 = new Button(20,50,"res/ima/cli/b"){
 			@Override
 			protected void isClicked() {
-				PicturSystem pc = new PicturSystem(30, 100);
+				/*PicturSystem pc = new PicturSystem(30, 100);
 				GuiControle.addMenu(pc);
 				SetPassword sp = new SetPassword();
 				GuiControle.setSuperMenu(new EnterPassword(sp, SeyprisMain.getKL(), true));
-				pc.setPassword(sp);
-				//new network.TCPserver(1234);
+				pc.setPassword(sp);*/
+				ChatSite c = new ChatSite(100, 100, "TEST");
+				GuiControle.addMenu(c);
+				new bots.BotControle("data/bot/GartenBot/init.txt", c);
 			}
 			@Override
 			protected void isFocused() {
